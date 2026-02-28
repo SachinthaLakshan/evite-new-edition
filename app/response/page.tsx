@@ -1,6 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import PublicRSVP from "@/legacy-pages/PublicRSVP";
 
+// Force this page to be fully dynamic so it is not prerendered at build time
+export const dynamic = "force-dynamic";
+
 const getBaseUrl = () => {
   return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 };
@@ -16,19 +19,23 @@ export async function generateMetadata({
   let title = "Event Invitation";
   let description = "You are invited";
 
-  if (eventId) {
-    const { data: event } = await supabase
-      .from("events")
-      .select("title, description")
-      .eq("id", eventId)
-      .maybeSingle();
+  try {
+    if (eventId) {
+      const { data: event } = await supabase
+        .from("events")
+        .select("title, description")
+        .eq("id", eventId)
+        .maybeSingle();
 
-    if (event?.title) {
-      title = `${event.title} | Invitation`;
+      if (event?.title) {
+        title = `${event.title} | Invitation`;
+      }
+      if (event?.description) {
+        description = event.description;
+      }
     }
-    if (event?.description) {
-      description = event.description;
-    }
+  } catch {
+    // If Supabase metadata lookup fails, fall back to defaults
   }
 
   const ogUrl = new URL("/response/og", getBaseUrl());

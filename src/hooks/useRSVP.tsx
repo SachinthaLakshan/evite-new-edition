@@ -50,9 +50,11 @@ export const useRSVP = (eventId: string | null, attendeeId: string | null) => {
   }, [eventId, attendeeId]);
 
   // Update theme styles when event data is loaded
-  if (event && !themeStyles) {
-    setThemeStyles(getThemeStyles(event.theme_id));
-  }
+  useEffect(() => {
+    if (event) {
+      setThemeStyles(getThemeStyles(event.theme_id));
+    }
+  }, [event]);
 
   // Toggle background music
   const toggleMusic = () => {
