@@ -6,16 +6,16 @@ import {
 } from "react-router-dom";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Dashboard from "@/pages/Dashboard";
-import Auth from "@/pages/Auth";
-import NotFound from "@/pages/NotFound";
-import EventDetails from "@/pages/EventDetails";
-import PublicRSVP from "@/pages/PublicRSVP";
-import CreateEvent from "@/pages/CreateEvent";
+import Dashboard from "@/legacy-pages/Dashboard";
+import Auth from "@/legacy-pages/Auth";
+import NotFound from "@/legacy-pages/NotFound";
+import EventDetails from "@/legacy-pages/EventDetails";
+import PublicRSVP from "@/legacy-pages/PublicRSVP";
+import CreateEvent from "@/legacy-pages/CreateEvent";
 import { AuthProvider } from "@/components/AuthProvider";
-import Profile from "@/pages/Profile";
-import Landing from "./pages/Index";
-import ShortUrlRedirect from "./pages/ShortUrlRedirect";
+import Profile from "@/legacy-pages/Profile";
+import Landing from "@/legacy-pages/Index";
+import ShortUrlRedirect from "@/legacy-pages/ShortUrlRedirect";
 
 const queryClient = new QueryClient();
 
