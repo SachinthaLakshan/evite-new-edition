@@ -3,12 +3,6 @@ import { ImageResponse } from "next/og";
 import { supabase } from "@/integrations/supabase/client";
 
 export const runtime = "edge";
-// export const alt = "Event Invitation";
-export const contentType = "image/png";
-export const size = {
-  width: 1200,
-  height: 630,
-};
 
 async function fetchData(eventId?: string, attendeeId?: string) {
   let eventTitle = "You are invited";
@@ -209,5 +203,8 @@ export async function GET(request: Request) {
     ),
   );
 
-  return new ImageResponse(element, size);
+  return new ImageResponse(element, {
+    width: 1200,
+    height: 630,
+  });
 }
