@@ -38,9 +38,7 @@ export async function generateMetadata({
     // If Supabase metadata lookup fails, fall back to defaults
   }
 
-  const ogUrl = new URL("/response/og", getBaseUrl());
-  if (eventId) ogUrl.searchParams.set("eventId", eventId);
-  if (attendeeId) ogUrl.searchParams.set("attendeeId", attendeeId);
+  const imageUrl = new URL("/assets/floral-bg.jpg", getBaseUrl()).toString();
 
   return {
     title,
@@ -49,13 +47,13 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
-      images: [ogUrl.toString()],
+      images: [imageUrl],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [ogUrl.toString()],
+      images: [imageUrl],
     },
   };
 }
