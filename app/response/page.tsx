@@ -5,7 +5,18 @@ import PublicRSVP from "@/legacy-pages/PublicRSVP";
 export const dynamic = "force-dynamic";
 
 const getBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  // Check Vercel deployment URLs (System Environment Variables)
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // Fallback to custom NEXT_PUBLIC_SITE_URL if not local
+  if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+  return "http://localhost:3000";
 };
 
 export async function generateMetadata({
@@ -38,7 +49,7 @@ export async function generateMetadata({
     // If Supabase metadata lookup fails, fall back to defaultsll
   }
 
-  const imageUrl = new URL("/assets/floral-bg.jpg", getBaseUrl()).toString();
+  const imageUrl = new URL("/assets/floral-bg-og.jpg", getBaseUrl()).toString();
 
   return {
     title,
