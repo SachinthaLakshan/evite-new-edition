@@ -184,7 +184,16 @@ export function EventList({
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    const baseUrl = window.location.origin;
+                    const baseUrl =
+                      process.env.NEXT_PUBLIC_SITE_URL ||
+                      process.env.NEXT_PUBLIC_BASE_URL ||
+                      (typeof window !== "undefined" && window.location
+                        ? window.location.origin
+                        : "");
+                    if (!baseUrl) {
+                      toast.error("Unable to determine base URL to share.");
+                      return;
+                    }
                     const eventUrl = `${baseUrl}/response?eventId=${selectedEvent.id}`;
                     navigator.clipboard.writeText(eventUrl);
                     toast.success("Public Event link copied!");

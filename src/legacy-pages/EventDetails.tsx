@@ -180,8 +180,14 @@ export default function EventDetails() {
   const handleShareLink = async () => {
     try {
       setIsSharing(true);
-      const baseUrl = window.location.origin;
-      const eventUrl = `${baseUrl}/response?eventId=${event?.id}`;
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+      const eventUrl = `${baseUrl || ""}/response?eventId=${event?.id}`;
+
+      if (!baseUrl) {
+        toast.error("Unable to determine base URL to share.");
+        return;
+      }
 
       // Create a short URL
       const shortUrl = await createShortUrl(eventUrl);
@@ -590,7 +596,19 @@ export default function EventDetails() {
                                   className="text-primary hover:text-primary-700 hover:bg-primary-50"
                                   onClick={async () => {
                                     try {
-                                      const baseUrl = window.location.origin;
+                                      const baseUrl =
+                                        process.env.NEXT_PUBLIC_SITE_URL ||
+                                        process.env.NEXT_PUBLIC_BASE_URL ||
+                                        (typeof window !== "undefined" &&
+                                        window.location
+                                          ? window.location.origin
+                                          : "");
+                                      if (!baseUrl) {
+                                        toast.error(
+                                          "Unable to determine base URL to share.",
+                                        );
+                                        return;
+                                      }
                                       const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
 
                                       // Create a short URL

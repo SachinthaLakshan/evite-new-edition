@@ -5,7 +5,6 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 
-// Create a shareable event component
 const ShareEventButton = ({ event }) => {
   const [sharingSharingId, setSharingId] = useState<string | null>(null);
 
@@ -17,7 +16,16 @@ const ShareEventButton = ({ event }) => {
       onClick={async () => {
         try {
           setSharingId(event.id);
-          const baseUrl = window.location.origin;
+          const baseUrl =
+            process.env.NEXT_PUBLIC_SITE_URL ||
+            process.env.NEXT_PUBLIC_BASE_URL ||
+            (typeof window !== "undefined" && window.location
+              ? window.location.origin
+              : "");
+          if (!baseUrl) {
+            toast.error("Unable to determine base URL to share.");
+            return;
+          }
           const eventUrl = `${baseUrl}/response?eventId=${event.id}`;
           
           // Create a short URL

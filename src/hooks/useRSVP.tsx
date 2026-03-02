@@ -111,8 +111,17 @@ export const useRSVP = (eventId: string | null, attendeeId: string | null) => {
   const shareCurrentPage = async () => {
     try {
       setIsSharing(true);
-      // Get the current URL
-      const currentUrl = window.location.href;
+      const envUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+      const currentUrl =
+        typeof window !== "undefined" && window.location
+          ? window.location.href
+          : envUrl;
+
+      if (!currentUrl) {
+        toast.error("Unable to determine current URL to share.");
+        return;
+      }
 
       // Create a short URL
       const shortUrl = await createShortUrl(currentUrl);
