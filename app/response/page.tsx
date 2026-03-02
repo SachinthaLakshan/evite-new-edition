@@ -35,7 +35,7 @@ export async function generateMetadata({
       }
     }
   } catch {
-    // If Supabase metadata lookup fails, fall back to defaults
+    // If Supabase metadata lookup fails, fall back to defaultsll
   }
 
   const imageUrl = new URL("/assets/floral-bg.jpg", getBaseUrl()).toString();
