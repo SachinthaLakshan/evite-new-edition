@@ -6,11 +6,14 @@ export type AttendeeResponse = "pending" | "accepted" | "declined";
 export interface Event {
   id: string;
   title: string;
+  bride_name?: string | null;
+  groom_name?: string | null;
   date: string;
   description?: string | null;
   location: string;
   location_url?: string | null;
   image_url?: string | null;
+  background_image_url?: string | null;
   slider_images?: string[] | null;
   status: EventStatus;
   user_id?: string | null;

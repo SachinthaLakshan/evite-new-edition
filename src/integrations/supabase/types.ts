@@ -53,11 +53,14 @@ export type Database = {
       events: {
         Row: {
           agenda: Json | null
+          bride_name: string | null
           created_at: string
           date: string
           description: string | null
+          groom_name: string | null
           id: string
           image_url: string | null
+          background_image_url: string | null
           location: string
           location_url: string | null
           slider_images: string[] | null
@@ -69,11 +72,14 @@ export type Database = {
         }
         Insert: {
           agenda?: Json | null
+          bride_name?: string | null
           created_at?: string
           date: string
           description?: string | null
+          groom_name?: string | null
           id?: string
           image_url?: string | null
+          background_image_url?: string | null
           location: string
           location_url?: string | null
           slider_images?: string[] | null
@@ -85,11 +91,14 @@ export type Database = {
         }
         Update: {
           agenda?: Json | null
+          bride_name?: string | null
           created_at?: string
           date?: string
           description?: string | null
+          groom_name?: string | null
           id?: string
           image_url?: string | null
+          background_image_url?: string | null
           location?: string
           location_url?: string | null
           slider_images?: string[] | null

@@ -20,6 +20,7 @@ import {
   XIcon,
   PlusIcon,
   Loader2,
+  PencilIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Event } from "@/types/event";
@@ -60,8 +61,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { isValidImageUrl } from "@/lib/utils";
-import { useState } from "react";
+import { isValidGoogleMapsUrl, isValidImageUrl } from "@/lib/utils";
+import { useEffect, useState } from "react";
 import { getStatusColor } from "@/lib/utils";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { createShortUrl } from "@/lib/url-shortener";
@@ -69,6 +70,19 @@ import InvitationPreviewCard from "@/components/event/InvitationPreviewCard";
 
 // Add after imports
 type SliderInputType = "file" | "link";
+type EditEventFormState = {
+  title: string;
+  bride_name: string;
+  groom_name: string;
+  description: string;
+  date: string;
+  time: string;
+  location: string;
+  location_url: string;
+  status: string;
+  theme_id: string;
+  background_image_url: string;
+};
 
 export default function EventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -147,7 +161,7 @@ export default function EventDetails() {
 
       // Delete from storage
       const { error: storageError } = await supabase.storage
-        .from("events")
+        .from("event-images")
         .remove([filePath]);
 
       if (storageError) throw storageError;
@@ -206,6 +220,44 @@ export default function EventDetails() {
   const [sliderInputType, setSliderInputType] =
     useState<SliderInputType>("file");
   const [newImageLink, setNewImageLink] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isUpdatingEvent, setIsUpdatingEvent] = useState(false);
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editBackgroundImageFile, setEditBackgroundImageFile] = useState<File | null>(null);
+  const [editForm, setEditForm] = useState<EditEventFormState>({
+    title: "",
+    bride_name: "",
+    groom_name: "",
+    description: "",
+    date: "",
+    time: "",
+    location: "",
+    location_url: "",
+    status: "upcoming",
+    theme_id: "vertical",
+    background_image_url: "",
+  });
+
+  useEffect(() => {
+    if (!event?.date) return;
+    const eventDate = new Date(event.date);
+    const localDate = new Date(eventDate.getTime() - eventDate.getTimezoneOffset() * 60000);
+    const isoDateTime = localDate.toISOString();
+
+    setEditForm({
+      title: event.title || "",
+      bride_name: event.bride_name || "",
+      groom_name: event.groom_name || "",
+      description: event.description || "",
+      date: isoDateTime.slice(0, 10),
+      time: isoDateTime.slice(11, 16),
+      location: event.location || "",
+      location_url: event.location_url || "",
+      status: event.status || "upcoming",
+      theme_id: event.theme_id || "vertical",
+      background_image_url: event.background_image_url || "",
+    });
+  }, [event]);
 
   const handleAddImageLink = async () => {
     if (!event || !id) return;
@@ -260,14 +312,14 @@ export default function EventDetails() {
       const fileName = `${id}-${Date.now()}.${fileExt}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("events")
+        .from("event-images")
         .upload(`slider/${fileName}`, file);
 
       if (uploadError) throw uploadError;
 
       const {
         data: { publicUrl },
-      } = supabase.storage.from("events").getPublicUrl(`slider/${fileName}`);
+      } = supabase.storage.from("event-images").getPublicUrl(`slider/${fileName}`);
 
       const newSliderImages = [...(event.slider_images || []), publicUrl];
 
@@ -294,6 +346,7 @@ export default function EventDetails() {
       const storagePaths = [
         ...(event.slider_images || []).map((url) => url.split("/").pop()),
         event.image_url?.split("/").pop(),
+        event.background_image_url?.split("/").pop(),
       ].filter(Boolean) as string[];
 
       // Delete images from storage
@@ -400,6 +453,101 @@ export default function EventDetails() {
     await handleReuploadMainImage(e);
   };
 
+  const handleUpdateEvent = async () => {
+    if (!event || !id) return;
+    if (
+      !editForm.title.trim() ||
+      !editForm.bride_name.trim() ||
+      !editForm.groom_name.trim() ||
+      !editForm.location.trim() ||
+      !editForm.date ||
+      !editForm.time
+    ) {
+      toast.error("Title, bride name, groom name, date, time, and location are required.");
+      return;
+    }
+
+    if (editForm.location_url && !isValidGoogleMapsUrl(editForm.location_url)) {
+      toast.error("Please enter a valid Google Maps URL.");
+      return;
+    }
+
+    setIsUpdatingEvent(true);
+    try {
+      let nextImageUrl = event.image_url || null;
+      let nextBackgroundImageUrl = event.background_image_url || null;
+
+      if (editBackgroundImageFile) {
+        if (editBackgroundImageFile.size > 2 * 1024 * 1024) {
+          toast.error("Background image size should be less than 2MB.");
+          return;
+        }
+        const fileExt = editBackgroundImageFile.name.split(".").pop();
+        const fileName = `${session?.user?.id}/${id}-bg-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("event-images")
+          .upload(fileName, editBackgroundImageFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from("event-images").getPublicUrl(fileName);
+        nextBackgroundImageUrl = publicUrl;
+      }
+
+      if (editImageFile) {
+        if (editImageFile.size > 2 * 1024 * 1024) {
+          toast.error("Main image size should be less than 2MB.");
+          return;
+        }
+
+        const fileExt = editImageFile.name.split(".").pop();
+        const fileName = `${session?.user?.id}/${id}-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("event-images")
+          .upload(fileName, editImageFile);
+
+        if (uploadError) throw uploadError;
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("event-images").getPublicUrl(fileName);
+
+        nextImageUrl = publicUrl;
+      }
+
+      const eventDateTime = new Date(`${editForm.date}T${editForm.time}`);
+
+      const { error } = await supabase
+        .from("events")
+        .update({
+          title: editForm.title,
+          bride_name: editForm.bride_name,
+          groom_name: editForm.groom_name,
+          description: editForm.description || null,
+          date: eventDateTime.toISOString(),
+          location: editForm.location,
+          location_url: editForm.location_url || null,
+          status: editForm.status,
+          theme_id: editForm.theme_id,
+          image_url: nextImageUrl,
+          background_image_url: nextBackgroundImageUrl,
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      await queryClient.invalidateQueries({ queryKey: ["event", id] });
+      await queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast.success("Event updated successfully");
+      setIsEditDialogOpen(false);
+      setEditImageFile(null);
+    } catch (error) {
+      console.error("Error updating event:", error);
+      toast.error("Failed to update event");
+    } finally {
+      setIsUpdatingEvent(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -431,23 +579,226 @@ export default function EventDetails() {
             <ArrowLeftIcon className="w-4 h-4" />
             Back to Dashboard
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleShareLink}
-            disabled={isSharing}
-          >
-            {isSharing ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              <>
-                <Share2Icon className="w-4 h-4 mr-2" />
-                Share Event
-              </>
+          <div className="flex items-center gap-2">
+            {session?.user.id === event.user_id && (
+              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <PencilIcon className="w-4 h-4 mr-2" />
+                    Edit Event
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Edit Event Details</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-title">Title</Label>
+                      <Input
+                        id="edit-title"
+                        value={editForm.title}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({ ...prev, title: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-bride-name">Bride Name</Label>
+                        <Input
+                          id="edit-bride-name"
+                          value={editForm.bride_name}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              bride_name: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-groom-name">Groom Name</Label>
+                        <Input
+                          id="edit-groom-name"
+                          value={editForm.groom_name}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              groom_name: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-description">Description</Label>
+                      <textarea
+                        id="edit-description"
+                        value={editForm.description}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            description: e.target.value,
+                          }))
+                        }
+                        className="w-full min-h-24 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-date">Date</Label>
+                        <Input
+                          id="edit-date"
+                          type="date"
+                          value={editForm.date}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, date: e.target.value }))
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-time">Time</Label>
+                        <Input
+                          id="edit-time"
+                          type="time"
+                          value={editForm.time}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, time: e.target.value }))
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-location">Location</Label>
+                      <Input
+                        id="edit-location"
+                        value={editForm.location}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            location: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-location-url">Google Maps URL</Label>
+                      <Input
+                        id="edit-location-url"
+                        type="url"
+                        value={editForm.location_url}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            location_url: e.target.value,
+                          }))
+                        }
+                        placeholder="https://maps.google.com/..."
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-status">Status</Label>
+                        <select
+                          id="edit-status"
+                          value={editForm.status}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, status: e.target.value }))
+                          }
+                          className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        >
+                          <option value="upcoming">Upcoming</option>
+                          <option value="ongoing">Ongoing</option>
+                          <option value="completed">Completed</option>
+                          <option value="cancelled">Cancelled</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-theme">Theme</Label>
+                        <select
+                          id="edit-theme"
+                          value={editForm.theme_id}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, theme_id: e.target.value }))
+                          }
+                          className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        >
+                          <option value="vertical">Vertical</option>
+                          <option value="circular">Circular</option>
+                          <option value="diagonal">Diagonal</option>
+                          <option value="stacked">Stacked</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-main-image">Main Image (optional replacement)</Label>
+                      <Input
+                        id="edit-main-image"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setEditImageFile(file);
+                        }}
+                      />
+                      {editImageFile && (
+                        <p className="text-xs text-gray-500">Selected: {editImageFile.name}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-background-image">Background Image (optional replacement)</Label>
+                      <Input
+                        id="edit-background-image"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setEditBackgroundImageFile(file);
+                        }}
+                      />
+                      {editBackgroundImageFile && (
+                        <p className="text-xs text-gray-500">Selected: {editBackgroundImageFile.name}</p>
+                      )}
+                    </div>
+                    <div className="flex justify-end gap-2 pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setIsEditDialogOpen(false);
+                          setEditImageFile(null);
+                        }}
+                        disabled={isUpdatingEvent}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="button" onClick={handleUpdateEvent} disabled={isUpdatingEvent}>
+                        {isUpdatingEvent ? "Saving..." : "Save Changes"}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             )}
-          </Button>
+            <Button
+              variant="outline"
+              onClick={handleShareLink}
+              disabled={isSharing}
+            >
+              {isSharing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Share2Icon className="w-4 h-4 mr-2" />
+                  Share Event
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -461,6 +812,12 @@ export default function EventDetails() {
               <CardTitle className="text-2xl font-bold mt-2">
                 {event.title}
               </CardTitle>
+              {(event.bride_name || event.groom_name) && (
+                <p className="text-sm text-gray-600 mt-1">
+                  {event.bride_name || "Bride"} {event.bride_name && event.groom_name ? "&" : ""}{" "}
+                  {event.groom_name || "Groom"}
+                </p>
+              )}
             </CardHeader>
             <CardContent className="space-y-6">
               {event.image_url && (

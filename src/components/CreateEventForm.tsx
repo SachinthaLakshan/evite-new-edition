@@ -29,6 +29,10 @@ const CreateEventForm = () => {
     setImageFile,
     imagePreview,
     setImagePreview,
+    backgroundImageFile,
+    setBackgroundImageFile,
+    backgroundImagePreview,
+    setBackgroundImagePreview,
     sliderImages,
     setSliderImages,
     newImageLink,
@@ -87,6 +91,8 @@ const CreateEventForm = () => {
         errors={errors}
         imageFile={imageFile}
         imagePreview={imagePreview}
+        backgroundImageFile={backgroundImageFile}
+        backgroundImagePreview={backgroundImagePreview}
         handleInputChange={handleInputChange}
         handleImageChange={(e) => {
           const file = e.target.files?.[0];
@@ -97,6 +103,16 @@ const CreateEventForm = () => {
         removeImage={() => {
           setImageFile(null);
           setImagePreview("");
+        }}
+        handleBackgroundImageChange={(e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          setBackgroundImageFile(file);
+          setBackgroundImagePreview(URL.createObjectURL(file));
+        }}
+        removeBackgroundImage={() => {
+          setBackgroundImageFile(null);
+          setBackgroundImagePreview("");
         }}
         getMinDate={getMinDate}
         getMinTime={getMinTime}

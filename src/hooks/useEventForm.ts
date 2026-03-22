@@ -20,18 +20,23 @@ export const useEventForm = () => {
   const { session } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     title: "",
+    bride_name: "",
+    groom_name: "",
     description: "",
     date: "",
     time: "",
     location: "",
     location_url: "",
     image_url: "",
+    background_image_url: "",
     theme_id: availableThemes[0].id,
     invitation_config: undefined,
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null);
+  const [backgroundImagePreview, setBackgroundImagePreview] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [sliderImages, setSliderImages] = useState<SliderImage[]>([]);
   const [newImageLink, setNewImageLink] = useState("");
@@ -71,6 +76,14 @@ export const useEventForm = () => {
 
     if (!formData.title.trim()) {
       errors.title = "Title is required";
+    }
+
+    if (!formData.bride_name.trim()) {
+      errors.bride_name = "Bride name is required";
+    }
+
+    if (!formData.groom_name.trim()) {
+      errors.groom_name = "Groom name is required";
     }
 
     if (!formData.date) {
@@ -154,6 +167,24 @@ export const useEventForm = () => {
         mainImageUrl = publicUrl;
       }
 
+      let backgroundImageUrl = "";
+      if (backgroundImageFile) {
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("event-images")
+          .upload(
+            `${session.user.id}/${Date.now()}-bg-${backgroundImageFile.name}`,
+            backgroundImageFile,
+          );
+
+        if (uploadError) throw uploadError;
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("event-images").getPublicUrl(uploadData.path);
+
+        backgroundImageUrl = publicUrl;
+      }
+
       const processedSliderImages = await Promise.all(
         sliderImages.map(async (image) => {
           if (image.type === "file" && image.file) {
@@ -194,11 +225,14 @@ export const useEventForm = () => {
         .from("events")
         .insert({
           title: formData.title,
+          bride_name: formData.bride_name,
+          groom_name: formData.groom_name,
           description: formData.description,
           date: eventDateTime.toISOString(),
           location: formData.location,
           location_url: formData.location_url,
           image_url: mainImageUrl,
+          background_image_url: backgroundImageUrl || null,
           slider_images: processedSliderImages,
           status: "upcoming",
           user_id: session.user.id,
@@ -242,6 +276,10 @@ export const useEventForm = () => {
     setImageFile,
     imagePreview,
     setImagePreview,
+    backgroundImageFile,
+    setBackgroundImageFile,
+    backgroundImagePreview,
+    setBackgroundImagePreview,
     isUploading,
     sliderImages,
     setSliderImages,

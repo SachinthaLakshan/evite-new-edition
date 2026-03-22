@@ -2,12 +2,15 @@ import { InvitationConfig } from "./invitation";
 
 export interface FormData {
   title: string;
+  bride_name: string;
+  groom_name: string;
   description: string;
   date: string;
   time: string;
   location: string;
   location_url: string;
   image_url: string;
+  background_image_url?: string;
   theme_id?: string;
   invitation_config?: InvitationConfig;
 }

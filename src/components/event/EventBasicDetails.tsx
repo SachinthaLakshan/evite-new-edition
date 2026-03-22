@@ -8,6 +8,8 @@ import { CalendarIcon, ClockIcon, MapPinIcon, ImageIcon, XIcon } from "lucide-re
 interface EventBasicDetailsProps {
   formData: {
     title: string;
+    bride_name: string;
+    groom_name: string;
     description: string;
     date: string;
     time: string;
@@ -16,6 +18,8 @@ interface EventBasicDetailsProps {
   };
   errors: Partial<{
     title: string;
+    bride_name: string;
+    groom_name: string;
     description: string;
     date: string;
     time: string;
@@ -24,9 +28,13 @@ interface EventBasicDetailsProps {
   }>;
   imageFile: File | null;
   imagePreview: string;
+  backgroundImageFile: File | null;
+  backgroundImagePreview: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: () => void;
+  handleBackgroundImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  removeBackgroundImage: () => void;
   getMinDate: () => string;
   getMinTime: () => string;
 }
@@ -36,9 +44,13 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
   errors,
   imageFile,
   imagePreview,
+  backgroundImageFile,
+  backgroundImagePreview,
   handleInputChange,
   handleImageChange,
   removeImage,
+  handleBackgroundImageChange,
+  removeBackgroundImage,
   getMinDate,
   getMinTime,
 }) => {
@@ -59,6 +71,36 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
           {errors.title && (
             <p className="text-sm text-red-500">{errors.title}</p>
           )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="bride_name" className="text-base">Bride Name</Label>
+            <Input
+              id="bride_name"
+              placeholder="Enter bride name"
+              value={formData.bride_name}
+              onChange={handleInputChange}
+              className={errors.bride_name ? "border-red-500" : ""}
+            />
+            {errors.bride_name && (
+              <p className="text-sm text-red-500">{errors.bride_name}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="groom_name" className="text-base">Groom Name</Label>
+            <Input
+              id="groom_name"
+              placeholder="Enter groom name"
+              value={formData.groom_name}
+              onChange={handleInputChange}
+              className={errors.groom_name ? "border-red-500" : ""}
+            />
+            {errors.groom_name && (
+              <p className="text-sm text-red-500">{errors.groom_name}</p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -97,6 +139,52 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
                   <ImageIcon className="h-8 w-8 text-gray-400" />
                   <span className="text-sm text-gray-600">
                     Click to upload main event image
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    (Max size: 2MB)
+                  </span>
+                </Label>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-base">Background Event Image (Optional)</Label>
+          <div className="border-2 border-dashed rounded-lg p-4 text-center">
+            {backgroundImagePreview ? (
+              <div className="relative">
+                <img
+                  src={backgroundImagePreview}
+                  alt="Background preview"
+                  className="max-h-[200px] mx-auto rounded-lg"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2"
+                  onClick={removeBackgroundImage}
+                >
+                  <XIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="py-4">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBackgroundImageChange}
+                  className="hidden"
+                  id="background-image-upload"
+                />
+                <Label
+                  htmlFor="background-image-upload"
+                  className="cursor-pointer flex flex-col items-center gap-2"
+                >
+                  <ImageIcon className="h-8 w-8 text-gray-400" />
+                  <span className="text-sm text-gray-600">
+                    Click to upload background event image
                   </span>
                   <span className="text-xs text-gray-400">
                     (Max size: 2MB)
