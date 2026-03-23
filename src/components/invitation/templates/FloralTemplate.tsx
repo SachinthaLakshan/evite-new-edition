@@ -8,7 +8,10 @@ interface FloralTemplateProps {
   eventData: {
     title: string;
     date: string;
+    time?: string;
     location: string;
+    bride_name?: string;
+    groom_name?: string;
   };
 }
 
@@ -17,7 +20,9 @@ const FloralTemplate: React.FC<FloralTemplateProps> = ({
   guestName,
   eventData,
 }) => {
-  const { couple_names, custom_text, styling, guest_name_position } = config;
+  const { custom_text, styling, guest_name_position } = config;
+  const brideName = eventData.bride_name || "Bride";
+  const groomName = eventData.groom_name || "Groom";
 
   const renderGuestName = (position: string) => {
     if (!guestName || guest_name_position !== position) return null;
@@ -90,7 +95,7 @@ const FloralTemplate: React.FC<FloralTemplateProps> = ({
             className="text-5xl font-serif italic"
             style={{ color: styling.primary_color }}
           >
-            {couple_names.person1}
+            {brideName}
           </h1>
           <div className="flex items-center justify-center gap-6">
             <div
@@ -109,7 +114,7 @@ const FloralTemplate: React.FC<FloralTemplateProps> = ({
             className="text-5xl font-serif italic"
             style={{ color: styling.primary_color }}
           >
-            {couple_names.person2}
+            {groomName}
           </h1>
         </motion.div>
 
@@ -121,7 +126,6 @@ const FloralTemplate: React.FC<FloralTemplateProps> = ({
           <img src="/assets/floral-divider.png" alt="" className="h-8 opacity-60" />
         </div>
 
-        {/* Event details */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -137,7 +141,10 @@ const FloralTemplate: React.FC<FloralTemplateProps> = ({
               day: 'numeric',
             })}
           </p>
-          <p className="text-lg">{eventData.location}</p>
+          {eventData.time && (
+            <p className="text-lg opacity-90">{eventData.time}</p>
+          )}
+          <p className="text-lg pt-2">{eventData.location}</p>
         </motion.div>
 
         {/* Additional info */}

@@ -235,7 +235,11 @@ const CreateEventForm = () => {
                 formData.date && formData.time
                   ? `${formData.date}T${formData.time}`
                   : new Date().toISOString(),
+              time: formData.time || "12:00 PM",
               location: formData.location || "Event Location",
+              bride_name: formData.bride_name || "Bride",
+              groom_name: formData.groom_name || "Groom",
+              description: formData.description || "",
             }}
             onConfigChange={setInvitationConfig}
           />

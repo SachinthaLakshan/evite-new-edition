@@ -67,6 +67,8 @@ import { getStatusColor } from "@/lib/utils";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { createShortUrl } from "@/lib/url-shortener";
 import InvitationPreviewCard from "@/components/event/InvitationPreviewCard";
+import { InvitationConfig } from "@/types/invitation";
+import { GuestInvitationDownloader } from "@/components/event/GuestInvitationDownloader";
 
 // Add after imports
 type SliderInputType = "file" | "link";
@@ -451,6 +453,23 @@ export default function EventDetails() {
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     await handleReuploadMainImage(e);
+  };
+
+  const handleUpdateInvitationConfig = async (newConfig: InvitationConfig) => {
+    if (!event || !id) return;
+    try {
+      const { error } = await supabase
+        .from("events")
+        .update({ invitation_config: newConfig } as any)
+        .eq("id", id);
+      if (error) throw error;
+      
+      queryClient.invalidateQueries({ queryKey: ["event", id] });
+      toast.success("Invitation card updated successfully");
+    } catch (error) {
+      console.error("Error updating invitation card:", error);
+      toast.error("Failed to update invitation card");
+    }
   };
 
   const handleUpdateEvent = async () => {
@@ -947,50 +966,67 @@ export default function EventDetails() {
                                 </Badge>
                               </TableCell>
                               <TableCell>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-primary hover:text-primary-700 hover:bg-primary-50"
-                                  onClick={async () => {
-                                    try {
-                                      const baseUrl =
-                                        process.env.NEXT_PUBLIC_SITE_URL ||
-                                        process.env.NEXT_PUBLIC_BASE_URL ||
-                                        (typeof window !== "undefined" &&
-                                        window.location
-                                          ? window.location.origin
-                                          : "");
-                                      if (!baseUrl) {
-                                        toast.error(
-                                          "Unable to determine base URL to share.",
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-primary hover:text-primary-700 hover:bg-primary-50"
+                                    onClick={async () => {
+                                      try {
+                                        const baseUrl =
+                                          process.env.NEXT_PUBLIC_SITE_URL ||
+                                          process.env.NEXT_PUBLIC_BASE_URL ||
+                                          (typeof window !== "undefined" &&
+                                          window.location
+                                            ? window.location.origin
+                                            : "");
+                                        if (!baseUrl) {
+                                          toast.error(
+                                            "Unable to determine base URL to share.",
+                                          );
+                                          return;
+                                        }
+                                        const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
+
+                                        // Create a short URL
+                                        const shortUrl =
+                                          await createShortUrl(responseUrl);
+
+                                        // Copy to clipboard
+                                        await navigator.clipboard.writeText(
+                                          shortUrl,
                                         );
-                                        return;
+                                        toast.success(
+                                          "Short link copied to clipboard!",
+                                        );
+                                      } catch (error) {
+                                        console.error(
+                                          "Error sharing link:",
+                                          error,
+                                        );
+                                        toast.error("Failed to create short URL");
                                       }
-                                      const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
-
-                                      // Create a short URL
-                                      const shortUrl =
-                                        await createShortUrl(responseUrl);
-
-                                      // Copy to clipboard
-                                      await navigator.clipboard.writeText(
-                                        shortUrl,
-                                      );
-                                      toast.success(
-                                        "Short link copied to clipboard!",
-                                      );
-                                    } catch (error) {
-                                      console.error(
-                                        "Error sharing link:",
-                                        error,
-                                      );
-                                      toast.error("Failed to create short URL");
-                                    }
-                                  }}
-                                >
-                                  <Share2Icon className="h-4 w-4 mr-2" />
-                                  Share
-                                </Button>
+                                    }}
+                                  >
+                                    <Share2Icon className="h-4 w-4 mr-2" />
+                                    Share
+                                  </Button>
+                                  {event.invitation_config && (
+                                    <GuestInvitationDownloader
+                                      attendeeName={attendee.name}
+                                      config={event.invitation_config as InvitationConfig}
+                                      eventData={{
+                                        title: event.title,
+                                        date: event.date,
+                                        time: new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                        location: event.location,
+                                        bride_name: event.bride_name,
+                                        groom_name: event.groom_name,
+                                        description: event.description || "",
+                                      }}
+                                    />
+                                  )}
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))}
@@ -1006,12 +1042,18 @@ export default function EventDetails() {
           <div className="space-y-6">
             {/* Invitation Preview */}
             <InvitationPreviewCard
-              invitationConfig={event.invitation_config}
+              invitationConfig={event.invitation_config as InvitationConfig | null}
               eventData={{
                 title: event.title,
                 date: event.date,
+                time: new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 location: event.location,
+                bride_name: event.bride_name,
+                groom_name: event.groom_name,
+                description: event.description || "",
               }}
+              isEditable={session?.user.id === event.user_id}
+              onSave={handleUpdateInvitationConfig}
             />
 
             {event.attendees && event.attendees.length > 0 && (

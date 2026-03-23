@@ -8,7 +8,10 @@ interface ModernTemplateProps {
   eventData: {
     title: string;
     date: string;
+    time?: string;
     location: string;
+    bride_name?: string;
+    groom_name?: string;
   };
 }
 
@@ -17,11 +20,13 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({
   guestName,
   eventData,
 }) => {
-  const { couple_names, custom_text, styling, guest_name_position } = config;
+  const { custom_text, styling, guest_name_position } = config;
+  const brideName = eventData.bride_name || "Bride";
+  const groomName = eventData.groom_name || "Groom";
 
   const renderGuestName = (position: string) => {
     if (!guestName || guest_name_position !== position) return null;
-    
+
     return (
       <motion.div
         initial={{ opacity: 0, x: -20 }}
@@ -80,7 +85,7 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({
             className="text-6xl font-thin tracking-wider"
             style={{ color: styling.primary_color }}
           >
-            {couple_names.person1.toUpperCase()}
+            {brideName.toUpperCase()}
           </h1>
           <div className="flex items-center gap-4">
             <div
@@ -102,24 +107,23 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({
             className="text-6xl font-thin tracking-wider"
             style={{ color: styling.primary_color }}
           >
-            {couple_names.person2.toUpperCase()}
+            {groomName.toUpperCase()}
           </h1>
         </motion.div>
 
         {/* Center guest name */}
         {renderGuestName('center')}
 
-        {/* Event details with modern styling */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="space-y-4 pl-8 border-l-2"
+          className="space-y-6 pl-8 border-l-4"
           style={{ borderColor: styling.primary_color }}
         >
           <div>
             <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">
-              Date
+              When
             </p>
             <p className="text-xl font-light" style={{ color: styling.text_color }}>
               {new Date(eventData.date).toLocaleDateString('en-US', {
@@ -129,12 +133,17 @@ const ModernTemplate: React.FC<ModernTemplateProps> = ({
                 day: 'numeric',
               })}
             </p>
+            {eventData.time && (
+              <p className="text-lg font-light mt-1 opacity-80" style={{ color: styling.text_color }}>
+                {eventData.time}
+              </p>
+            )}
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">
-              Venue
+              Where
             </p>
-            <p className="text-xl font-light" style={{ color: styling.text_color }}>
+            <p className="text-xl font-light leading-relaxed" style={{ color: styling.text_color }}>
               {eventData.location}
             </p>
           </div>

@@ -8,7 +8,10 @@ interface MinimalTemplateProps {
   eventData: {
     title: string;
     date: string;
+    time?: string;
     location: string;
+    bride_name?: string;
+    groom_name?: string;
   };
 }
 
@@ -17,11 +20,13 @@ const MinimalTemplate: React.FC<MinimalTemplateProps> = ({
   guestName,
   eventData,
 }) => {
-  const { couple_names, custom_text, styling, guest_name_position } = config;
+  const { custom_text, styling, guest_name_position } = config;
+  const brideName = eventData.bride_name || "Bride";
+  const groomName = eventData.groom_name || "Groom";
 
   const renderGuestName = (position: string) => {
     if (!guestName || guest_name_position !== position) return null;
-    
+
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -37,9 +42,10 @@ const MinimalTemplate: React.FC<MinimalTemplateProps> = ({
 
   return (
     <div
-      className="relative w-full max-w-2xl mx-auto bg-white rounded-sm shadow-lg overflow-hidden border border-gray-200"
+      className="relative w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] overflow-hidden border border-gray-100"
       style={{ fontFamily: styling.font_family }}
     >
+      <div className="absolute inset-2 border border-black/5 rounded-xl pointer-events-none" />
       <div className="relative p-20 space-y-12">
         {/* Top guest name */}
         {renderGuestName('top')}
@@ -71,7 +77,7 @@ const MinimalTemplate: React.FC<MinimalTemplateProps> = ({
             className="text-4xl font-light tracking-wide"
             style={{ color: styling.primary_color }}
           >
-            {couple_names.person1}
+            {brideName}
           </h1>
           <div className="flex items-center justify-center">
             <div
@@ -83,14 +89,13 @@ const MinimalTemplate: React.FC<MinimalTemplateProps> = ({
             className="text-4xl font-light tracking-wide"
             style={{ color: styling.primary_color }}
           >
-            {couple_names.person2}
+            {groomName}
           </h1>
         </motion.div>
 
         {/* Center guest name */}
         {renderGuestName('center')}
 
-        {/* Event details - Minimal layout */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -102,7 +107,7 @@ const MinimalTemplate: React.FC<MinimalTemplateProps> = ({
               className="text-xs uppercase tracking-widest"
               style={{ color: styling.text_color, opacity: 0.6 }}
             >
-              Date
+              When
             </p>
             <p className="text-lg font-light" style={{ color: styling.text_color }}>
               {new Date(eventData.date).toLocaleDateString('en-US', {
@@ -111,13 +116,18 @@ const MinimalTemplate: React.FC<MinimalTemplateProps> = ({
                 day: 'numeric',
               })}
             </p>
+            {eventData.time && (
+              <p className="text-md font-light" style={{ color: styling.text_color, opacity: 0.8 }}>
+                {eventData.time}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <p
               className="text-xs uppercase tracking-widest"
               style={{ color: styling.text_color, opacity: 0.6 }}
             >
-              Location
+              Where
             </p>
             <p className="text-lg font-light" style={{ color: styling.text_color }}>
               {eventData.location}

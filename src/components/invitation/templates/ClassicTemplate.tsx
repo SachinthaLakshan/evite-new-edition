@@ -8,7 +8,10 @@ interface ClassicTemplateProps {
   eventData: {
     title: string;
     date: string;
+    time?: string;
     location: string;
+    bride_name?: string;
+    groom_name?: string;
   };
 }
 
@@ -17,11 +20,13 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
   guestName,
   eventData,
 }) => {
-  const { couple_names, custom_text, styling, guest_name_position } = config;
+  const { custom_text, styling, guest_name_position } = config;
+  const brideName = eventData.bride_name || "Bride";
+  const groomName = eventData.groom_name || "Groom";
 
   const renderGuestName = (position: string) => {
     if (!guestName || guest_name_position !== position) return null;
-    
+
     return (
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -37,14 +42,12 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
 
   return (
     <div
-      className="relative w-full max-w-2xl mx-auto bg-white rounded-lg shadow-2xl overflow-hidden"
+      className="relative w-full max-w-2xl mx-auto bg-[#faf8f5] rounded-xl shadow-2xl overflow-hidden"
       style={{ fontFamily: styling.font_family }}
     >
       {/* Decorative border */}
-      <div
-        className="absolute inset-0 border-8 rounded-lg pointer-events-none"
-        style={{ borderColor: styling.primary_color }}
-      />
+      <div className="absolute inset-4 border bg-transparent pointer-events-none rounded-lg" style={{ borderColor: styling.primary_color, borderWidth: '2px', opacity: 0.3 }} />
+      <div className="absolute inset-6 border bg-transparent pointer-events-none rounded-lg" style={{ borderColor: styling.primary_color, borderWidth: '1px', opacity: 0.5 }} />
 
       <div className="relative p-12 space-y-8">
         {/* Top guest name */}
@@ -82,10 +85,10 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
           className="text-center space-y-4"
         >
           <h1
-            className="text-5xl font-bold"
+            className="text-6xl font-light tracking-wide"
             style={{ color: styling.primary_color }}
           >
-            {couple_names.person1}
+            {brideName}
           </h1>
           <div className="flex items-center justify-center gap-4">
             <div
@@ -101,17 +104,16 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
             />
           </div>
           <h1
-            className="text-5xl font-bold"
+            className="text-6xl font-light tracking-wide"
             style={{ color: styling.primary_color }}
           >
-            {couple_names.person2}
+            {groomName}
           </h1>
         </motion.div>
 
         {/* Center guest name */}
         {renderGuestName('center')}
 
-        {/* Event details */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -119,7 +121,7 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
           className="text-center space-y-3"
           style={{ color: styling.text_color }}
         >
-          <p className="text-xl font-medium">
+          <p className="text-xl font-medium tracking-widest uppercase text-sm">
             {new Date(eventData.date).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
@@ -127,7 +129,10 @@ const ClassicTemplate: React.FC<ClassicTemplateProps> = ({
               day: 'numeric',
             })}
           </p>
-          <p className="text-lg">{eventData.location}</p>
+          {eventData.time && (
+            <p className="text-lg opacity-80">{eventData.time}</p>
+          )}
+          <p className="text-lg pt-2">{eventData.location}</p>
         </motion.div>
 
         {/* Additional info */}

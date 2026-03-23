@@ -4,24 +4,59 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import InvitationPreview from "@/components/invitation/InvitationPreview";
+import InvitationDesigner from "@/components/invitation/InvitationDesigner";
 import { InvitationConfig } from "@/types/invitation";
-import { Eye } from "lucide-react";
+import { Eye, PencilIcon, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface InvitationPreviewCardProps {
   invitationConfig: InvitationConfig | null;
   eventData: {
     title: string;
     date: string;
+    time?: string;
     location: string;
+    bride_name?: string;
+    groom_name?: string;
+    description?: string;
   };
+  isEditable?: boolean;
+  onSave?: (config: InvitationConfig) => Promise<void>;
 }
 
 const InvitationPreviewCard: React.FC<InvitationPreviewCardProps> = ({
   invitationConfig,
   eventData,
+  isEditable = false,
+  onSave,
 }) => {
   const [previewGuestName, setPreviewGuestName] = useState("John Doe");
   const [showPreview, setShowPreview] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editConfig, setEditConfig] = useState<InvitationConfig | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleEditClick = () => {
+    setEditConfig(invitationConfig);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!editConfig || !onSave) return;
+    setIsSaving(true);
+    try {
+      await onSave(editConfig);
+      setIsEditDialogOpen(false);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (!invitationConfig) {
     return (
@@ -43,14 +78,59 @@ const InvitationPreviewCard: React.FC<InvitationPreviewCardProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Invitation Card Preview</span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPreview(!showPreview)}
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            {showPreview ? "Hide" : "Show"} Preview
-          </Button>
+          <div className="flex items-center gap-2">
+            {isEditable && onSave && (
+              <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={handleEditClick}>
+                    <PencilIcon className="w-4 h-4 mr-2" />
+                    Edit
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Edit Invitation Card</DialogTitle>
+                  </DialogHeader>
+                  <div className="mt-4">
+                    {editConfig && (
+                      <InvitationDesigner
+                        initialConfig={editConfig}
+                        eventData={eventData}
+                        onConfigChange={setEditConfig}
+                      />
+                    )}
+                  </div>
+                  <div className="flex justify-end gap-2 mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsEditDialogOpen(false)}
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSave} disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        "Save Changes"
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              {showPreview ? "Hide" : "Show"} Preview
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

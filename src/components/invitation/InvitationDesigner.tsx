@@ -24,7 +24,11 @@ interface InvitationDesignerProps {
   eventData: {
     title: string;
     date: string;
+    time?: string;
     location: string;
+    bride_name?: string;
+    groom_name?: string;
+    description?: string;
   };
   onConfigChange: (config: InvitationConfig) => void;
 }
@@ -34,16 +38,16 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
   eventData,
   onConfigChange,
 }) => {
-  const [config, setConfig] = useState<InvitationConfig>(
-    initialConfig || {
+  const [config, setConfig] = useState<InvitationConfig>(() => {
+    const baseConfig = initialConfig || {
       template_id: "classic",
       couple_names: {
         person1: "",
         person2: "",
       },
       custom_text: {
-        main_message: "Together with their families",
-        additional_info: "Reception to follow",
+        main_message: "",
+        additional_info: "",
       },
       text_positions: {
         couple_names: { x: 50, y: 30 },
@@ -58,8 +62,20 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
         text_color: "#1F2937",
       },
       guest_name_position: "top",
-    },
-  );
+    };
+
+    return {
+      ...baseConfig,
+      couple_names: {
+        person1: baseConfig.couple_names?.person1 || eventData.bride_name || "",
+        person2: baseConfig.couple_names?.person2 || eventData.groom_name || "",
+      },
+      custom_text: {
+        main_message: baseConfig.custom_text?.main_message || eventData.title || "Together with their families",
+        additional_info: baseConfig.custom_text?.additional_info || eventData.description || "Reception to follow",
+      }
+    };
+  });
 
   const [previewGuestName, setPreviewGuestName] = useState("John Doe");
 
@@ -107,6 +123,29 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
           prev.guest_name_position,
       }));
     }
+  };
+
+  const handleReset = () => {
+    const template = INVITATION_TEMPLATES.find((t) => t.id === config.template_id);
+    setConfig({
+      template_id: config.template_id,
+      couple_names: {
+        person1: eventData.bride_name || "",
+        person2: eventData.groom_name || "",
+      },
+      custom_text: {
+        main_message: eventData.title || "Together with their families",
+        additional_info: eventData.description || "Reception to follow",
+      },
+      text_positions: template?.defaultConfig?.text_positions || getDefaultPositions(),
+      styling: template?.defaultConfig?.styling || {
+        font_family: "Playfair Display",
+        primary_color: "#8B5CF6",
+        secondary_color: "#D946EF",
+        text_color: "#1F2937",
+      },
+      guest_name_position: template?.defaultConfig?.guest_name_position || "top",
+    } as InvitationConfig);
   };
 
   const updateConfig = (path: string, value: any) => {
@@ -354,14 +393,9 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() =>
-                    setConfig((prev) => ({
-                      ...prev,
-                      text_positions: getDefaultPositions(),
-                    }))
-                  }
+                  onClick={handleReset}
                 >
-                  Reset positions
+                  Reset changes
                 </Button>
               </div>
             </CardHeader>
