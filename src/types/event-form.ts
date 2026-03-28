@@ -17,8 +17,7 @@ export interface FormData {
 
 export interface Guest {
   name: string;
-  email: string;
-  whatsapp_number?: string;
+  whatsapp_number: string;
 }
 
 export interface SliderImage {

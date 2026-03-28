@@ -81,9 +81,7 @@ export const useRSVP = (eventId: string | null, attendeeId: string | null) => {
       if (attendeeId) {
         query = query.eq("id", attendeeId);
       } else if (valueToCheck) {
-        query = query.or(
-          `email.eq.${valueToCheck},whatsapp_number.eq.${valueToCheck}`,
-        );
+        query = query.eq("whatsapp_number", valueToCheck);
       }
 
       const { data, error } = await query.maybeSingle();

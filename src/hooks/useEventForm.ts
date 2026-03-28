@@ -46,7 +46,6 @@ export const useEventForm = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [newGuest, setNewGuest] = useState<Guest>({
     name: "",
-    email: "",
     whatsapp_number: "",
   });
   const [guestInputMethod, setGuestInputMethod] = useState<
@@ -71,56 +70,88 @@ export const useEventForm = () => {
     }
   }, [session, router]);
 
-  const validateForm = () => {
-    const errors: Partial<FormData> = {};
+  const validateStep = (step: number) => {
+    const newErrors: Partial<FormData> = {};
+    let isValid = true;
 
-    if (!formData.title.trim()) {
-      errors.title = "Title is required";
-    }
+    if (step === 1) {
+      if (!formData.title.trim()) newErrors.title = "Title is required";
+      if (!formData.bride_name.trim()) newErrors.bride_name = "Bride name is required";
+      if (!formData.groom_name.trim()) newErrors.groom_name = "Groom name is required";
+      if (!formData.description.trim()) newErrors.description = "Your story description is required";
 
-    if (!formData.bride_name.trim()) {
-      errors.bride_name = "Bride name is required";
-    }
+      if (!formData.date) {
+        newErrors.date = "Date is required";
+      } else {
+        const selectedDate = new Date(formData.date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-    if (!formData.groom_name.trim()) {
-      errors.groom_name = "Groom name is required";
-    }
-
-    if (!formData.date) {
-      errors.date = "Date is required";
-    } else {
-      const selectedDate = new Date(formData.date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (selectedDate < today) {
-        errors.date = "Date cannot be in the past";
+        if (selectedDate < today) {
+          newErrors.date = "Date cannot be in the past";
+        }
       }
-    }
 
-    if (!formData.time) {
-      errors.time = "Time is required";
-    } else if (formData.date === getMinDate()) {
-      const [hours, minutes] = formData.time.split(":");
-      const selectedTime = new Date();
-      selectedTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      if (!formData.time) {
+        newErrors.time = "Time is required";
+      } else if (formData.date === getMinDate()) {
+        const [hours, minutes] = formData.time.split(":");
+        const selectedTime = new Date();
+        selectedTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-      const now = new Date();
-      if (selectedTime < now) {
-        errors.time = "Time cannot be in the past";
+        const now = new Date();
+        if (selectedTime < now) {
+          newErrors.time = "Time cannot be in the past";
+        }
       }
+
+      if (!formData.location.trim()) {
+        newErrors.location = "Location is required";
+      }
+
+      if (formData.location_url && !isValidGoogleMapsUrl(formData.location_url)) {
+        newErrors.location_url = "Please enter a valid Google Maps URL";
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        isValid = false;
+        toast.error("Please provide all required basic details correctly.");
+      }
+
+      if (!imageFile) {
+        isValid = false;
+        toast.error("Main Event Image is required. Please upload an image.");
+      }
+
+      setErrors(newErrors);
+      return isValid;
     }
 
-    if (!formData.location.trim()) {
-      errors.location = "Location is required";
+    if (step === 2) {
+      if (agenda.length === 0) {
+        isValid = false;
+        toast.error("Please add at least one Agenda item.");
+      }
+      if (sliderImages.length === 0) {
+        isValid = false;
+        toast.error("Please add at least one Gallery image.");
+      }
+      return isValid;
     }
 
-    if (formData.location_url && !isValidGoogleMapsUrl(formData.location_url)) {
-      errors.location_url = "Please enter a valid Google Maps URL";
+    if (step === 3) {
+      return true;
     }
 
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
+    if (step === 4) {
+      if (guests.length === 0) {
+        isValid = false;
+        toast.error("Please add at least one Guest to your list.");
+      }
+      return isValid;
+    }
+
+    return true;
   };
 
   const getMinDate = () => {
@@ -142,7 +173,7 @@ export const useEventForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!validateStep(1) || !validateStep(2) || !validateStep(3) || !validateStep(4)) {
       return;
     }
 
@@ -250,7 +281,7 @@ export const useEventForm = () => {
           guests.map((guest) => ({
             event_id: eventData.id,
             name: guest.name,
-            email: guest.email,
+            email: "",
             whatsapp_number: guest.whatsapp_number,
             response: "pending",
           })),
@@ -304,5 +335,6 @@ export const useEventForm = () => {
     handleSubmit,
     getMinDate,
     getMinTime,
+    validateStep,
   };
 };

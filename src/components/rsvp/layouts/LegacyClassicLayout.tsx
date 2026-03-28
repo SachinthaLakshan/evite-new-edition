@@ -438,7 +438,7 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
               <input
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="Email or WhatsApp number"
+                placeholder="WhatsApp number (+123...)"
                 className="w-full px-4 py-3 rounded-xl bg-white/95 text-gray-900 outline-none"
               />
               <button

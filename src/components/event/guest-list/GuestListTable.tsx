@@ -26,9 +26,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-              </th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 WhatsApp
               </th>
@@ -44,7 +42,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             {guests.map((guest, index) => (
               <tr key={index} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{guest.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-600">{guest.email}</td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-gray-600">
                   {guest.whatsapp_number}
                 </td>
@@ -80,12 +78,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </div>
             
             <div className="text-sm text-gray-600 space-y-1.5 bg-gray-50 p-3 rounded-md border">
-              {guest.email && (
-                <div className="flex items-center">
-                  <span className="font-medium text-gray-500 w-20">Email:</span>
-                  <span className="break-all">{guest.email}</span>
-                </div>
-              )}
+
               {guest.whatsapp_number && (
                 <div className="flex items-center">
                   <span className="font-medium text-gray-500 w-20">WhatsApp:</span>

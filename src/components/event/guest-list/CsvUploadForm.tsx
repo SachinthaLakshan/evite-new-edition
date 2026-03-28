@@ -33,7 +33,7 @@ export const CsvUploadForm: React.FC<CsvUploadFormProps> = ({
         </Button>
       </div>
       <p className="text-sm text-gray-500">
-        CSV should have columns: Name, Email, WhatsApp Number
+        CSV should have columns: Name, WhatsApp Number
       </p>
     </div>
   );

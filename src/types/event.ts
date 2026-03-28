@@ -28,8 +28,7 @@ export interface Event {
 export interface Attendee {
   id: string;
   name: string;
-  email: string;
-  whatsapp_number?: string | null;
+  whatsapp_number: string;
   response: AttendeeResponse;
   link_shared?: boolean;
   event_id?: string;

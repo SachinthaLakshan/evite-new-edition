@@ -57,6 +57,7 @@ const CreateEventForm = () => {
     handleSubmit,
     getMinDate,
     getMinTime,
+    validateStep,
   } = useEventForm();
 
   const handleInputChange = (
@@ -76,9 +77,11 @@ const CreateEventForm = () => {
   };
 
   const nextStep = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep((prev) => prev + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (validateStep(currentStep)) {
+      if (currentStep < steps.length) {
+        setCurrentStep((prev) => prev + 1);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     }
   };
 
@@ -301,14 +304,13 @@ const CreateEventForm = () => {
                   const rows = text.split("\n");
                   const newGuests = rows
                     .map((row) => {
-                      const [name, email, whatsapp_number] = row
+                      const [name, whatsapp_number] = row
                         .split(",")
                         .map((cell) => cell.trim());
-                      if (name && email) {
+                      if (name && whatsapp_number) {
                         return {
                           name,
-                          email,
-                          whatsapp_number: whatsapp_number || "",
+                          whatsapp_number,
                         } as Guest;
                       }
                       return null;
@@ -322,7 +324,7 @@ const CreateEventForm = () => {
               }}
               downloadTemplate={() => {
                 const csvContent =
-                  "John Doe,john@example.com,+1234567890\nJane Smith,jane@example.com,+0987654321";
+                  "John Doe,+1234567890\nJane Smith,+0987654321";
                 const blob = new Blob([csvContent], { type: "text/csv" });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");

@@ -20,7 +20,7 @@ export const IndividualGuestForm: React.FC<IndividualGuestFormProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="guest-name">Name</Label>
           <Input
@@ -32,18 +32,7 @@ export const IndividualGuestForm: React.FC<IndividualGuestFormProps> = ({
             }
           />
         </div>
-        <div>
-          <Label htmlFor="guest-email">Email</Label>
-          <Input
-            id="guest-email"
-            type="email"
-            placeholder="Email address"
-            value={newGuest.email}
-            onChange={(e) =>
-              setNewGuest((prev) => ({ ...prev, email: e.target.value }))
-            }
-          />
-        </div>
+
         <div>
           <Label htmlFor="guest-whatsapp">WhatsApp</Label>
           <Input
@@ -62,14 +51,14 @@ export const IndividualGuestForm: React.FC<IndividualGuestFormProps> = ({
       <Button
         type="button"
         onClick={() => {
-          if (!newGuest.name || (!newGuest.email && !newGuest.whatsapp_number)) {
+          if (!newGuest.name || !newGuest.whatsapp_number) {
             toast.error(
-              "Please provide name and either email or WhatsApp number"
+              "Please provide name and WhatsApp number"
             );
             return;
           }
           setGuests((prev) => [...prev, newGuest]);
-          setNewGuest({ name: "", email: "", whatsapp_number: "" });
+          setNewGuest({ name: "", whatsapp_number: "" });
           toast.success("Guest added successfully");
         }}
         className="w-full md:w-auto"

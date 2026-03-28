@@ -28,12 +28,12 @@ const VerificationForm: React.FC<VerificationFormProps> = ({
       </CardHeader>
       <CardContent className="grid gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="email">
-            Enter your email or WhatsApp Number
+          <Label htmlFor="whatsapp">
+            Enter your WhatsApp Number
           </Label>
           <Input
-            id="email"
-            placeholder="johndoe@example.com or 1234567890"
+            id="whatsapp"
+            placeholder="+1234567890"
             type="text"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}

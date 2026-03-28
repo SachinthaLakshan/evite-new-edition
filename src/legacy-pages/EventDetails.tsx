@@ -122,7 +122,6 @@ export default function EventDetails() {
           attendees (
             id,
             name,
-            email,
             whatsapp_number,
             response
           )
@@ -139,10 +138,10 @@ export default function EventDetails() {
         description: data.description || null,
         agenda: data.agenda
           ? (data.agenda as any[]).map((item) => ({
-              id: item.id,
-              time: item.time,
-              description: item.description,
-            }))
+            id: item.id,
+            time: item.time,
+            description: item.description,
+          }))
           : [],
         attendees:
           data.attendees?.map((attendee: any) => ({
@@ -463,7 +462,7 @@ export default function EventDetails() {
         .update({ invitation_config: newConfig } as any)
         .eq("id", id);
       if (error) throw error;
-      
+
       queryClient.invalidateQueries({ queryKey: ["event", id] });
       toast.success("Invitation card updated successfully");
     } catch (error) {
@@ -938,11 +937,7 @@ export default function EventDetails() {
                               </TableCell>
                               <TableCell>
                                 <div className="space-y-1">
-                                  {attendee.email && (
-                                    <div className="text-sm text-gray-600">
-                                      {attendee.email}
-                                    </div>
-                                  )}
+
                                   {attendee.whatsapp_number && (
                                     <div className="text-sm text-gray-600">
                                       {attendee.whatsapp_number}
@@ -977,7 +972,7 @@ export default function EventDetails() {
                                           process.env.NEXT_PUBLIC_SITE_URL ||
                                           process.env.NEXT_PUBLIC_BASE_URL ||
                                           (typeof window !== "undefined" &&
-                                          window.location
+                                            window.location
                                             ? window.location.origin
                                             : "");
                                         if (!baseUrl) {
