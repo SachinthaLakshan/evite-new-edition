@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import {
   HeartIcon,
@@ -26,6 +27,33 @@ import {
 const Landing: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+
+  useEffect(() => {
+    // Antigravity Confetti Animation
+    const duration = 5 * 1000;
+    const end = Date.now() + duration;
+
+    const frame = () => {
+      confetti({
+        particleCount: 5,
+        angle: Math.random() * (120 - 60) + 60,
+        spread: 60,
+        origin: { x: Math.random(), y: 1.1 },
+        gravity: -0.2, // Negative gravity makes them float up! -> "Antigravity"
+        scalar: Math.random() * (1.2 - 0.8) + 0.8,
+        drift: Math.random() * (1 - -1) + -1,
+        colors: ["#ff604b", "#fba538", "#fcca8d", "#ffffff"],
+        ticks: 300, // Keep them around longer since they float up
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+
+    frame();
+  }, []);
+
   const slides = [
     {
       title: "Create Memorable Events",
@@ -229,9 +257,8 @@ const Landing: React.FC = () => {
           {slides.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                currentSlide === index ? "bg-[#fba538]" : "bg-[#fba538]/50"
-              }`}
+              className={`w-3 h-3 rounded-full transition-colors ${currentSlide === index ? "bg-[#fba538]" : "bg-[#fba538]/50"
+                }`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
@@ -333,10 +360,9 @@ const Landing: React.FC = () => {
                 transition={{ delay: index * 0.1 }}
                 className={`
                   relative rounded-xl overflow-hidden
-                  ${
-                    plan.highlighted
-                      ? "ring-2 ring-[#ff604b] shadow-xl bg-white"
-                      : "bg-white shadow-lg"
+                  ${plan.highlighted
+                    ? "ring-2 ring-[#ff604b] shadow-xl bg-white"
+                    : "bg-white shadow-lg"
                   }
                 `}
               >
@@ -374,11 +400,10 @@ const Landing: React.FC = () => {
                   </CardContent>
                   <CardFooter className="pt-0">
                     <Button
-                      className={`w-full ${
-                        plan.highlighted
+                      className={`w-full ${plan.highlighted
                           ? "bg-[#ff604b] hover:bg-[#ff604b]/90"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
+                        }`}
                     >
                       {plan.buttonText}
                     </Button>
