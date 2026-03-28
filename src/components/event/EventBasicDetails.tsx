@@ -57,7 +57,7 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
   return (
     <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border">
       <h2 className="text-2xl font-semibold">Basic Details</h2>
-      
+
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="title" className="text-base">Event Title</Label>
@@ -196,10 +196,10 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description" className="text-base">Description</Label>
+          <Label htmlFor="description" className="text-base">Your Story</Label>
           <Textarea
             id="description"
-            placeholder="Enter event description"
+            placeholder="Every great love has a story. What's yours?"
             value={formData.description}
             onChange={handleInputChange}
             className={`w-full min-h-[100px] ${errors.description ? "border-red-500" : ""}`}
@@ -212,20 +212,17 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="date" className="text-base flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4" />
+              <CalendarIcon className="w-4 h-4 text-gray-500" />
               Date
             </Label>
-            <div className="relative">
-              <Input
-                type="date"
-                id="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                min={getMinDate()}
-                className={`w-full ${errors.date ? "border-red-500" : ""}`}
-              />
-              <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
-            </div>
+            <Input
+              type="date"
+              id="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              min={getMinDate()}
+              className={`w-full ${errors.date ? "border-red-500" : ""}`}
+            />
             {errors.date && (
               <p className="text-sm text-red-500">{errors.date}</p>
             )}
@@ -233,20 +230,17 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
 
           <div className="space-y-2">
             <Label htmlFor="time" className="text-base flex items-center gap-2">
-              <ClockIcon className="w-4 h-4" />
+              <ClockIcon className="w-4 h-4 text-gray-500" />
               Time
             </Label>
-            <div className="relative">
-              <Input
-                type="time"
-                id="time"
-                value={formData.time}
-                onChange={handleInputChange}
-                min={formData.date === getMinDate() ? getMinTime() : undefined}
-                className={`w-full ${errors.time ? "border-red-500" : ""}`}
-              />
-              <ClockIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
-            </div>
+            <Input
+              type="time"
+              id="time"
+              value={formData.time}
+              onChange={handleInputChange}
+              min={formData.date === getMinDate() ? getMinTime() : undefined}
+              className={`w-full ${errors.time ? "border-red-500" : ""}`}
+            />
             {errors.time && (
               <p className="text-sm text-red-500">{errors.time}</p>
             )}

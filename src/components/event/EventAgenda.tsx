@@ -36,8 +36,8 @@ export const EventAgenda: React.FC<EventAgendaProps> = ({
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-4 gap-4">
-          <div className="col-span-1">
+        <div className="flex flex-col sm:grid sm:grid-cols-4 gap-4">
+          <div className="sm:col-span-1">
             <Input
               type="time"
               value={newAgendaItem.time}
@@ -52,7 +52,7 @@ export const EventAgenda: React.FC<EventAgendaProps> = ({
               className="w-full"
             />
           </div>
-          <div className="col-span-2">
+          <div className="sm:col-span-2">
             <Input
               type="text"
               value={newAgendaItem.description}
@@ -66,7 +66,7 @@ export const EventAgenda: React.FC<EventAgendaProps> = ({
               className="w-full"
             />
           </div>
-          <div className="col-span-1">
+          <div className="sm:col-span-1">
             <Button
               type="button"
               variant="outline"
@@ -89,7 +89,7 @@ export const EventAgenda: React.FC<EventAgendaProps> = ({
 
         {agenda.length > 0 && (
           <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-50 px-4 py-2 border-b">
+            <div className="bg-gray-50 px-4 py-2 border-b hidden sm:block">
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-2 font-medium text-sm text-gray-600">Time</div>
                 <div className="col-span-8 font-medium text-sm text-gray-600">Description</div>
@@ -102,21 +102,21 @@ export const EventAgenda: React.FC<EventAgendaProps> = ({
                 .map((item, index) => (
                   <div
                     key={index}
-                    className="px-4 py-3 hover:bg-gray-50 transition-colors"
+                    className="px-4 py-3 sm:py-3 hover:bg-gray-50 transition-colors"
                   >
-                    <div className="grid grid-cols-12 gap-4 items-center">
-                      <div className="col-span-2 text-sm font-medium">
+                    <div className="flex flex-col sm:grid sm:grid-cols-12 gap-2 sm:gap-4 sm:items-center">
+                      <div className="sm:col-span-2 text-sm font-semibold text-primary sm:text-foreground">
                         {item.time}
                       </div>
-                      <div className="col-span-8 text-sm text-gray-600">
+                      <div className="sm:col-span-8 text-sm text-gray-600">
                         {item.description}
                       </div>
-                      <div className="col-span-2">
+                      <div className="sm:col-span-2 mt-2 sm:mt-0">
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto h-8 justify-center sm:justify-start"
                           onClick={() =>
                             setAgenda((prev) =>
                               prev.filter((_, i) => i !== index)

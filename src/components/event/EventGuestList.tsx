@@ -30,14 +30,15 @@ export const EventGuestList: React.FC<EventGuestListProps> = ({
 }) => {
   return (
     <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-semibold">Guest List</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Button
             type="button"
             variant={guestInputMethod === "individual" ? "default" : "outline"}
             onClick={() => setGuestInputMethod("individual")}
             size="sm"
+            className="flex-1 sm:flex-none"
           >
             <UserIcon className="w-4 h-4 mr-2" />
             Individual
@@ -47,6 +48,7 @@ export const EventGuestList: React.FC<EventGuestListProps> = ({
             variant={guestInputMethod === "csv" ? "default" : "outline"}
             onClick={() => setGuestInputMethod("csv")}
             size="sm"
+            className="flex-1 sm:flex-none"
           >
             <UploadIcon className="w-4 h-4 mr-2" />
             Upload CSV

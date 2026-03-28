@@ -72,6 +72,7 @@ export const IndividualGuestForm: React.FC<IndividualGuestFormProps> = ({
           setNewGuest({ name: "", email: "", whatsapp_number: "" });
           toast.success("Guest added successfully");
         }}
+        className="w-full md:w-auto"
       >
         <PlusIcon className="w-4 h-4 mr-2" />
         Add Guest
