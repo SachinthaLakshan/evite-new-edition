@@ -46,7 +46,7 @@ export const useEventForm = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [newGuest, setNewGuest] = useState<Guest>({
     name: "",
-    whatsapp_number: "",
+    whatsapp_number: "+947",
   });
   const [guestInputMethod, setGuestInputMethod] = useState<
     "individual" | "csv"

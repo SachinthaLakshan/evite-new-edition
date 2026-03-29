@@ -324,7 +324,7 @@ const CreateEventForm = () => {
               }}
               downloadTemplate={() => {
                 const csvContent =
-                  "John Doe,+1234567890\nJane Smith,+0987654321";
+                  "John Doe,+94711234567\nJane Smith,+94711234568";
                 const blob = new Blob([csvContent], { type: "text/csv" });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");

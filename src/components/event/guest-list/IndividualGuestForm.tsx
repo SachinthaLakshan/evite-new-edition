@@ -37,7 +37,7 @@ export const IndividualGuestForm: React.FC<IndividualGuestFormProps> = ({
           <Label htmlFor="guest-whatsapp">WhatsApp</Label>
           <Input
             id="guest-whatsapp"
-            placeholder="WhatsApp number"
+            placeholder="Eg:+94711234568"
             value={newGuest.whatsapp_number}
             onChange={(e) =>
               setNewGuest((prev) => ({
@@ -58,7 +58,7 @@ export const IndividualGuestForm: React.FC<IndividualGuestFormProps> = ({
             return;
           }
           setGuests((prev) => [...prev, newGuest]);
-          setNewGuest({ name: "", whatsapp_number: "" });
+          setNewGuest({ name: "", whatsapp_number: "+947" });
           toast.success("Guest added successfully");
         }}
         className="w-full md:w-auto"
