@@ -174,10 +174,10 @@ export function EventList({
         onOpenChange={() => setSelectedEvent(null)}
       >
         {selectedEvent && (
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <div className="flex items-center justify-between">
-                <DialogTitle className="text-2xl">
+          <DialogContent className="sm:max-w-2xl w-[95vw] max-h-[85vh] overflow-y-auto scrollbar-thin p-4 sm:p-6">
+            <DialogHeader className="mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <DialogTitle className="text-xl sm:text-2xl font-bold truncate">
                   {selectedEvent.title}
                 </DialogTitle>
                 <Button
@@ -200,7 +200,7 @@ export function EventList({
                   }}
                 >
                   <Share2Icon className="w-4 h-4 mr-2" />
-                  Share
+                  Share Link
                 </Button>
               </div>
             </DialogHeader>
@@ -231,9 +231,9 @@ export function EventList({
                 <div className="flex items-start gap-3">
                   <InfoIcon className="w-5 h-5 text-gray-500 mt-1" />
                   <div>
-                    <h3 className="font-medium">Description</h3>
+                    <h3 className="font-medium">Story</h3>
                     <p className="text-gray-600 whitespace-pre-wrap">
-                      {selectedEvent.description}
+                      {selectedEvent.description.length > 100 ? selectedEvent.description.substring(0, 100) + "..." : selectedEvent.description}
                     </p>
                   </div>
                 </div>
@@ -246,47 +246,49 @@ export function EventList({
                     <UsersIcon className="w-5 h-5 text-gray-500 mt-1" />
                     <div className="w-full">
                       <h3 className="font-medium">Attendance Overview</h3>
-                      <div className="grid grid-cols-3 gap-4 mt-3">
-                        <div className="bg-gray-50 p-4 rounded-lg text-center">
-                          <p className="text-2xl font-semibold text-gray-900">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+                        <div className="bg-amber-50/50 p-3 sm:p-4 rounded-xl text-center border border-amber-100/50">
+                          <p className="text-xl sm:text-2xl font-bold text-amber-900">
                             {selectedEvent.attendees.length}
                           </p>
-                          <p className="text-sm text-gray-600">Total</p>
+                          <p className="text-xs sm:text-sm text-amber-700/70">Total Guests</p>
                         </div>
-                        <div className="bg-green-50 p-4 rounded-lg text-center">
-                          <p className="text-2xl font-semibold text-green-900">
+                        <div className="bg-green-50/50 p-3 sm:p-4 rounded-xl text-center border border-green-100/50">
+                          <p className="text-xl sm:text-2xl font-bold text-green-700">
                             {
                               selectedEvent.attendees.filter(
                                 (a) => a.response === "accepted",
                               ).length
                             }
                           </p>
-                          <p className="text-sm text-green-600">Accepted</p>
+                          <p className="text-xs sm:text-sm text-green-700/70">Accepted</p>
                         </div>
-                        <div className="bg-red-50 p-4 rounded-lg text-center">
-                          <p className="text-2xl font-semibold text-red-900">
+                        <div className="bg-red-50/50 p-3 sm:p-4 rounded-xl text-center border border-red-100/50">
+                          <p className="text-xl sm:text-2xl font-bold text-red-700">
                             {
                               selectedEvent.attendees.filter(
                                 (a) => a.response === "declined",
                               ).length
                             }
                           </p>
-                          <p className="text-sm text-red-600">Declined</p>
+                          <p className="text-xs sm:text-sm text-red-700/70">Declined</p>
                         </div>
                       </div>
                     </div>
                   </div>
                 )}
 
-              <div className="flex justify-end gap-2 mt-6">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-8 pt-4 border-t">
                 <Button
                   variant="outline"
                   onClick={() => setSelectedEvent(null)}
+                  className="w-full sm:w-auto"
                 >
                   Close
                 </Button>
                 <Button
                   variant="default"
+                  className="w-full sm:w-auto"
                   onClick={() => {
                     setSelectedEvent(null);
                     router.push(`/events/${selectedEvent.id}`);

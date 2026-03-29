@@ -16,6 +16,8 @@ const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")) {
     return process.env.NEXT_PUBLIC_SITE_URL;
   }
+  console.log('>>>>>>>>>>>Log retun local');
+
   return "http://localhost:3000";
 };
 
