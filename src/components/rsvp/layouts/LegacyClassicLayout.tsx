@@ -99,18 +99,23 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
         .from("attendees")
         .update({ response })
         .eq("id", attendee.id)
-        .select()
-        .single();
+        .select();
 
       if (error) {
-        toast.error("Failed to update RSVP. Please try again.");
+        toast.error(`RSVP Error: ${error.message || "Please check your network."}`);
+        console.error("Supabase update error:", error);
+        return;
+      }
+      
+      if (!data || data.length === 0) {
+        toast.error("RSVP Error: 0 rows updated. Check Supabase RLS policies for UPDATE.");
+        console.error("0 rows updated, data:", data);
+        setIsUpdatingResponse(false);
         return;
       }
 
-      if (data) {
-        setAttendee(data);
-        toast.success("Thank you for your response!");
-      }
+      setAttendee(data[0]);
+      toast.success("Thank you for your response!");
     } catch (error) {
       console.error("Error updating RSVP:", error);
       toast.error("Failed to update RSVP. Please try again.");
