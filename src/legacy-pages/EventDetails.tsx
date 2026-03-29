@@ -26,6 +26,8 @@ import { toast } from "sonner";
 import { Event } from "@/types/event";
 import { useAuth } from "@/components/AuthProvider";
 import { AttendanceChart } from "@/components/event/AttendanceChart";
+import { EventGuestList } from "@/components/event/EventGuestList";
+import { Guest } from "@/types/event-form";
 import {
   Carousel,
   CarouselContent,
@@ -238,6 +240,10 @@ export default function EventDetails() {
     theme_id: "vertical",
     background_image_url: "",
   });
+
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [newGuest, setNewGuest] = useState<Guest>({ name: "", whatsapp_number: "" });
+  const [guestInputMethod, setGuestInputMethod] = useState<"individual" | "csv">("individual");
 
   useEffect(() => {
     if (!event?.date) return;
@@ -553,11 +559,25 @@ export default function EventDetails() {
 
       if (error) throw error;
 
+      if (guests.length > 0) {
+        const { error: guestsError } = await supabase.from("attendees").insert(
+          guests.map((guest) => ({
+            event_id: id,
+            name: guest.name,
+            email: "",
+            whatsapp_number: guest.whatsapp_number,
+            response: "pending",
+          })),
+        );
+        if (guestsError) throw guestsError;
+      }
+
       await queryClient.invalidateQueries({ queryKey: ["event", id] });
       await queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success("Event updated successfully");
       setIsEditDialogOpen(false);
       setEditImageFile(null);
+      setGuests([]);
     } catch (error) {
       console.error("Error updating event:", error);
       toast.error("Failed to update event");
@@ -588,7 +608,7 @@ export default function EventDetails() {
   return (
     <DashboardLayout>
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <Button
             variant="outline"
             onClick={() => router.push("/dashboard")}
@@ -597,16 +617,16 @@ export default function EventDetails() {
             <ArrowLeftIcon className="w-4 h-4" />
             Back to Dashboard
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             {session?.user.id === event.user_id && (
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline">
+                  <Button variant="outline" className="flex-1 sm:flex-none">
                     <PencilIcon className="w-4 h-4 mr-2" />
                     Edit Event
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto px-4 py-6 sm:p-6 bg-white overflow-x-hidden">
                   <DialogHeader>
                     <DialogTitle>Edit Event Details</DialogTitle>
                   </DialogHeader>
@@ -779,7 +799,63 @@ export default function EventDetails() {
                         <p className="text-xs text-gray-500">Selected: {editBackgroundImageFile.name}</p>
                       )}
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
+
+                    <div className="pt-4 border-t w-full">
+                      <h3 className="font-semibold text-lg mb-2">Add New Guests</h3>
+                      <p className="text-sm text-gray-500 mb-4">
+                        Add more people to the guest list. These will be added as new pending attendees.
+                      </p>
+                      <EventGuestList
+                        guests={guests}
+                        newGuest={newGuest}
+                        guestInputMethod={guestInputMethod}
+                        setGuestInputMethod={setGuestInputMethod}
+                        setNewGuest={setNewGuest}
+                        setGuests={setGuests}
+                        handleFileUpload={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const text = event.target?.result as string;
+                            const rows = text.split("\n");
+                            const newGuests = rows
+                              .map((row) => {
+                                const [name, whatsapp_number] = row
+                                  .split(",")
+                                  .map((cell) => cell.trim());
+                                if (name && whatsapp_number) {
+                                  return {
+                                    name,
+                                    whatsapp_number,
+                                  } as Guest;
+                                }
+                                return null;
+                              })
+                              .filter((guest): guest is Guest => guest !== null);
+
+                            setGuests((prev) => [...prev, ...newGuests]);
+                          };
+                          reader.readAsText(file);
+                          e.target.value = "";
+                        }}
+                        downloadTemplate={() => {
+                          const csvContent = "John Doe,+1234567890\nJane Smith,+0987654321";
+                          const blob = new Blob([csvContent], { type: "text/csv" });
+                          const url = window.URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = "guest-list-sample.csv";
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          window.URL.revokeObjectURL(url);
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-white pb-2 overflow-hidden shadow-[0_-10px_10px_-10px_rgba(0,0,0,0.1)]">
                       <Button
                         type="button"
                         variant="outline"
@@ -799,10 +875,11 @@ export default function EventDetails() {
                 </DialogContent>
               </Dialog>
             )}
-            <Button
+            {/* <Button
               variant="outline"
               onClick={handleShareLink}
               disabled={isSharing}
+              className="flex-1 sm:flex-none"
             >
               {isSharing ? (
                 <>
@@ -815,7 +892,7 @@ export default function EventDetails() {
                   Share Event
                 </>
               )}
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -843,7 +920,7 @@ export default function EventDetails() {
                   <img
                     src={event.image_url}
                     alt={event.title}
-                    className="w-1/2 h-auto object-cover rounded-lg"
+                    className="w-1/2 max-w-[300px] aspect-square object-cover rounded-full shadow-lg border-4 border-white"
                   />
                   {/* <Button
                   variant="outline"
@@ -919,114 +996,199 @@ export default function EventDetails() {
                     <h3 className="text-lg font-semibold mb-2">Guest List</h3>
                   </div>
                   <Card className="mt-6">
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Contact</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {event.attendees.map((attendee) => (
-                            <TableRow key={attendee.id}>
-                              <TableCell className="font-medium">
-                                {attendee.name}
-                              </TableCell>
-                              <TableCell>
-                                <div className="space-y-1">
-
-                                  {attendee.whatsapp_number && (
-                                    <div className="text-sm text-gray-600">
-                                      {attendee.whatsapp_number}
-                                    </div>
-                                  )}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Badge
-                                  variant="secondary"
-                                  className={
-                                    attendee.response === "accepted"
-                                      ? "bg-green-500 text-white"
-                                      : attendee.response === "declined"
-                                        ? "bg-red-600 text-white"
-                                        : "bg-yellow-300 text-gray-800"
-                                  }
-                                >
-                                  {attendee.response.charAt(0).toUpperCase() +
-                                    attendee.response.slice(1)}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-primary hover:text-primary-700 hover:bg-primary-50"
-                                    onClick={async () => {
-                                      try {
-                                        const baseUrl =
-                                          process.env.NEXT_PUBLIC_SITE_URL ||
-                                          process.env.NEXT_PUBLIC_BASE_URL ||
-                                          (typeof window !== "undefined" &&
-                                            window.location
-                                            ? window.location.origin
-                                            : "");
-                                        if (!baseUrl) {
-                                          toast.error(
-                                            "Unable to determine base URL to share.",
-                                          );
-                                          return;
-                                        }
-                                        const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
-
-                                        // Create a short URL
-                                        const shortUrl =
-                                          await createShortUrl(responseUrl);
-
-                                        // Copy to clipboard
-                                        await navigator.clipboard.writeText(
-                                          shortUrl,
-                                        );
-                                        toast.success(
-                                          "Short link copied to clipboard!",
-                                        );
-                                      } catch (error) {
-                                        console.error(
-                                          "Error sharing link:",
-                                          error,
-                                        );
-                                        toast.error("Failed to create short URL");
-                                      }
-                                    }}
-                                  >
-                                    <Share2Icon className="h-4 w-4 mr-2" />
-                                    Share
-                                  </Button>
-                                  {event.invitation_config && (
-                                    <GuestInvitationDownloader
-                                      attendeeName={attendee.name}
-                                      config={event.invitation_config as InvitationConfig}
-                                      eventData={{
-                                        title: event.title,
-                                        date: event.date,
-                                        time: new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                        location: event.location,
-                                        bride_name: event.bride_name,
-                                        groom_name: event.groom_name,
-                                        description: event.description || "",
-                                      }}
-                                    />
-                                  )}
-                                </div>
-                              </TableCell>
+                    <CardContent className="p-0 sm:p-6 overflow-hidden">
+                      {/* Desktop View Table */}
+                      <div className="hidden md:block overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Name</TableHead>
+                              <TableHead>Contact</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Actions</TableHead>
                             </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+                          </TableHeader>
+                          <TableBody>
+                            {event.attendees.map((attendee) => (
+                              <TableRow key={attendee.id}>
+                                <TableCell className="font-medium">
+                                  {attendee.name}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="space-y-1">
+
+                                    {attendee.whatsapp_number && (
+                                      <div className="text-sm text-gray-600">
+                                        {attendee.whatsapp_number}
+                                      </div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant="secondary"
+                                    className={
+                                      attendee.response === "accepted"
+                                        ? "bg-green-500 text-white"
+                                        : attendee.response === "declined"
+                                          ? "bg-red-600 text-white"
+                                          : "bg-yellow-300 text-gray-800"
+                                    }
+                                  >
+                                    {attendee.response.charAt(0).toUpperCase() +
+                                      attendee.response.slice(1)}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-primary hover:text-primary-700 hover:bg-primary-50"
+                                      onClick={async () => {
+                                        try {
+                                          const baseUrl =
+                                            process.env.NEXT_PUBLIC_SITE_URL ||
+                                            process.env.NEXT_PUBLIC_BASE_URL ||
+                                            (typeof window !== "undefined" &&
+                                              window.location
+                                              ? window.location.origin
+                                              : "");
+                                          if (!baseUrl) {
+                                            toast.error(
+                                              "Unable to determine base URL to share.",
+                                            );
+                                            return;
+                                          }
+                                          const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
+
+                                          // Create a short URL
+                                          const shortUrl =
+                                            await createShortUrl(responseUrl);
+
+                                          // Copy to clipboard
+                                          await navigator.clipboard.writeText(
+                                            shortUrl,
+                                          );
+                                          toast.success(
+                                            "Short link copied to clipboard!",
+                                          );
+                                        } catch (error) {
+                                          console.error(
+                                            "Error sharing link:",
+                                            error,
+                                          );
+                                          toast.error("Failed to create short URL");
+                                        }
+                                      }}
+                                    >
+                                      <Share2Icon className="h-4 w-4 mr-2" />
+                                      Share
+                                    </Button>
+                                    {event.invitation_config && (
+                                      <GuestInvitationDownloader
+                                        attendeeName={attendee.name}
+                                        config={event.invitation_config as InvitationConfig}
+                                        eventData={{
+                                          title: event.title,
+                                          date: event.date,
+                                          time: new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                          location: event.location,
+                                          bride_name: event.bride_name,
+                                          groom_name: event.groom_name,
+                                          description: event.description || "",
+                                        }}
+                                      />
+                                    )}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+
+                      {/* Mobile Stacked Card View */}
+                      <div className="md:hidden space-y-4 p-4 sm:p-0 bg-gray-50 sm:bg-transparent">
+                        {event.attendees.map((attendee) => (
+                          <div key={attendee.id} className="bg-white border rounded-lg p-4 space-y-4 shadow-sm">
+                            <div className="flex justify-between items-start">
+                              <div className="font-semibold text-gray-900 text-lg">{attendee.name}</div>
+                              <Badge
+                                variant="secondary"
+                                className={
+                                  attendee.response === "accepted"
+                                    ? "bg-green-500 text-white"
+                                    : attendee.response === "declined"
+                                      ? "bg-red-600 text-white"
+                                      : "bg-yellow-300 text-gray-800"
+                                }
+                              >
+                                {attendee.response?.charAt(0).toUpperCase() + attendee.response?.slice(1)}
+                              </Badge>
+                            </div>
+
+                            <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md border space-y-1.5 flex flex-col gap-1">
+                              {attendee.whatsapp_number && (
+                                <div className="flex items-center">
+                                  <span className="font-medium text-gray-500 w-24 flex-shrink-0">WhatsApp:</span>
+                                  <span className="truncate">{attendee.whatsapp_number}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="pt-3 border-t flex flex-col gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full justify-center h-10 border-primary/20 text-primary hover:bg-primary-50"
+                                onClick={async () => {
+                                  try {
+                                    const baseUrl =
+                                      process.env.NEXT_PUBLIC_SITE_URL ||
+                                      process.env.NEXT_PUBLIC_BASE_URL ||
+                                      (typeof window !== "undefined" && window.location
+                                        ? window.location.origin
+                                        : "");
+                                    if (!baseUrl) {
+                                      toast.error("Unable to determine base URL to share.");
+                                      return;
+                                    }
+                                    const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
+                                    const shortUrl = await createShortUrl(responseUrl);
+                                    await navigator.clipboard.writeText(shortUrl);
+                                    toast.success("Short link copied to clipboard!");
+                                  } catch (error) {
+                                    console.error("Error sharing link:", error);
+                                    toast.error("Failed to create short URL");
+                                  }
+                                }}
+                              >
+                                <Share2Icon className="h-4 w-4 mr-2" />
+                                Share Link
+                              </Button>
+
+                              {event.invitation_config && (
+                                <div className="w-full [&>button]:w-full [&>button]:justify-center [&>button]:h-10 [&>button]:border [&>button]:border-primary/20">
+                                  <GuestInvitationDownloader
+                                    attendeeName={attendee.name}
+                                    config={event.invitation_config as InvitationConfig}
+                                    eventData={{
+                                      title: event.title,
+                                      date: event.date,
+                                      time: new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                      location: event.location,
+                                      bride_name: event.bride_name,
+                                      groom_name: event.groom_name,
+                                      description: event.description || "",
+                                    }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
                 </>

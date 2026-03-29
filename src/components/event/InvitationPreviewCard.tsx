@@ -76,9 +76,9 @@ const InvitationPreviewCard: React.FC<InvitationPreviewCardProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <span>Invitation Card Preview</span>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             {isEditable && onSave && (
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
@@ -145,7 +145,7 @@ const InvitationPreviewCard: React.FC<InvitationPreviewCardProps> = ({
         </div>
 
         {showPreview && (
-          <div className="bg-gray-50 p-6 rounded-lg">
+          <div className="bg-gray-50 p-4 sm:p-6 rounded-lg overflow-x-auto flex justify-center">
             <InvitationPreview
               config={invitationConfig}
               guestName={previewGuestName}
