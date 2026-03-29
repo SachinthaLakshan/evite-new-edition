@@ -12,6 +12,7 @@ export interface Event {
   description?: string | null;
   location: string;
   location_url?: string | null;
+  is_active?: boolean | null;
   image_url?: string | null;
   background_image_url?: string | null;
   slider_images?: string[] | null;

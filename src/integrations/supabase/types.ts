@@ -59,6 +59,7 @@ export type Database = {
           description: string | null
           groom_name: string | null
           id: string
+          is_active: boolean | null
           image_url: string | null
           background_image_url: string | null
           location: string
@@ -78,6 +79,7 @@ export type Database = {
           description?: string | null
           groom_name?: string | null
           id?: string
+          is_active?: boolean | null
           image_url?: string | null
           background_image_url?: string | null
           location: string
@@ -97,6 +99,7 @@ export type Database = {
           description?: string | null
           groom_name?: string | null
           id?: string
+          is_active?: boolean | null
           image_url?: string | null
           background_image_url?: string | null
           location?: string
@@ -109,6 +112,32 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          id: string
+          is_admin: boolean | null
+          created_at: string
+        }
+        Insert: {
+          id: string
+          is_admin?: boolean | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          is_admin?: boolean | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       short_urls: {
         Row: {

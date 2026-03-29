@@ -25,13 +25,17 @@ const Auth = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const router = useRouter();
-  const { session } = useAuth();
+  const { session, isAdmin, loading } = useAuth();
 
   useEffect(() => {
-    if (session) {
-      router.push("/dashboard");
+    if (session && !loading) {
+      if (isAdmin) {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     }
-  }, [session, router]);
+  }, [session, isAdmin, loading, router]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +55,7 @@ const Auth = () => {
           password,
         });
         if (error) throw error;
-        router.push("/dashboard");
+        // Navigation handled by useEffect when session and isAdmin are fetched
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -64,7 +68,7 @@ const Auth = () => {
     try {
       setIsGoogleLoading(true);
 
-      // Get the current domain to use for redirect
+      // Get the current domain to use for redirect, and default auth will push to correctly route in useEffect or Dashboard redirects
       const origin = window.location.origin;
       const redirectTo = `${origin}/dashboard`;
 

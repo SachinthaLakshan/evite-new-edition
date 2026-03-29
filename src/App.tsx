@@ -12,6 +12,7 @@ import NotFound from "@/legacy-pages/NotFound";
 import EventDetails from "@/legacy-pages/EventDetails";
 import PublicRSVP from "@/legacy-pages/PublicRSVP";
 import CreateEvent from "@/legacy-pages/CreateEvent";
+import AdminDashboard from "@/legacy-pages/AdminDashboard";
 import { AuthProvider } from "@/components/AuthProvider";
 import Profile from "@/legacy-pages/Profile";
 import Landing from "@/legacy-pages/Index";
@@ -27,6 +28,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/dashboard/create-event" element={<CreateEvent />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/events/:id" element={<EventDetails />} />

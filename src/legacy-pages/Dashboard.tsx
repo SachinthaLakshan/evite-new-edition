@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,12 +12,18 @@ import { Event, EventStatus } from "@/types/event";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 const Dashboard = () => {
-  const { session } = useAuth();
+  const { session, isAdmin, loading } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [selectedFilter, setSelectedFilter] = useState<EventStatus | "all">(
     "all",
   );
+
+  useEffect(() => {
+    if (!loading && session && isAdmin) {
+      router.push("/admin");
+    }
+  }, [loading, session, isAdmin, router]);
 
   const statusFilters: { label: string; value: EventStatus | "all" }[] = [
     { label: "All", value: "all" },
@@ -56,6 +62,7 @@ const Dashboard = () => {
             id,
             name,
             email,
+            whatsapp_number,
             response,
             link_shared
           )

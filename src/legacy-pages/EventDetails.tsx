@@ -875,10 +875,10 @@ export default function EventDetails() {
                 </DialogContent>
               </Dialog>
             )}
-            {/* <Button
+            <Button
               variant="outline"
               onClick={handleShareLink}
-              disabled={isSharing}
+              disabled={isSharing || !event.is_active}
               className="flex-1 sm:flex-none"
             >
               {isSharing ? (
@@ -892,9 +892,27 @@ export default function EventDetails() {
                   Share Event
                 </>
               )}
-            </Button> */}
+            </Button>
           </div>
         </div>
+
+        {!event.is_active && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-md shadow-sm">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-800 font-medium">
+                  This event is currently inactive and cannot be shared.
+                  To activate your event for sharing, please contact us on WhatsApp (0766830622).
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-2">
@@ -1045,6 +1063,7 @@ export default function EventDetails() {
                                       variant="ghost"
                                       size="sm"
                                       className="text-primary hover:text-primary-700 hover:bg-primary-50"
+                                      disabled={!event.is_active}
                                       onClick={async () => {
                                         try {
                                           const baseUrl =
@@ -1141,7 +1160,8 @@ export default function EventDetails() {
                               <Button
                                 type="button"
                                 variant="outline"
-                                className="w-full justify-center h-10 border-primary/20 text-primary hover:bg-primary-50"
+                                className="w-full justify-center h-10 border border-primary/20"
+                                disabled={!event.is_active}
                                 onClick={async () => {
                                   try {
                                     const baseUrl =
