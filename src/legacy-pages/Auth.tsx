@@ -68,8 +68,11 @@ const Auth = () => {
     try {
       setIsGoogleLoading(true);
 
-      // Get the current domain to use for redirect, and default auth will push to correctly route in useEffect or Dashboard redirects
-      const origin = window.location.origin;
+      // Determine the redirect URL, prioritizing NEXT_PUBLIC_SITE_URL for consistency
+      let origin = typeof window !== "undefined" ? window.location.origin : "";
+      if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")) {
+        origin = process.env.NEXT_PUBLIC_SITE_URL;
+      }
       const redirectTo = `${origin}/dashboard`;
 
       const { error } = await supabase.auth.signInWithOAuth({
