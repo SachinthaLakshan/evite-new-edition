@@ -296,6 +296,16 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
 
   return (
     <div className="relative min-h-screen bg-[#1a120b] text-amber-100 overflow-x-hidden">
+      {!event?.is_active && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
+          <div className="bg-red-600/90 backdrop-blur-sm text-white py-6 px-8 rounded-2xl shadow-2xl text-center font-medium flex flex-col items-center gap-4 max-w-md pointer-events-auto border-2 border-white/20">
+            <div className="bg-white/20 p-3 rounded-full">
+              <X className="h-8 w-8 text-white" />
+            </div>
+            <span className="text-xl">This event is currently pending activation and cannot receive RSVP responses.</span>
+          </div>
+        </div>
+      )}
       {!isOpened && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <style dangerouslySetInnerHTML={{ __html: `
@@ -443,13 +453,15 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
               <input
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="WhatsApp number (+123...)"
-                className="w-full px-4 py-3 rounded-xl bg-white/95 text-gray-900 outline-none"
+                placeholder={!event?.is_active ? "RSVP disabled (Event Inactive)" : "WhatsApp number (+123...)"}
+                disabled={!event?.is_active}
+                className={`w-full px-4 py-3 rounded-xl bg-white/95 text-gray-900 outline-none transition-opacity ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
               />
               <button
                 type="button"
+                disabled={!event?.is_active}
                 onClick={() => verifyAttendee()}
-                className="mt-4 w-full py-3 rounded-xl bg-amber-700 hover:bg-amber-600 transition text-white font-medium"
+                className={`mt-4 w-full py-3 rounded-xl bg-amber-700 hover:bg-amber-600 transition text-white font-medium ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Verify Invitation
               </button>
@@ -460,28 +472,25 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
               <div className="flex flex-wrap justify-center gap-2">
                 <button
                   style={{ fontFamily: 'Parisienne' }}
-                  disabled={isUpdatingResponse}
+                  disabled={isUpdatingResponse || !event?.is_active}
                   onClick={() => updateResponse("yes")}
-                  className={`px-6 py-2 rounded-l-full rounded-r-md border border-amber-300 transition ${attendee?.response === "yes" ? "bg-green-600/80" : "bg-black/35 hover:bg-green-700/50"
-                    }`}
+                  className={`px-6 py-2 rounded-l-full rounded-r-md border border-amber-300 transition ${attendee?.response === "yes" ? "bg-green-600/80" : "bg-black/35 hover:bg-green-700/50"} ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   Yes
                 </button>
                 <button
                   style={{ fontFamily: 'Parisienne' }}
-                  disabled={isUpdatingResponse}
+                  disabled={isUpdatingResponse || !event?.is_active}
                   onClick={() => updateResponse("no")}
-                  className={`px-6 py-2 rounded-md border border-amber-300 transition ${attendee?.response === "no" ? "bg-red-600/80" : "bg-black/35 hover:bg-red-700/50"
-                    }`}
+                  className={`px-6 py-2 rounded-md border border-amber-300 transition ${attendee?.response === "no" ? "bg-red-600/80" : "bg-black/35 hover:bg-red-700/50"} ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   No
                 </button>
                 <button
                   style={{ fontFamily: 'Parisienne' }}
-                  disabled={isUpdatingResponse}
+                  disabled={isUpdatingResponse || !event?.is_active}
                   onClick={() => updateResponse("maybe")}
-                  className={`px-6 py-2 rounded-r-full rounded-l-md border border-amber-300 transition ${attendee?.response === "maybe" ? "bg-orange-500/80" : "bg-black/35 hover:bg-orange-600/50"
-                    }`}
+                  className={`px-6 py-2 rounded-r-full rounded-l-md border border-amber-300 transition ${attendee?.response === "maybe" ? "bg-orange-500/80" : "bg-black/35 hover:bg-orange-600/50"} ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   Maybe
                 </button>

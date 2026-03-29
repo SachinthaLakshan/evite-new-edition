@@ -1063,7 +1063,7 @@ export default function EventDetails() {
                                       variant="ghost"
                                       size="sm"
                                       className="text-primary hover:text-primary-700 hover:bg-primary-50"
-                                      disabled={!event.is_active}
+                                      //disabled={!event.is_active}
                                       onClick={async () => {
                                         try {
                                           const baseUrl =
