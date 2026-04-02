@@ -909,7 +909,7 @@ export default function EventDetails() {
               <div className="ml-3">
                 <p className="text-sm text-yellow-800 font-medium">
                   This event is currently inactive and cannot be shared.
-                  To activate your event for sharing, please contact us on WhatsApp (0766830622).
+                  To activate your event for sharing, please contact us on WhatsApp (0716561975).
                 </p>
               </div>
             </div>

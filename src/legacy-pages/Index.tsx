@@ -15,6 +15,7 @@ import {
   MapPinIcon,
   CheckIcon,
   PlayCircle,
+  Gift,
 } from "lucide-react";
 import {
   Card,
@@ -106,46 +107,44 @@ const Landing: React.FC = () => {
 
   const pricingPlans = [
     {
-      name: "Free",
-      price: "$0",
-      description: "Perfect for small events",
+      name: "Silver",
+      price: "Rs. 2999",
+      description: "Essential digital package",
       features: [
-        "Up to 50 guests",
+        "Unlimited E-cards",
         "Basic customization",
-        "Email invitations",
         "RSVP management",
       ],
       buttonText: "Get Started",
       highlighted: false,
     },
     {
-      name: "Premium",
-      price: "$29",
-      description: "Ideal for medium-sized events",
+      name: "Gold",
+      price: "Rs. 5999",
+      description: "Premium digital + print bundle",
       features: [
-        "Up to 200 guests",
+        "Unlimited E-cards",
         "Advanced customization",
-        "Email & WhatsApp invitations",
         "RSVP management",
-        "Custom domain",
         "Priority support",
+        "100 Printed cards",
       ],
-      buttonText: "Upgrade Now",
+      buttonText: "Get Started",
       highlighted: true,
     },
     {
-      name: "Enterprise",
-      price: "$99",
-      description: "For large-scale events",
+      name: "Platinum",
+      price: "Rs. 9999",
+      description: "Ultimate wedding experience",
       features: [
-        "Unlimited guests",
-        "Full customization",
-        "All communication channels",
-        "Advanced analytics",
-        "Dedicated support",
-        "Custom integrations",
+        "Unlimited E-cards",
+        "Advanced customization",
+        "RSVP management",
+        "Priority support",
+        "200 Printed cards",
+        "200 Printed cake boxes",
       ],
-      buttonText: "Contact Sales",
+      buttonText: "Get Started",
       highlighted: false,
     },
   ];
@@ -164,7 +163,7 @@ const Landing: React.FC = () => {
       ],
       icon: <PlayCircle className="w-8 h-8" />,
       image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
-      contactNumber: "+94 77 123 4567",
+      contactNumber: "071 656 1975",
     },
     {
       title: "Wedding Card Printing",
@@ -179,7 +178,22 @@ const Landing: React.FC = () => {
       ],
       icon: <MailIcon className="w-8 h-8" />,
       image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7",
-      contactNumber: "+94 77 123 4567",
+      contactNumber: "071 656 1975",
+    },
+    {
+      title: "Wedding Cake Box Printing",
+      description:
+        "Elegant and custom-printed cake boxes that add a sweet touch to your celebration, perfectly matching your event theme.",
+      features: [
+        "Custom theme matching",
+        "Food-safe premium material",
+        "Various sizes available",
+        "High-quality offset printing",
+        "Bulk order discounts",
+      ],
+      icon: <Gift className="w-8 h-8" />,
+      image: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f",
+      contactNumber: "071 656 1975",
     },
   ];
 
@@ -380,9 +394,6 @@ const Landing: React.FC = () => {
                     </CardTitle>
                     <div className="mt-2 mb-0">
                       <span className="text-4xl font-bold">{plan.price}</span>
-                      {plan.price !== "$0" && (
-                        <span className="text-gray-500">/month</span>
-                      )}
                     </div>
                     <p className="text-gray-500 text-sm mt-2">
                       {plan.description}
@@ -424,7 +435,7 @@ const Landing: React.FC = () => {
               services
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {products.map((product, index) => (
               <motion.div
                 key={index}
@@ -507,7 +518,7 @@ const Landing: React.FC = () => {
                   <div>
                     <h4 className="font-semibold">Phone</h4>
                     <p className="text-gray-600">
-                      <a href="tel:+94771234567">+94 77 123 4567</a>
+                      <a href="tel:0716561975">071 656 1975</a>
                     </p>
                   </div>
                 </div>
