@@ -20,6 +20,7 @@ export interface InvitationConfig {
     secondary_color: string;
     text_color: string;
   };
+  background_image?: string;
   guest_name_position: 'top' | 'bottom' | 'header' | 'center';
 }
 

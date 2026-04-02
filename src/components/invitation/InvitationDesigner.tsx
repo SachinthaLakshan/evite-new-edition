@@ -56,12 +56,13 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
         guest_name: { x: 50, y: 10 },
       },
       styling: {
-        font_family: "Playfair Display",
-        primary_color: "#8B5CF6",
-        secondary_color: "#D946EF",
+        font_family: "Dancing Script",
+        primary_color: "#065F46",
+        secondary_color: "#10B981",
         text_color: "#1F2937",
       },
-      guest_name_position: "top",
+      background_image: "/assets/cardback/8.jpeg",
+      guest_name_position: "header",
     };
 
     return {
@@ -117,6 +118,7 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
       setConfig((prev) => ({
         ...prev,
         template_id: templateId,
+        background_image: template?.defaultConfig?.background_image || prev.background_image,
         styling: template.defaultConfig.styling || prev.styling,
         guest_name_position:
           template.defaultConfig.guest_name_position ||
@@ -139,12 +141,13 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
       },
       text_positions: template?.defaultConfig?.text_positions || getDefaultPositions(),
       styling: template?.defaultConfig?.styling || {
-        font_family: "Playfair Display",
-        primary_color: "#8B5CF6",
-        secondary_color: "#D946EF",
+        font_family: "Dancing Script",
+        primary_color: "#065F46",
+        secondary_color: "#10B981",
         text_color: "#1F2937",
       },
-      guest_name_position: template?.defaultConfig?.guest_name_position || "top",
+      background_image: template?.defaultConfig?.background_image || "/assets/cardback/8.jpeg",
+      guest_name_position: template?.defaultConfig?.guest_name_position || "header",
     } as InvitationConfig);
   };
 
