@@ -19,7 +19,33 @@ export default function ShortUrlRedirect() {
       }
 
       try {
-        // Look up the original URL in the database
+        // 1. Try to find in invitation_links (New 5-digit system)
+        const { data: invData, error: invError } = await (supabase as any)
+          .from("invitation_links")
+          .select("event_id, attendee_id, expires_at, clicks")
+          .eq("short_id", shortId)
+          .single();
+
+        if (!invError && invData) {
+          // Check if URL has expired
+          if (invData.expires_at && new Date(invData.expires_at) < new Date()) {
+            setError("This invitation link has expired");
+            setTimeout(() => router.push("/404"), 2000);
+            return;
+          }
+
+          // Increment clicks
+          await (supabase as any)
+            .from("invitation_links")
+            .update({ clicks: (invData.clicks || 0) + 1 })
+            .eq("short_id", shortId);
+
+          // Redirect to the internal response URL
+          router.push(`/response?eventId=${invData.event_id}&attendeeId=${invData.attendee_id}`);
+          return;
+        }
+
+        // 2. Fall back to short_urls (Original system)
         const { data, error } = await supabase
           .from("short_urls")
           .select("original_url, expires_at, clicks")
@@ -43,7 +69,7 @@ export default function ShortUrlRedirect() {
           return;
         }
 
-        // If URL is valid, increment click count if you track that
+        // Increment click count
         const currentClicks = data.clicks || 0;
         await supabase
           .from("short_urls")

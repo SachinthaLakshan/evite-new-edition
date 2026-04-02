@@ -69,7 +69,7 @@ import { isValidGoogleMapsUrl, isValidImageUrl } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getStatusColor } from "@/lib/utils";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { createShortUrl } from "@/lib/url-shortener";
+import { createShortUrl, createAttendeeShortUrl } from "@/lib/url-shortener";
 import InvitationPreviewCard from "@/components/event/InvitationPreviewCard";
 import { InvitationConfig } from "@/types/invitation";
 import { GuestInvitationDownloader } from "@/components/event/GuestInvitationDownloader";
@@ -1067,15 +1067,8 @@ export default function EventDetails() {
                                       className="text-primary hover:text-primary-700 hover:bg-primary-50"
                                       onClick={async () => {
                                         try {
-                                          const baseUrl =
-                                            process.env.NEXT_PUBLIC_SITE_URL ||
-                                            process.env.NEXT_PUBLIC_BASE_URL ||
-                                            (typeof window !== "undefined" && window.location
-                                              ? window.location.origin
-                                              : "");
-                                          const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
-                                          const shortUrl = await createShortUrl(responseUrl);
-                                          window.open(shortUrl, '_blank');
+                                          const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                          window.open(shortUrl, "_blank");
                                         } catch (error) {
                                           console.error("Error opening invite:", error);
                                           toast.error("Failed to open invitation");
@@ -1091,22 +1084,14 @@ export default function EventDetails() {
                                       className="text-green-600 hover:text-green-700 hover:bg-green-50"
                                       onClick={async () => {
                                         try {
-                                          const baseUrl =
-                                            process.env.NEXT_PUBLIC_SITE_URL ||
-                                            process.env.NEXT_PUBLIC_BASE_URL ||
-                                            (typeof window !== "undefined" && window.location
-                                              ? window.location.origin
-                                              : "");
-                                          const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
-                                          const shortUrl = await createShortUrl(responseUrl);
-
+                                          const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
                                           const message = `Hi ${attendee.name}! We're excited to invite you to ${event.title}. Please view your invitation and RSVP here: ${shortUrl}`;
                                           const encodedMessage = encodeURIComponent(message);
                                           const whatsappUrl = attendee.whatsapp_number
-                                            ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, '')}?text=${encodedMessage}`
+                                            ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, "")}?text=${encodedMessage}`
                                             : `https://wa.me/?text=${encodedMessage}`;
 
-                                          window.open(whatsappUrl, '_blank');
+                                          window.open(whatsappUrl, "_blank");
                                         } catch (error) {
                                           console.error("Error sharing on WhatsApp:", error);
                                           toast.error("Failed to share on WhatsApp");
@@ -1122,21 +1107,7 @@ export default function EventDetails() {
                                       className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                                       onClick={async () => {
                                         try {
-                                          const baseUrl =
-                                            process.env.NEXT_PUBLIC_SITE_URL ||
-                                            process.env.NEXT_PUBLIC_BASE_URL ||
-                                            (typeof window !== "undefined" &&
-                                              window.location
-                                              ? window.location.origin
-                                              : "");
-                                          if (!baseUrl) {
-                                            toast.error(
-                                              "Unable to determine base URL to share.",
-                                            );
-                                            return;
-                                          }
-                                          const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
-                                          const shortUrl = await createShortUrl(responseUrl);
+                                          const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
                                           await navigator.clipboard.writeText(shortUrl);
                                           toast.success("Short link copied to clipboard!");
                                         } catch (error) {
@@ -1207,15 +1178,8 @@ export default function EventDetails() {
                                   className="flex-1 justify-center h-10 border border-primary/20"
                                   onClick={async () => {
                                     try {
-                                      const baseUrl =
-                                        process.env.NEXT_PUBLIC_SITE_URL ||
-                                        process.env.NEXT_PUBLIC_BASE_URL ||
-                                        (typeof window !== "undefined" && window.location
-                                          ? window.location.origin
-                                          : "");
-                                      const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
-                                      const shortUrl = await createShortUrl(responseUrl);
-                                      window.open(shortUrl, '_blank');
+                                      const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                      window.open(shortUrl, "_blank");
                                     } catch (error) {
                                       console.error("Error opening invite:", error);
                                       toast.error("Failed to open invitation");
@@ -1231,22 +1195,15 @@ export default function EventDetails() {
                                   className="flex-1 justify-center h-10 border border-green-600/20 text-green-600 hover:bg-green-50"
                                   onClick={async () => {
                                     try {
-                                      const baseUrl =
-                                        process.env.NEXT_PUBLIC_SITE_URL ||
-                                        process.env.NEXT_PUBLIC_BASE_URL ||
-                                        (typeof window !== "undefined" && window.location
-                                          ? window.location.origin
-                                          : "");
-                                      const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
-                                      const shortUrl = await createShortUrl(responseUrl);
+                                      const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
 
                                       const message = `Hi ${attendee.name}! We're excited to invite you to ${event.title}. Please view your invitation and RSVP here: ${shortUrl}`;
                                       const encodedMessage = encodeURIComponent(message);
                                       const whatsappUrl = attendee.whatsapp_number
-                                        ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, '')}?text=${encodedMessage}`
+                                        ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, "")}?text=${encodedMessage}`
                                         : `https://wa.me/?text=${encodedMessage}`;
 
-                                      window.open(whatsappUrl, '_blank');
+                                      window.open(whatsappUrl, "_blank");
                                     } catch (error) {
                                       console.error("Error sharing on WhatsApp:", error);
                                       toast.error("Failed to share on WhatsApp");
@@ -1261,23 +1218,16 @@ export default function EventDetails() {
                                 type="button"
                                 variant="outline"
                                 className="w-full justify-center h-10 border border-gray-200 text-gray-500"
-                                onClick={async () => {
-                                  try {
-                                    const baseUrl =
-                                      process.env.NEXT_PUBLIC_SITE_URL ||
-                                      process.env.NEXT_PUBLIC_BASE_URL ||
-                                      (typeof window !== "undefined" && window.location
-                                        ? window.location.origin
-                                        : "");
-                                    const responseUrl = `${baseUrl}/response?eventId=${event.id}&attendeeId=${attendee.id}`;
-                                    const shortUrl = await createShortUrl(responseUrl);
-                                    await navigator.clipboard.writeText(shortUrl);
-                                    toast.success("Short link copied to clipboard!");
-                                  } catch (error) {
-                                    console.error("Error sharing link:", error);
-                                    toast.error("Failed to create short URL");
-                                  }
-                                }}
+                                  onClick={async () => {
+                                    try {
+                                      const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                      await navigator.clipboard.writeText(shortUrl);
+                                      toast.success("Short link copied to clipboard!");
+                                    } catch (error) {
+                                      console.error("Error sharing link:", error);
+                                      toast.error("Failed to create short URL");
+                                    }
+                                  }}
                               >
                                 <LinkIcon className="h-4 w-4 mr-2" />
                                 Copy Link
