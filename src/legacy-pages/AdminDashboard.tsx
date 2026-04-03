@@ -167,7 +167,8 @@ const AdminDashboard = () => {
                 {events.map((event) => {
                   const authorProfile = profiles.find((p: any) => p.id === event.user_id) as any;
                   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-                  const eventUrl = `${baseUrl}/response?eventId=${event.id}`;
+                  const firstAttendeeId = event.attendees?.[0]?.id;
+                  const eventUrl = `${baseUrl}/response?eventId=${event.id}${firstAttendeeId ? `&attendeeId=${firstAttendeeId}` : ""}`;
                   
                   return (
                     <TableRow key={event.id}>
