@@ -65,7 +65,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { isValidGoogleMapsUrl, isValidImageUrl } from "@/lib/utils";
+import { isValidGoogleMapsUrl, isValidImageUrl, isValidFileSize } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getStatusColor } from "@/lib/utils";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -312,8 +312,8 @@ export default function EventDetails() {
       }
 
       const file = e.target.files[0];
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("Image size should be less than 2MB");
+      if (!isValidFileSize(file)) {
+        toast.error("Image size exceeds 2MB limit.");
         return;
       }
 
@@ -392,8 +392,8 @@ export default function EventDetails() {
 
     try {
       const file = e.target.files[0];
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("Image size should be less than 2MB");
+      if (!isValidFileSize(file)) {
+        toast.error("Image size exceeds 2MB limit.");
         return;
       }
 
@@ -504,8 +504,8 @@ export default function EventDetails() {
       let nextBackgroundImageUrl = event.background_image_url || null;
 
       if (editBackgroundImageFile) {
-        if (editBackgroundImageFile.size > 2 * 1024 * 1024) {
-          toast.error("Background image size should be less than 2MB.");
+        if (!isValidFileSize(editBackgroundImageFile)) {
+          toast.error("Background event image exceeds 2MB limit.");
           return;
         }
         const fileExt = editBackgroundImageFile.name.split(".").pop();
@@ -519,8 +519,8 @@ export default function EventDetails() {
       }
 
       if (editImageFile) {
-        if (editImageFile.size > 2 * 1024 * 1024) {
-          toast.error("Main image size should be less than 2MB.");
+        if (!isValidFileSize(editImageFile)) {
+          toast.error("Main event image exceeds 2MB limit.");
           return;
         }
 

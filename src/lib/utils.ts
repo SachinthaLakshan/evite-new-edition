@@ -65,3 +65,8 @@ export const getStatusColor = (status: string) => {
       return "bg-gray-100 text-gray-700 border border-gray-300";
   }
 };
+
+export const isValidFileSize = (file: File, maxSizeMB: number = 2): boolean => {
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  return file.size <= maxSizeBytes;
+};

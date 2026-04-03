@@ -9,9 +9,10 @@ import { EventSliderImages } from "./event/EventSliderImages";
 import { EventGuestList } from "./event/EventGuestList";
 import { useEventForm } from "@/hooks/useEventForm";
 import { Guest } from "@/types/event-form";
-import { convertToDirectImageUrl } from "@/lib/utils";
+import { convertToDirectImageUrl, isValidFileSize } from "@/lib/utils";
 import InvitationDesigner from "./invitation/InvitationDesigner";
 import { Check, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 
 const steps = [
   { id: 1, name: "Basic Details" },
@@ -174,6 +175,12 @@ const CreateEventForm = () => {
               handleImageChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
+                
+                if (!isValidFileSize(file)) {
+                  toast.error("Main event image exceeds 2MB limit.");
+                  return;
+                }
+                
                 setImageFile(file);
                 setImagePreview(URL.createObjectURL(file));
               }}
@@ -184,6 +191,12 @@ const CreateEventForm = () => {
               handleBackgroundImageChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
+                
+                if (!isValidFileSize(file)) {
+                  toast.error("Background event image exceeds 2MB limit.");
+                  return;
+                }
+                
                 setBackgroundImageFile(file);
                 setBackgroundImagePreview(URL.createObjectURL(file));
               }}
@@ -217,10 +230,16 @@ const CreateEventForm = () => {
               handleSliderImageChange={(e) => {
                 const files = Array.from(e.target.files || []);
                 if (sliderImages.length + files.length > 5) {
+                  toast.error("Maximum 5 gallery images allowed.");
                   return;
                 }
+                
                 files.forEach((file) => {
-                  if (file.size > 2 * 1024 * 1024) return;
+                  if (!isValidFileSize(file)) {
+                    toast.error(`Image "${file.name}" exceeds 2MB limit.`);
+                    return;
+                  }
+                  
                   const previewUrl = URL.createObjectURL(file);
                   setSliderImages((prev) => [
                     ...prev,
