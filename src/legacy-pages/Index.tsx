@@ -162,7 +162,7 @@ const Landing: React.FC = () => {
         "Custom props and backdrops",
       ],
       icon: <PlayCircle className="w-8 h-8" />,
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81",
+      image: "/assets/booth.jpg",
       contactNumber: "071 656 1975",
     },
     {
@@ -177,7 +177,7 @@ const Landing: React.FC = () => {
         "Bulk order discounts",
       ],
       icon: <MailIcon className="w-8 h-8" />,
-      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7",
+      image: "/assets/wedding-card.jpg",
       contactNumber: "071 656 1975",
     },
     {
