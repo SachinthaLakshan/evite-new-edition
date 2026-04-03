@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { UsersIcon, CalendarIcon, UserPlusIcon, CheckCircleIcon, XCircleIcon } from "lucide-react";
+import { UsersIcon, CalendarIcon, UserPlusIcon, CheckCircleIcon, XCircleIcon, ExternalLinkIcon, HeartIcon, MailIcon } from "lucide-react";
 import { Event } from "@/types/event";
 
 const AdminDashboard = () => {
@@ -153,63 +153,107 @@ const AdminDashboard = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Event Title</TableHead>
-                  <TableHead>Author ID</TableHead>
+                  <TableHead>User Email</TableHead>
+                  <TableHead>Groom & Bride</TableHead>
+                  <TableHead>Event Date</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Guests</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Activation</TableHead>
+                  <TableHead className="text-right">Preview</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {events.map((event) => (
-                  <TableRow key={event.id}>
-                    <TableCell className="font-medium">{event.title}</TableCell>
-                    <TableCell className="text-xs text-gray-500 font-mono">
-                      {event.user_id ? `${event.user_id.substring(0, 8)}...` : "System"}
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-500">
-                      {new Date(event.created_at || "").toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{event.attendees?.length || 0}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {event.is_active ? (
-                        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">
-                          <CheckCircleIcon className="w-3 h-3 mr-1" /> Active
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-yellow-200">
-                          <XCircleIcon className="w-3 h-3 mr-1" /> Payment Pending
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {event.is_active ? (
-                         <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => toggleEventActiveMutation.mutate({ eventId: event.id, isActive: false })}
-                          disabled={toggleEventActiveMutation.isPending}
-                        >
-                          Deactivate
-                        </Button>
-                      ) : (
+                {events.map((event) => {
+                  const authorProfile = profiles.find((p: any) => p.id === event.user_id) as any;
+                  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+                  const eventUrl = `${baseUrl}/response?eventId=${event.id}`;
+                  
+                  return (
+                    <TableRow key={event.id}>
+                      <TableCell className="font-semibold">{event.title}</TableCell>
+                      <TableCell className="text-sm">
+                        {authorProfile?.email ? (
+                          <div className="flex items-center gap-2">
+                             <MailIcon className="w-3.5 h-3.5 text-gray-400" />
+                             <span>{authorProfile.email}</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 font-mono">
+                            {event.user_id ? `${event.user_id.substring(0, 8)}...` : "System"}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        <div className="flex items-center gap-1.5 whitespace-nowrap">
+                          <HeartIcon className="w-3.5 h-3.5 text-pink-500" />
+                          <span className="font-medium text-gray-700">
+                            {event.groom_name || "N/A"} & {event.bride_name || "N/A"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        <div className="flex items-center gap-1.5 whitespace-nowrap">
+                          <CalendarIcon className="w-3.5 h-3.5 text-blue-500" />
+                          <span>{new Date(event.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {new Date(event.created_at || "").toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{event.attendees?.length || 0}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {event.is_active ? (
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">
+                            <CheckCircleIcon className="w-3 h-3 mr-1" /> Active
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 border-yellow-200">
+                            <XCircleIcon className="w-3 h-3 mr-1" /> Payment Pending
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {event.is_active ? (
+                           <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => toggleEventActiveMutation.mutate({ eventId: event.id, isActive: false })}
+                            disabled={toggleEventActiveMutation.isPending}
+                          >
+                            Deactivate
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={() => toggleEventActiveMutation.mutate({ eventId: event.id, isActive: true })}
+                            disabled={toggleEventActiveMutation.isPending}
+                          >
+                            Activate Event
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
                         <Button
                           size="sm"
-                          className="bg-green-600 hover:bg-green-700"
-                          onClick={() => toggleEventActiveMutation.mutate({ eventId: event.id, isActive: true })}
-                          disabled={toggleEventActiveMutation.isPending}
+                          variant="outline"
+                          asChild
                         >
-                          Activate Event
+                          <a href={eventUrl} target="_blank" rel="noopener noreferrer">
+                            <ExternalLinkIcon className="w-4 h-4 mr-1.5" />
+                            Sample URL
+                          </a>
                         </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {events.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
+                    <TableCell colSpan={9} className="h-24 text-center">
                       No events found in the database.
                     </TableCell>
                   </TableRow>
