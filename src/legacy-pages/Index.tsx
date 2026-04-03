@@ -337,7 +337,7 @@ const Landing: React.FC = () => {
               ) : (
                 <iframe
                   className="absolute inset-0 w-full h-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                  src="https://www.youtube.com/embed/39JNHkLCAek?si=FJQwglYg-xrcyCun"
                   title="Product Demo"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -412,8 +412,8 @@ const Landing: React.FC = () => {
                   <CardFooter className="pt-0">
                     <Button
                       className={`w-full ${plan.highlighted
-                          ? "bg-[#ff604b] hover:bg-[#ff604b]/90"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-[#ff604b] hover:bg-[#ff604b]/90"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                     >
                       {plan.buttonText}
