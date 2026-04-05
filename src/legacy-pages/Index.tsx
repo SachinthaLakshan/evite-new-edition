@@ -407,6 +407,9 @@ const Landing: React.FC = () => {
                         </li>
                       ))}
                     </ul>
+                    <div className="mt-4">
+                      <p className="text-gray-500 text-sm">{plan.name == "Gold" ? "*Conditions Apply" : ""}</p>
+                    </div>
                   </CardContent>
                   <CardFooter className="pt-0">
                     <Button
