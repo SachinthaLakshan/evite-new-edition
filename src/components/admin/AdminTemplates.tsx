@@ -20,6 +20,7 @@ import { CardTemplate } from "@/types/invitation";
 const AdminTemplates = () => {
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [newTemplate, setNewTemplate] = useState({
     name: "",
     image_url: "",
@@ -38,6 +39,36 @@ const AdminTemplates = () => {
       return data as CardTemplate[];
     },
   });
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    setIsUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `templates/preview-${Date.now()}.${fileExt}`;
+      
+      const { error } = await supabase.storage
+        .from("event-images")
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("event-images")
+        .getPublicUrl(fileName);
+
+      setNewTemplate(prev => ({ ...prev, image_url: publicUrl }));
+      toast.success("Template preview image uploaded! URL populated.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to upload image.");
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = "";
+    }
+  };
 
   const addTemplateMutation = useMutation({
     mutationFn: async (template: typeof newTemplate) => {
@@ -111,6 +142,29 @@ const AdminTemplates = () => {
                   onChange={(e) => setNewTemplate(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
+              <div className="grid gap-2">
+                <Label>Upload Preview Image</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    disabled={isUploadingImage}
+                    className="cursor-pointer"
+                  />
+                  {isUploadingImage && <Loader2 className="w-5 h-5 animate-spin text-primary" />}
+                </div>
+              </div>
+
+              <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-gray-200"></span>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-gray-500">Or paste link directly</span>
+                </div>
+              </div>
+
               <div className="grid gap-2">
                 <Label htmlFor="image_url">Preview Image URL</Label>
                 <Input
