@@ -40,6 +40,36 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
   toggleMusic,
   audioRef,
 }) => {
+  const CardTemplateImage = ({ templateId, finalCardUrl, eventTitle }: any) => {
+    const [template, setTemplate] = useState<any>(null);
+
+    useEffect(() => {
+      if (finalCardUrl) return; 
+      if (!templateId) return;
+
+      const fetchTemplate = async () => {
+        const { data } = await (supabase.from("card_templates" as any) as any)
+          .select("*")
+          .eq("id", templateId)
+          .single();
+        if (data) setTemplate(data);
+      };
+      fetchTemplate();
+    }, [templateId, finalCardUrl]);
+
+    const displayUrl = finalCardUrl || template?.image_url;
+
+    if (!displayUrl) return null;
+
+    return (
+      <img
+        src={displayUrl}
+        alt={eventTitle}
+        className="relative z-10 w-full h-full object-contain rounded-lg shadow-2xl border-4 border-amber-300/30"
+      />
+    );
+  };
+
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -427,24 +457,37 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
           backgroundPosition: "center",
         }}
       >
-        <h1 className="text-4xl sm:text-6xl font-semibold tracking-wide" style={{ fontFamily: 'Parisienne' }}>
-          {titleParts[0]} & {titleParts[1]}
-        </h1>
-
-        {event.image_url ? (
-          <div className="mt-8 relative w-56 h-56 sm:w-80 sm:h-80 flex items-center justify-center">
-            <img
-              src="/assets/flower2.png"
-              alt="Decorative floral frame"
-              className="absolute inset-0 w-full h-full object-contain animate-[spin_80s_linear_infinite]"
-            />
-            <img
-              src={event.image_url}
-              alt={event.title}
-              className="relative z-10 w-44 h-44 sm:w-60 sm:h-60 rounded-full object-cover border-4 border-amber-300/70 shadow-2xl"
-            />
+        {(event.final_card_url || event.selected_template_id) ? (
+          <div className="mt-8 relative w-72 h-96 sm:w-[400px] sm:h-[533px] flex items-center justify-center animate-in fade-in zoom-in duration-700">
+             <div className="absolute inset-0 bg-amber-200/20 blur-3xl rounded-full animate-pulse" />
+             <CardTemplateImage 
+               templateId={event.selected_template_id} 
+               finalCardUrl={event.final_card_url} 
+               eventTitle={event.title}
+             />
           </div>
-        ) : null}
+        ) : (
+          <>
+            <h1 className="text-4xl sm:text-6xl font-semibold tracking-wide" style={{ fontFamily: 'Parisienne' }}>
+              {titleParts[0]} & {titleParts[1]}
+            </h1>
+
+            {event.image_url ? (
+              <div className="mt-8 relative w-56 h-56 sm:w-80 sm:h-80 flex items-center justify-center">
+                <img
+                  src="/assets/flower2.png"
+                  alt="Decorative floral frame"
+                  className="absolute inset-0 w-full h-full object-contain animate-[spin_80s_linear_infinite]"
+                />
+                <img
+                  src={event.image_url}
+                  alt={event.title}
+                  className="relative z-10 w-44 h-44 sm:w-60 sm:h-60 rounded-full object-cover border-4 border-amber-300/70 shadow-2xl"
+                />
+              </div>
+            ) : null}
+          </>
+        )}
 
         <div id="rsvp-section" className="mt-10 w-full max-w-xl">
           {!isVerified ? (

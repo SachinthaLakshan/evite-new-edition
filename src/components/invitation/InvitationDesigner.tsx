@@ -1,23 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { TemplateSelector, INVITATION_TEMPLATES } from "./TemplateSelector";
-import InvitationPreview from "./InvitationPreview";
-import {
-  InvitationConfig,
-  AVAILABLE_FONTS,
-  GUEST_NAME_POSITIONS,
-} from "@/types/invitation";
+import { TemplateSelector } from "./TemplateSelector";
+import { InvitationConfig, CardTemplate } from "@/types/invitation";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 interface InvitationDesignerProps {
   initialConfig?: InvitationConfig;
@@ -38,380 +25,85 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
   eventData,
   onConfigChange,
 }) => {
-  const [config, setConfig] = useState<InvitationConfig>(() => {
-    const baseConfig = initialConfig || {
-      template_id: "classic",
-      couple_names: {
-        person1: "",
-        person2: "",
-      },
-      custom_text: {
-        main_message: "",
-        additional_info: "",
-      },
-      text_positions: {
-        couple_names: { x: 50, y: 30 },
-        venue: { x: 50, y: 60 },
-        date: { x: 50, y: 70 },
-        guest_name: { x: 50, y: 10 },
-      },
-      styling: {
-        font_family: "Dancing Script",
-        primary_color: "#065F46",
-        secondary_color: "#10B981",
-        text_color: "#1F2937",
-      },
-      background_image: "/assets/cardback/8.jpeg",
-      guest_name_position: "header",
-    };
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
+    initialConfig?.selected_template_id || ""
+  );
 
-    return {
-      ...baseConfig,
-      couple_names: {
-        person1: baseConfig.couple_names?.person1 || eventData.bride_name || "",
-        person2: baseConfig.couple_names?.person2 || eventData.groom_name || "",
-      },
-      custom_text: {
-        main_message: baseConfig.custom_text?.main_message || eventData.title || "Together with their families",
-        additional_info: baseConfig.custom_text?.additional_info || eventData.description || "Reception to follow",
-      }
-    };
+  // Fetch all templates to find the selected one and show its image
+  const { data: templates = [], isLoading } = useQuery<CardTemplate[]>({
+    queryKey: ["card_templates"],
+    queryFn: async () => {
+      const { data, error } = await (supabase
+        .from("card_templates" as any) as any)
+        .select("*");
+      if (error) throw error;
+      return data as CardTemplate[];
+    },
   });
 
-  const [previewGuestName, setPreviewGuestName] = useState("John Doe");
-
-  const handlePositionChange = (
-    key: keyof InvitationConfig["text_positions"],
-    position: { x: number; y: number },
-  ) => {
-    setConfig((prev) => ({
-      ...prev,
-      text_positions: {
-        ...prev.text_positions,
-        [key]: position,
-      },
-    }));
-  };
-
-  const getDefaultPositions = () => {
-    const template = INVITATION_TEMPLATES.find(
-      (t) => t.id === config.template_id,
-    );
-    if (template?.defaultConfig?.text_positions) {
-      return template.defaultConfig.text_positions;
-    }
-    return {
-      couple_names: { x: 50, y: 30 },
-      venue: { x: 50, y: 60 },
-      date: { x: 50, y: 70 },
-      guest_name: { x: 50, y: 10 },
-    };
-  };
-
-  useEffect(() => {
-    onConfigChange(config);
-  }, [config, onConfigChange]);
+  const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
 
   const handleTemplateChange = (templateId: string) => {
-    const template = INVITATION_TEMPLATES.find((t) => t.id === templateId);
-    if (template && template.defaultConfig) {
-      setConfig((prev) => ({
-        ...prev,
-        template_id: templateId,
-        background_image: template?.defaultConfig?.background_image || prev.background_image,
-        styling: template.defaultConfig.styling || prev.styling,
-        guest_name_position:
-          template.defaultConfig.guest_name_position ||
-          prev.guest_name_position,
-      }));
-    }
-  };
-
-  const handleReset = () => {
-    const template = INVITATION_TEMPLATES.find((t) => t.id === config.template_id);
-    setConfig({
-      template_id: config.template_id,
-      couple_names: {
-        person1: eventData.bride_name || "",
-        person2: eventData.groom_name || "",
-      },
-      custom_text: {
-        main_message: eventData.title || "Together with their families",
-        additional_info: eventData.description || "Reception to follow",
-      },
-      text_positions: template?.defaultConfig?.text_positions || getDefaultPositions(),
-      styling: template?.defaultConfig?.styling || {
-        font_family: "Dancing Script",
-        primary_color: "#065F46",
-        secondary_color: "#10B981",
-        text_color: "#1F2937",
-      },
-      background_image: template?.defaultConfig?.background_image || "/assets/cardback/8.jpeg",
-      guest_name_position: template?.defaultConfig?.guest_name_position || "header",
-    } as InvitationConfig);
-  };
-
-  const updateConfig = (path: string, value: any) => {
-    setConfig((prev) => {
-      const keys = path.split(".");
-      const newConfig = { ...prev };
-      let current: any = newConfig;
-
-      for (let i = 0; i < keys.length - 1; i++) {
-        current[keys[i]] = { ...current[keys[i]] };
-        current = current[keys[i]];
-      }
-
-      current[keys[keys.length - 1]] = value;
-      return newConfig;
+    setSelectedTemplateId(templateId);
+    onConfigChange({
+      ...initialConfig,
+      selected_template_id: templateId,
     });
   };
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left side - Controls */}
+        {/* Left side - Template Selection */}
         <div className="space-y-6">
-          {/* Template Selection */}
           <TemplateSelector
-            selectedTemplate={config.template_id}
+            selectedTemplate={selectedTemplateId}
             onTemplateChange={handleTemplateChange}
           />
-
-          {/* Couple Names */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Names</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="person1">First Person Name</Label>
-                <Input
-                  id="person1"
-                  placeholder="e.g., John"
-                  value={config.couple_names.person1}
-                  onChange={(e) =>
-                    updateConfig("couple_names.person1", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="person2">Second Person Name</Label>
-                <Input
-                  id="person2"
-                  placeholder="e.g., Jane"
-                  value={config.couple_names.person2}
-                  onChange={(e) =>
-                    updateConfig("couple_names.person2", e.target.value)
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Custom Text */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Custom Messages</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="main_message">Main Message</Label>
-                <Textarea
-                  id="main_message"
-                  placeholder="e.g., Together with their families"
-                  value={config.custom_text.main_message}
-                  onChange={(e) =>
-                    updateConfig("custom_text.main_message", e.target.value)
-                  }
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="additional_info">Additional Information</Label>
-                <Textarea
-                  id="additional_info"
-                  placeholder="e.g., Reception to follow"
-                  value={config.custom_text.additional_info}
-                  onChange={(e) =>
-                    updateConfig("custom_text.additional_info", e.target.value)
-                  }
-                  rows={2}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Styling */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Styling</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="font_family">Font Family</Label>
-                <Select
-                  value={config.styling.font_family}
-                  onValueChange={(value) =>
-                    updateConfig("styling.font_family", value)
-                  }
-                >
-                  <SelectTrigger id="font_family">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AVAILABLE_FONTS.map((font) => (
-                      <SelectItem key={font} value={font}>
-                        <span style={{ fontFamily: font }}>{font}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="primary_color">Primary Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="primary_color"
-                      type="color"
-                      value={config.styling.primary_color}
-                      onChange={(e) =>
-                        updateConfig("styling.primary_color", e.target.value)
-                      }
-                      className="w-16 h-10"
-                    />
-                    <Input
-                      type="text"
-                      value={config.styling.primary_color}
-                      onChange={(e) =>
-                        updateConfig("styling.primary_color", e.target.value)
-                      }
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="secondary_color">Secondary Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="secondary_color"
-                      type="color"
-                      value={config.styling.secondary_color}
-                      onChange={(e) =>
-                        updateConfig("styling.secondary_color", e.target.value)
-                      }
-                      className="w-16 h-10"
-                    />
-                    <Input
-                      type="text"
-                      value={config.styling.secondary_color}
-                      onChange={(e) =>
-                        updateConfig("styling.secondary_color", e.target.value)
-                      }
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="text_color">Text Color</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="text_color"
-                    type="color"
-                    value={config.styling.text_color}
-                    onChange={(e) =>
-                      updateConfig("styling.text_color", e.target.value)
-                    }
-                    className="w-16 h-10"
-                  />
-                  <Input
-                    type="text"
-                    value={config.styling.text_color}
-                    onChange={(e) =>
-                      updateConfig("styling.text_color", e.target.value)
-                    }
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Guest Name Position */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Guest Name Position</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="guest_name_position">
-                  Where should guest names appear?
-                </Label>
-                <Select
-                  value={config.guest_name_position}
-                  onValueChange={(value: any) =>
-                    updateConfig("guest_name_position", value)
-                  }
-                >
-                  <SelectTrigger id="guest_name_position">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {GUEST_NAME_POSITIONS.map((position) => (
-                      <SelectItem key={position.value} value={position.value}>
-                        {position.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="preview_guest_name">
-                  Preview Guest Name (for testing)
-                </Label>
-                <Input
-                  id="preview_guest_name"
-                  placeholder="Enter a name to preview"
-                  value={previewGuestName}
-                  onChange={(e) => setPreviewGuestName(e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Right side - Preview */}
         <div className="lg:sticky lg:top-6 h-fit">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between gap-4">
-                <CardTitle>Live Preview</CardTitle>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReset}
-                >
-                  Reset changes
-                </Button>
-              </div>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gray-50/50">
+              <CardTitle className="text-lg">Live Preview</CardTitle>
+              <p className="text-xs text-gray-500">How your card background will look</p>
             </CardHeader>
-            <CardContent>
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <InvitationPreview
-                  config={config}
-                  guestName={previewGuestName}
-                  eventData={eventData}
-                  editable
-                  onPositionChange={handlePositionChange}
-                />
+            <CardContent className="p-0">
+              <div className="bg-gray-100 aspect-[3/4] relative flex items-center justify-center overflow-hidden">
+                {isLoading ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <span className="text-sm text-gray-500">Loading preview...</span>
+                  </div>
+                ) : selectedTemplate ? (
+                  <img
+                    src={selectedTemplate.image_url}
+                    alt={selectedTemplate.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-8">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-2xl text-gray-400">?</span>
+                    </div>
+                    <p className="text-gray-500 text-sm">Please select a template to see preview</p>
+                  </div>
+                )}
+                
+                {selectedTemplate && (
+                  <div className="absolute inset-0 pointer-events-none border-4 border-primary/10"></div>
+                )}
               </div>
+              
+              {selectedTemplate && (
+                <div className="p-4 border-t bg-white">
+                  <h4 className="font-semibold text-gray-900">{selectedTemplate.name}</h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Design manually processed by admin after creation.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -421,3 +113,4 @@ const InvitationDesigner: React.FC<InvitationDesignerProps> = ({
 };
 
 export default InvitationDesigner;
+

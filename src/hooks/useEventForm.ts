@@ -30,6 +30,7 @@ export const useEventForm = () => {
     image_url: "",
     background_image_url: "",
     theme_id: availableThemes[0].id,
+    selected_template_id: "",
     invitation_config: undefined,
   });
 
@@ -269,6 +270,7 @@ export const useEventForm = () => {
           user_id: session.user.id,
           agenda: formattedAgenda,
           theme_id: formData.theme_id,
+          selected_template_id: formData.selected_template_id || null,
           invitation_config: invitationConfig,
         })
         .select()

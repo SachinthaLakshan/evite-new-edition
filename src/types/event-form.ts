@@ -12,7 +12,9 @@ export interface FormData {
   image_url: string;
   background_image_url?: string;
   theme_id?: string;
+  selected_template_id?: string;
   invitation_config?: InvitationConfig;
+
 }
 
 export interface Guest {

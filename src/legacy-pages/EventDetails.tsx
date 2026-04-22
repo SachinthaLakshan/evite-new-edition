@@ -1118,19 +1118,10 @@ export default function EventDetails() {
                                     >
                                       <LinkIcon className="h-4 w-4" />
                                     </Button>
-                                    {event.invitation_config && (
+                                    {event.final_card_url && (
                                       <GuestInvitationDownloader
                                         attendeeName={attendee.name}
-                                        config={event.invitation_config as InvitationConfig}
-                                        eventData={{
-                                          title: event.title,
-                                          date: event.date,
-                                          time: new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                          location: event.location,
-                                          bride_name: event.bride_name,
-                                          groom_name: event.groom_name,
-                                          description: event.description || "",
-                                        }}
+                                        finalCardUrl={event.final_card_url}
                                       />
                                     )}
                                   </div>
@@ -1218,35 +1209,26 @@ export default function EventDetails() {
                                 type="button"
                                 variant="outline"
                                 className="w-full justify-center h-10 border border-gray-200 text-gray-500"
-                                  onClick={async () => {
-                                    try {
-                                      const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
-                                      await navigator.clipboard.writeText(shortUrl);
-                                      toast.success("Short link copied to clipboard!");
-                                    } catch (error) {
-                                      console.error("Error sharing link:", error);
-                                      toast.error("Failed to create short URL");
-                                    }
-                                  }}
+                                onClick={async () => {
+                                  try {
+                                    const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                    await navigator.clipboard.writeText(shortUrl);
+                                    toast.success("Short link copied to clipboard!");
+                                  } catch (error) {
+                                    console.error("Error sharing link:", error);
+                                    toast.error("Failed to create short URL");
+                                  }
+                                }}
                               >
                                 <LinkIcon className="h-4 w-4 mr-2" />
                                 Copy Link
                               </Button>
 
-                              {event.invitation_config && (
+                              {event.final_card_url && (
                                 <div className="w-full [&>button]:w-full [&>button]:justify-center [&>button]:h-10 [&>button]:border [&>button]:border-primary/20">
                                   <GuestInvitationDownloader
                                     attendeeName={attendee.name}
-                                    config={event.invitation_config as InvitationConfig}
-                                    eventData={{
-                                      title: event.title,
-                                      date: event.date,
-                                      time: new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                      location: event.location,
-                                      bride_name: event.bride_name,
-                                      groom_name: event.groom_name,
-                                      description: event.description || "",
-                                    }}
+                                    finalCardUrl={event.final_card_url}
                                   />
                                 </div>
                               )}

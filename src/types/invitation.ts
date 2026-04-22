@@ -1,28 +1,39 @@
+export interface CardTemplate {
+  id: string;
+  name: string;
+  image_url: string;
+  template_url?: string;
+  created_at?: string;
+}
+
 export interface InvitationConfig {
-  template_id: string;
-  couple_names: {
+  selected_template_id?: string;
+  // Legacy fields kept for backward compatibility if needed
+  template_id?: string;
+  couple_names?: {
     person1: string;
     person2: string;
   };
-  custom_text: {
+  custom_text?: {
     main_message: string;
     additional_info: string;
   };
-  text_positions: {
+  text_positions?: {
     couple_names: { x: number; y: number };
     venue: { x: number; y: number };
     date: { x: number; y: number };
     guest_name: { x: number; y: number };
   };
-  styling: {
+  styling?: {
     font_family: string;
     primary_color: string;
     secondary_color: string;
     text_color: string;
   };
   background_image?: string;
-  guest_name_position: 'top' | 'bottom' | 'header' | 'center';
+  guest_name_position?: 'top' | 'bottom' | 'header' | 'center';
 }
+
 
 export interface InvitationTemplate {
   id: string;

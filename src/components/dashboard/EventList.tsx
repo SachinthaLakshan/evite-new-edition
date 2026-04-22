@@ -180,7 +180,7 @@ export function EventList({
                 <DialogTitle className="text-xl sm:text-2xl font-bold truncate">
                   {selectedEvent.title}
                 </DialogTitle>
-                <Button
+                {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
@@ -201,7 +201,7 @@ export function EventList({
                 >
                   <Share2Icon className="w-4 h-4 mr-2" />
                   Share Link
-                </Button>
+                </Button> */}
               </div>
             </DialogHeader>
 
