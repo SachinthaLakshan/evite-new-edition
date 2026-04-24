@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, ClockIcon, MapPinIcon, ImageIcon, XIcon } from "lucide-react";
+import { TimePicker } from "@/components/ui/time-picker";
 
 interface EventBasicDetailsProps {
   formData: {
@@ -233,13 +234,10 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
               <ClockIcon className="w-4 h-4 text-gray-500" />
               Time
             </Label>
-            <Input
-              type="time"
-              id="time"
+            <TimePicker
               value={formData.time}
-              onChange={handleInputChange}
-              min={formData.date === getMinDate() ? getMinTime() : undefined}
-              className={`w-full ${errors.time ? "border-red-500" : ""}`}
+              onChange={(value) => handleInputChange({ target: { id: 'time', value } } as any)}
+              className="w-full"
             />
             {errors.time && (
               <p className="text-sm text-red-500">{errors.time}</p>

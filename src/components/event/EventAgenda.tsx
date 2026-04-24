@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
+import { TimePicker } from "@/components/ui/time-picker";
 
 interface AgendaItem {
   time: string;
@@ -36,23 +37,22 @@ export const EventAgenda: React.FC<EventAgendaProps> = ({
       </div>
 
       <div className="space-y-6">
-        <div className="flex flex-col sm:grid sm:grid-cols-4 gap-4">
-          <div className="sm:col-span-1">
-            <Input
-              type="time"
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 items-end">
+          <div className="lg:col-span-4 w-full">
+            <label className="text-sm font-medium mb-1 block text-gray-700">Time</label>
+            <TimePicker
               value={newAgendaItem.time}
-              onChange={(e) =>
+              onChange={(value) =>
                 setNewAgendaItem((prev) => ({
                   ...prev,
-                  time: e.target.value,
+                  time: value,
                 }))
               }
-              min={formDate === getMinDate() ? getMinTime() : undefined}
-              placeholder="Time"
-              className="w-full"
+              className="w-full justify-start"
             />
           </div>
-          <div className="sm:col-span-2">
+          <div className="lg:col-span-6 w-full">
+            <label className="text-sm font-medium mb-1 block text-gray-700">Description</label>
             <Input
               type="text"
               value={newAgendaItem.description}
@@ -66,11 +66,11 @@ export const EventAgenda: React.FC<EventAgendaProps> = ({
               className="w-full"
             />
           </div>
-          <div className="sm:col-span-1">
+          <div className="lg:col-span-2 w-full">
             <Button
               type="button"
               variant="outline"
-              className="w-full"
+              className="w-full h-10"
               onClick={() => {
                 if (!newAgendaItem.time || !newAgendaItem.description) {
                   toast.error("Please fill in both time and description");
