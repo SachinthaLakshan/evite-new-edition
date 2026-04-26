@@ -43,7 +43,8 @@ import {
   Eye,
   ImageIcon,
   ChevronDown,
-  Loader2
+  Loader2,
+  PhoneIcon
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -266,6 +267,7 @@ const AdminDashboard = () => {
                     <TableRow>
                       <TableHead>Event Title</TableHead>
                       <TableHead>User Email</TableHead>
+                      <TableHead>Mobile Number</TableHead>
                       <TableHead>Template</TableHead>
                       <TableHead>Event Date</TableHead>
                       <TableHead>Status</TableHead>
@@ -295,6 +297,19 @@ const AdminDashboard = () => {
                               <span className="text-xs text-gray-400 font-mono">
                                 {event.user_id ? `${event.user_id.substring(0, 8)}...` : "System"}
                               </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {event.mobile_number ? (
+                              <a
+                                href={`tel:${event.mobile_number}`}
+                                className="flex items-center gap-1.5 text-blue-600 hover:text-blue-800 hover:underline whitespace-nowrap"
+                              >
+                                <PhoneIcon className="w-3.5 h-3.5" />
+                                {event.mobile_number}
+                              </a>
+                            ) : (
+                              <span className="text-xs text-gray-400 italic">—</span>
                             )}
                           </TableCell>
                           <TableCell className="text-sm">
@@ -424,7 +439,7 @@ const AdminDashboard = () => {
                     })}
                     {events.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} className="h-24 text-center">
+                        <TableCell colSpan={8} className="h-24 text-center">
                           No events found in the database.
                         </TableCell>
                       </TableRow>

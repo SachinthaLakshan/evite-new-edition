@@ -9,6 +9,7 @@ export interface FormData {
   time: string;
   location: string;
   location_url: string;
+  mobile_number: string;
   image_url: string;
   background_image_url?: string;
   theme_id?: string;

@@ -64,6 +64,7 @@ export type Database = {
           background_image_url: string | null
           location: string
           location_url: string | null
+          mobile_number: string | null
           slider_images: string[] | null
           status: string | null
           theme_id: string | null
@@ -84,6 +85,7 @@ export type Database = {
           background_image_url?: string | null
           location: string
           location_url?: string | null
+          mobile_number?: string | null
           slider_images?: string[] | null
           status?: string | null
           theme_id?: string | null
@@ -104,6 +106,7 @@ export type Database = {
           background_image_url?: string | null
           location?: string
           location_url?: string | null
+          mobile_number?: string | null
           slider_images?: string[] | null
           status?: string | null
           theme_id?: string | null

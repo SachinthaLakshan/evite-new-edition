@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, ClockIcon, MapPinIcon, ImageIcon, XIcon } from "lucide-react";
+import { CalendarIcon, ClockIcon, MapPinIcon, ImageIcon, XIcon, PhoneIcon } from "lucide-react";
 import { TimePicker } from "@/components/ui/time-picker";
 
 interface EventBasicDetailsProps {
@@ -16,6 +16,7 @@ interface EventBasicDetailsProps {
     time: string;
     location: string;
     location_url?: string;
+    mobile_number: string;
   };
   errors: Partial<{
     title: string;
@@ -26,6 +27,7 @@ interface EventBasicDetailsProps {
     time: string;
     location: string;
     location_url?: string;
+    mobile_number: string;
   }>;
   imageFile: File | null;
   imagePreview: string;
@@ -102,6 +104,24 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
               <p className="text-sm text-red-500">{errors.groom_name}</p>
             )}
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="mobile_number" className="text-base flex items-center gap-2">
+            <PhoneIcon className="w-4 h-4 text-gray-500" />
+            Mobile Number
+          </Label>
+          <Input
+            id="mobile_number"
+            type="tel"
+            placeholder="e.g. +94711234567"
+            value={formData.mobile_number}
+            onChange={handleInputChange}
+            className={errors.mobile_number ? "border-red-500" : ""}
+          />
+          {errors.mobile_number && (
+            <p className="text-sm text-red-500">{errors.mobile_number}</p>
+          )}
         </div>
 
         <div className="space-y-2">

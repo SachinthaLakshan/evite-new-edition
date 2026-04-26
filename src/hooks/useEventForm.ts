@@ -27,6 +27,7 @@ export const useEventForm = () => {
     time: "",
     location: "",
     location_url: "",
+    mobile_number: "",
     image_url: "",
     background_image_url: "",
     theme_id: availableThemes[0].id,
@@ -108,6 +109,12 @@ export const useEventForm = () => {
 
       if (!formData.location.trim()) {
         newErrors.location = "Location is required";
+      }
+
+      if (!formData.mobile_number.trim()) {
+        newErrors.mobile_number = "Mobile number is required";
+      } else if (!/^\+?[0-9]{7,15}$/.test(formData.mobile_number.trim())) {
+        newErrors.mobile_number = "Please enter a valid mobile number";
       }
 
       if (formData.location_url && !isValidGoogleMapsUrl(formData.location_url)) {
@@ -263,6 +270,7 @@ export const useEventForm = () => {
           date: eventDateTime.toISOString(),
           location: formData.location,
           location_url: formData.location_url,
+          mobile_number: formData.mobile_number || null,
           image_url: mainImageUrl,
           background_image_url: backgroundImageUrl || null,
           slider_images: processedSliderImages,
