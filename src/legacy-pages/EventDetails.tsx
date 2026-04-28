@@ -29,6 +29,7 @@ import { Event } from "@/types/event";
 import { useAuth } from "@/components/AuthProvider";
 import { AttendanceChart } from "@/components/event/AttendanceChart";
 import { EventGuestList } from "@/components/event/EventGuestList";
+import { EventAgenda } from "@/components/event/EventAgenda";
 import { Guest } from "@/types/event-form";
 import {
   Carousel,
@@ -246,6 +247,8 @@ export default function EventDetails() {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [newGuest, setNewGuest] = useState<Guest>({ name: "", whatsapp_number: "+947" });
   const [guestInputMethod, setGuestInputMethod] = useState<"individual" | "csv">("individual");
+  const [agenda, setAgenda] = useState<{ id?: string; time: string; description: string }[]>([]);
+  const [newAgendaItem, setNewAgendaItem] = useState({ time: "", description: "" });
 
   useEffect(() => {
     if (!event?.date) return;
@@ -266,6 +269,7 @@ export default function EventDetails() {
       theme_id: event.theme_id || "vertical",
       background_image_url: event.background_image_url || "",
     });
+    setAgenda(event.agenda || []);
   }, [event]);
 
   const handleAddImageLink = async () => {
@@ -556,6 +560,7 @@ export default function EventDetails() {
           theme_id: editForm.theme_id,
           image_url: nextImageUrl,
           background_image_url: nextBackgroundImageUrl,
+          agenda: agenda,
         })
         .eq("id", id);
 
@@ -800,6 +805,17 @@ export default function EventDetails() {
                       {editBackgroundImageFile && (
                         <p className="text-xs text-gray-500">Selected: {editBackgroundImageFile.name}</p>
                       )}
+                    </div>
+                    <div className="pt-4 border-t w-full">
+                      <EventAgenda
+                        agenda={agenda}
+                        newAgendaItem={newAgendaItem}
+                        setNewAgendaItem={setNewAgendaItem}
+                        setAgenda={setAgenda}
+                        getMinTime={() => ""}
+                        formDate={editForm.date}
+                        getMinDate={() => ""}
+                      />
                     </div>
 
                     <div className="pt-4 border-t w-full">
