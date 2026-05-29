@@ -457,7 +457,7 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
           backgroundPosition: "center",
         }}
       >
-        {(event.final_card_url || event.selected_template_id) ? (
+        {/* {(event.final_card_url || event.selected_template_id) ? (
           <div className="mt-8 relative w-72 h-96 sm:w-[400px] sm:h-[533px] flex items-center justify-center animate-in fade-in zoom-in duration-700">
              <div className="absolute inset-0 bg-amber-200/20 blur-3xl rounded-full animate-pulse" />
              <CardTemplateImage 
@@ -466,7 +466,7 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
                eventTitle={event.title}
              />
           </div>
-        ) : (
+        ) : ( */}
           <>
             <h1 className="text-4xl sm:text-6xl font-semibold tracking-wide" style={{ fontFamily: 'Parisienne' }}>
               {titleParts[0]} & {titleParts[1]}
@@ -487,7 +487,7 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
               </div>
             ) : null}
           </>
-        )}
+        
 
         <div id="rsvp-section" className="mt-10 w-full max-w-xl">
           {!isVerified ? (
