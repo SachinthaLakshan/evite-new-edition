@@ -490,26 +490,6 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
         
 
         <div id="rsvp-section" className="mt-10 w-full max-w-xl">
-          {!isVerified ? (
-            <div className="bg-black/45 border border-amber-200/30 rounded-2xl p-6">
-              <p className="text-lg mb-4 text-amber-100">Verify your invitation to respond</p>
-              <input
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder={!event?.is_active ? "RSVP disabled (Event Inactive)" : "WhatsApp number (+123...)"}
-                disabled={!event?.is_active}
-                className={`w-full px-4 py-3 rounded-xl bg-white/95 text-gray-900 outline-none transition-opacity ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
-              />
-              <button
-                type="button"
-                disabled={!event?.is_active}
-                onClick={() => verifyAttendee()}
-                className={`mt-4 w-full py-3 rounded-xl bg-amber-700 hover:bg-amber-600 transition text-white font-medium ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Verify Invitation
-              </button>
-            </div>
-          ) : (
             <div className="space-y-3">
               <p className="text-xl text-amber-100" style={{ fontFamily: 'Courier New' }}>Hi {attendee?.name || "Guest"}! Let us know you&apos;re coming</p>
               <div className="flex flex-wrap justify-center gap-2">
@@ -539,7 +519,6 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
                 </button>
               </div>
             </div>
-          )}
         </div>
 
         <ChevronDown className="h-8 w-8 mt-10 animate-bounce text-amber-200/90" />
