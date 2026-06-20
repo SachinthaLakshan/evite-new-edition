@@ -240,7 +240,7 @@ export default function EventDetails() {
     location: "",
     location_url: "",
     status: "upcoming",
-    theme_id: "vertical",
+    theme_id: "classic",
     background_image_url: "",
   });
 
@@ -266,7 +266,7 @@ export default function EventDetails() {
       location: event.location || "",
       location_url: event.location_url || "",
       status: event.status || "upcoming",
-      theme_id: event.theme_id || "vertical",
+      theme_id: event.theme_id || "classic",
       background_image_url: event.background_image_url || "",
     });
     setAgenda(event.agenda || []);
@@ -763,16 +763,14 @@ export default function EventDetails() {
                         <Label htmlFor="edit-theme">Theme</Label>
                         <select
                           id="edit-theme"
-                          value={editForm.theme_id}
+                          value={editForm.theme_id === "lavender" ? "lavender" : "classic"}
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, theme_id: e.target.value }))
                           }
                           className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                         >
-                          <option value="vertical">Vertical</option>
-                          <option value="circular">Circular</option>
-                          <option value="diagonal">Diagonal</option>
-                          <option value="stacked">Stacked</option>
+                          <option value="classic">Classic Design</option>
+                          <option value="lavender">Lavender Design</option>
                         </select>
                       </div>
                     </div>

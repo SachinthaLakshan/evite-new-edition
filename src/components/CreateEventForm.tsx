@@ -13,6 +13,7 @@ import { convertToDirectImageUrl, isValidFileSize } from "@/lib/utils";
 import InvitationDesigner from "./invitation/InvitationDesigner";
 import { Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import EventLayoutSelection from "./event/EventLayoutSelection";
 
 const steps = [
   { id: 1, name: "Basic Details" },
@@ -276,8 +277,8 @@ const CreateEventForm = () => {
         )}
 
         {currentStep === 3 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 mb-8">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100">
               <div className="mb-6">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
                   <span>🎨</span> Design Your Invitation
@@ -299,6 +300,15 @@ const CreateEventForm = () => {
                   description: formData.description || "",
                 }}
                 onConfigChange={setInvitationConfig}
+              />
+            </div>
+
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 mb-8">
+              <EventLayoutSelection
+                selectedLayout={formData.theme_id || "classic"}
+                onLayoutChange={(layoutId) =>
+                  setFormData((prev) => ({ ...prev, theme_id: layoutId }))
+                }
               />
             </div>
           </div>

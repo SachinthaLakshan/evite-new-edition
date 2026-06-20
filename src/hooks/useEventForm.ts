@@ -30,7 +30,7 @@ export const useEventForm = () => {
     mobile_number: "",
     image_url: "",
     background_image_url: "",
-    theme_id: availableThemes[0].id,
+    theme_id: "classic",
     selected_template_id: "",
     invitation_config: undefined,
   });
