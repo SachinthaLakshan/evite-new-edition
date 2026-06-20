@@ -1510,7 +1510,7 @@ const LavenderLayout: React.FC<LavenderLayoutProps> = ({
               /* If verified: Show custom YES/NO/MAYBE buttons or Thank you message */
               <div className="w-full space-y-4">
                 <AnimatePresence mode="wait">
-                  {!rsvpSubmittedMsg ? (
+                  {
                     <motion.div
                       key="rsvp-buttons-block"
                       initial={{ opacity: 0 }}
@@ -1545,24 +1545,7 @@ const LavenderLayout: React.FC<LavenderLayoutProps> = ({
                         </button>
                       </div>
                     </motion.div>
-                  ) : (
-                    <motion.div
-                      key="thank-you-msg"
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-white/20 border border-white/30 shadow-inner"
-                    >
-                      <p className="text-xl font-semibold tracking-wide font-serif text-[#3b226e]">
-                        {rsvpSubmittedMsg}
-                      </p>
-                      <button
-                        onClick={() => setRsvpSubmittedMsg(null)}
-                        className="text-xs underline hover:text-[#7b4fcf] text-purple-700/80 transition-colors"
-                      >
-                        Change RSVP Response
-                      </button>
-                    </motion.div>
-                  )}
+                  }
                 </AnimatePresence>
               </div>
             )}
