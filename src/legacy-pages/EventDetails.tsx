@@ -23,6 +23,7 @@ import {
   PencilIcon,
   EyeIcon,
   MessageCircle,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Event } from "@/types/event";
@@ -74,6 +75,15 @@ import { createShortUrl, createAttendeeShortUrl } from "@/lib/url-shortener";
 import InvitationPreviewCard from "@/components/event/InvitationPreviewCard";
 import { InvitationConfig } from "@/types/invitation";
 import { GuestInvitationDownloader } from "@/components/event/GuestInvitationDownloader";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 // Add after imports
 type SliderInputType = "file" | "link";
@@ -249,6 +259,10 @@ export default function EventDetails() {
   const [guestInputMethod, setGuestInputMethod] = useState<"individual" | "csv">("individual");
   const [agenda, setAgenda] = useState<{ id?: string; time: string; description: string }[]>([]);
   const [newAgendaItem, setNewAgendaItem] = useState({ time: "", description: "" });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [guestFilter, setGuestFilter] = useState<"all" | "accepted" | "declined" | "pending">("all");
+  const [customShareMessage, setCustomShareMessage] = useState("");
+  const [isSavingMessage, setIsSavingMessage] = useState(false);
 
   useEffect(() => {
     if (!event?.date) return;
@@ -270,6 +284,12 @@ export default function EventDetails() {
       background_image_url: event.background_image_url || "",
     });
     setAgenda(event.agenda || []);
+    
+    if (event.invitation_config?.custom_share_message) {
+      setCustomShareMessage(event.invitation_config.custom_share_message);
+    } else {
+      setCustomShareMessage(`We're excited to invite you to ${event.title}. Please view your invitation and RSVP here`);
+    }
   }, [event]);
 
   const handleAddImageLink = async () => {
@@ -483,6 +503,30 @@ export default function EventDetails() {
     }
   };
 
+  const handleSaveShareMessage = async () => {
+    if (!event || !id) return;
+    setIsSavingMessage(true);
+    try {
+      const newConfig = {
+        ...(event.invitation_config || {}),
+        custom_share_message: customShareMessage,
+      };
+      const { error } = await supabase
+        .from("events")
+        .update({ invitation_config: newConfig } as any)
+        .eq("id", id);
+
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ["event", id] });
+      toast.success("Sharing message updated successfully!");
+    } catch (error) {
+      console.error("Error saving sharing message:", error);
+      toast.error("Failed to save sharing message");
+    } finally {
+      setIsSavingMessage(false);
+    }
+  };
+
   const handleUpdateEvent = async () => {
     if (!event || !id) return;
     if (
@@ -612,264 +656,318 @@ export default function EventDetails() {
     );
   }
 
+  const filteredAttendees = (event?.attendees || []).filter((attendee) => {
+    const matchesSearch = 
+      attendee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (attendee.whatsapp_number && attendee.whatsapp_number.includes(searchTerm));
+      
+    const matchesFilter = 
+      guestFilter === "all" || 
+      attendee.response === guestFilter;
+      
+    return matchesSearch && matchesFilter;
+  });
+
   return (
     <DashboardLayout>
-      <div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <Button
-            variant="outline"
-            onClick={() => router.push("/dashboard")}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            Back to Dashboard
-          </Button>
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        {/* Top Header & Breadcrumbs & Actions */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-6">
+          <div className="space-y-1.5">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/dashboard" className="text-purple-600 hover:text-purple-700 transition-colors">Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/dashboard" className="text-purple-600 hover:text-purple-700 transition-colors">Events</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="font-semibold text-gray-900 max-w-[200px] truncate">
+                    {event.title}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">{event.title}</h1>
+              <Badge className={`${getStatusColor(event.status)} border-0 font-medium px-2.5 py-0.5 rounded-full`}>
+                {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+              </Badge>
+            </div>
+            {(event.bride_name || event.groom_name) && (
+              <p className="text-sm font-medium text-gray-500">
+                Event for {event.bride_name || "Bride"} {event.bride_name && event.groom_name ? "&" : ""} {event.groom_name || "Groom"}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             {session?.user.id === event.user_id && (
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="flex-1 sm:flex-none">
+                  <Button variant="outline" className="flex-1 md:flex-none border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors shadow-sm">
                     <PencilIcon className="w-4 h-4 mr-2" />
                     Edit Event
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto px-4 py-6 sm:p-6 bg-white overflow-x-hidden">
                   <DialogHeader>
-                    <DialogTitle>Edit Event Details</DialogTitle>
+                    <DialogTitle className="text-xl font-bold text-gray-900">Edit Event Details</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-title">Title</Label>
-                      <Input
-                        id="edit-title"
-                        value={editForm.title}
-                        onChange={(e) =>
-                          setEditForm((prev) => ({ ...prev, title: e.target.value }))
-                        }
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-bride-name">Bride Name</Label>
-                        <Input
-                          id="edit-bride-name"
-                          value={editForm.bride_name}
-                          onChange={(e) =>
-                            setEditForm((prev) => ({
-                              ...prev,
-                              bride_name: e.target.value,
-                            }))
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-groom-name">Groom Name</Label>
-                        <Input
-                          id="edit-groom-name"
-                          value={editForm.groom_name}
-                          onChange={(e) =>
-                            setEditForm((prev) => ({
-                              ...prev,
-                              groom_name: e.target.value,
-                            }))
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-description">Description</Label>
-                      <textarea
-                        id="edit-description"
-                        value={editForm.description}
-                        onChange={(e) =>
-                          setEditForm((prev) => ({
-                            ...prev,
-                            description: e.target.value,
-                          }))
-                        }
-                        className="w-full min-h-24 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-date">Date</Label>
-                        <Input
-                          id="edit-date"
-                          type="date"
-                          value={editForm.date}
-                          onChange={(e) =>
-                            setEditForm((prev) => ({ ...prev, date: e.target.value }))
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-time">Time</Label>
-                        <Input
-                          id="edit-time"
-                          type="time"
-                          value={editForm.time}
-                          onChange={(e) =>
-                            setEditForm((prev) => ({ ...prev, time: e.target.value }))
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-location">Location</Label>
-                      <Input
-                        id="edit-location"
-                        value={editForm.location}
-                        onChange={(e) =>
-                          setEditForm((prev) => ({
-                            ...prev,
-                            location: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-location-url">Google Maps URL</Label>
-                      <Input
-                        id="edit-location-url"
-                        type="url"
-                        value={editForm.location_url}
-                        onChange={(e) =>
-                          setEditForm((prev) => ({
-                            ...prev,
-                            location_url: e.target.value,
-                          }))
-                        }
-                        placeholder="https://maps.google.com/..."
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-status">Status</Label>
-                        <select
-                          id="edit-status"
-                          value={editForm.status}
-                          onChange={(e) =>
-                            setEditForm((prev) => ({ ...prev, status: e.target.value }))
-                          }
-                          className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        >
-                          <option value="upcoming">Upcoming</option>
-                          <option value="ongoing">Ongoing</option>
-                          <option value="completed">Completed</option>
-                          <option value="cancelled">Cancelled</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-theme">Theme</Label>
-                        <select
-                          id="edit-theme"
-                          value={editForm.theme_id === "lavender" ? "lavender" : "classic"}
-                          onChange={(e) =>
-                            setEditForm((prev) => ({ ...prev, theme_id: e.target.value }))
-                          }
-                          className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        >
-                          <option value="classic">Classic Design</option>
-                          <option value="lavender">Lavender Design</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-main-image">Main Image (optional replacement)</Label>
-                      <Input
-                        id="edit-main-image"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null;
-                          setEditImageFile(file);
-                        }}
-                      />
-                      {editImageFile && (
-                        <p className="text-xs text-gray-500">Selected: {editImageFile.name}</p>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-background-image">Background Image (optional replacement)</Label>
-                      <Input
-                        id="edit-background-image"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null;
-                          setEditBackgroundImageFile(file);
-                        }}
-                      />
-                      {editBackgroundImageFile && (
-                        <p className="text-xs text-gray-500">Selected: {editBackgroundImageFile.name}</p>
-                      )}
-                    </div>
-                    <div className="pt-4 border-t w-full">
-                      <EventAgenda
-                        agenda={agenda}
-                        newAgendaItem={newAgendaItem}
-                        setNewAgendaItem={setNewAgendaItem}
-                        setAgenda={setAgenda}
-                        getMinTime={() => ""}
-                        formDate={editForm.date}
-                        getMinDate={() => ""}
-                      />
-                    </div>
+                    <Tabs defaultValue="general" className="w-full">
+                      <TabsList className="grid w-full grid-cols-4 mb-6">
+                        <TabsTrigger value="general">Info</TabsTrigger>
+                        <TabsTrigger value="agenda">Agenda</TabsTrigger>
+                        <TabsTrigger value="guests">Guests</TabsTrigger>
+                        <TabsTrigger value="media">Media</TabsTrigger>
+                      </TabsList>
 
-                    <div className="pt-4 border-t w-full">
-                      <h3 className="font-semibold text-lg mb-2">Add New Guests</h3>
-                      <p className="text-sm text-gray-500 mb-4">
-                        Add more people to the guest list. These will be added as new pending attendees.
-                      </p>
-                      <EventGuestList
-                        guests={guests}
-                        newGuest={newGuest}
-                        guestInputMethod={guestInputMethod}
-                        setGuestInputMethod={setGuestInputMethod}
-                        setNewGuest={setNewGuest}
-                        setGuests={setGuests}
-                        handleFileUpload={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
+                      <TabsContent value="general" className="space-y-4 focus-visible:outline-none">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-title" className="text-sm font-semibold text-gray-700">Title</Label>
+                          <Input
+                            id="edit-title"
+                            value={editForm.title}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({ ...prev, title: e.target.value }))
+                            }
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-bride-name" className="text-sm font-semibold text-gray-700">Bride Name</Label>
+                            <Input
+                              id="edit-bride-name"
+                              value={editForm.bride_name}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  bride_name: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-groom-name" className="text-sm font-semibold text-gray-700">Groom Name</Label>
+                            <Input
+                              id="edit-groom-name"
+                              value={editForm.groom_name}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  groom_name: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-description" className="text-sm font-semibold text-gray-700">Description</Label>
+                          <textarea
+                            id="edit-description"
+                            value={editForm.description}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                description: e.target.value,
+                              }))
+                            }
+                            className="w-full min-h-24 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-date" className="text-sm font-semibold text-gray-700">Date</Label>
+                            <Input
+                              id="edit-date"
+                              type="date"
+                              value={editForm.date}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({ ...prev, date: e.target.value }))
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-time" className="text-sm font-semibold text-gray-700">Time</Label>
+                            <Input
+                              id="edit-time"
+                              type="time"
+                              value={editForm.time}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({ ...prev, time: e.target.value }))
+                              }
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-location" className="text-sm font-semibold text-gray-700">Location</Label>
+                          <Input
+                            id="edit-location"
+                            value={editForm.location}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                location: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-location-url" className="text-sm font-semibold text-gray-700">Google Maps URL</Label>
+                          <Input
+                            id="edit-location-url"
+                            type="url"
+                            value={editForm.location_url}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                location_url: e.target.value,
+                              }))
+                            }
+                            placeholder="https://maps.google.com/..."
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-status" className="text-sm font-semibold text-gray-700">Status</Label>
+                            <select
+                              id="edit-status"
+                              value={editForm.status}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({ ...prev, status: e.target.value }))
+                              }
+                              className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                              <option value="upcoming">Upcoming</option>
+                              <option value="ongoing">Ongoing</option>
+                              <option value="completed">Completed</option>
+                              <option value="cancelled">Cancelled</option>
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-theme" className="text-sm font-semibold text-gray-700">Theme</Label>
+                            <select
+                              id="edit-theme"
+                              value={editForm.theme_id === "lavender" ? "lavender" : "classic"}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({ ...prev, theme_id: e.target.value }))
+                              }
+                              className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                              <option value="classic">Classic Design</option>
+                              <option value="lavender">Lavender Design</option>
+                            </select>
+                          </div>
+                        </div>
+                      </TabsContent>
 
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            const text = event.target?.result as string;
-                            const rows = text.split("\n");
-                            const newGuests = rows
-                              .map((row) => {
-                                const [name, whatsapp_number] = row
-                                  .split(",")
-                                  .map((cell) => cell.trim());
-                                if (name && whatsapp_number) {
-                                  return {
-                                    name,
-                                    whatsapp_number,
-                                  } as Guest;
-                                }
-                                return null;
-                              })
-                              .filter((guest): guest is Guest => guest !== null);
+                      <TabsContent value="agenda" className="focus-visible:outline-none">
+                        <EventAgenda
+                          agenda={agenda}
+                          newAgendaItem={newAgendaItem}
+                          setNewAgendaItem={setNewAgendaItem}
+                          setAgenda={setAgenda}
+                          getMinTime={() => ""}
+                          formDate={editForm.date}
+                          getMinDate={() => ""}
+                        />
+                      </TabsContent>
 
-                            setGuests((prev) => [...prev, ...newGuests]);
-                          };
-                          reader.readAsText(file);
-                          e.target.value = "";
-                        }}
-                        downloadTemplate={() => {
-                          const csvContent = "John Doe,+94711234567\nJane Smith,+94711234568";
-                          const blob = new Blob([csvContent], { type: "text/csv" });
-                          const url = window.URL.createObjectURL(blob);
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.download = "guest-list-sample.csv";
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                          window.URL.revokeObjectURL(url);
-                        }}
-                      />
-                    </div>
+                      <TabsContent value="guests" className="focus-visible:outline-none">
+                        <div className="border rounded-lg p-4 bg-gray-50/50">
+                          <h3 className="font-semibold text-lg text-gray-900 mb-1">Add New Guests</h3>
+                          <p className="text-sm text-gray-500 mb-4">
+                            Add more people to the guest list. These will be added as new pending attendees.
+                          </p>
+                          <EventGuestList
+                            guests={guests}
+                            newGuest={newGuest}
+                            guestInputMethod={guestInputMethod}
+                            setGuestInputMethod={setGuestInputMethod}
+                            setNewGuest={setNewGuest}
+                            setGuests={setGuests}
+                            handleFileUpload={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                const text = event.target?.result as string;
+                                const rows = text.split("\n");
+                                const newGuests = rows
+                                  .map((row) => {
+                                    const [name, whatsapp_number] = row
+                                      .split(",")
+                                      .map((cell) => cell.trim());
+                                    if (name && whatsapp_number) {
+                                      return {
+                                        name,
+                                        whatsapp_number,
+                                      } as Guest;
+                                    }
+                                    return null;
+                                  })
+                                  .filter((guest): guest is Guest => guest !== null);
+
+                                setGuests((prev) => [...prev, ...newGuests]);
+                              };
+                              reader.readAsText(file);
+                              e.target.value = "";
+                            }}
+                            downloadTemplate={() => {
+                              const csvContent = "John Doe,+94711234567\nJane Smith,+94711234568";
+                              const blob = new Blob([csvContent], { type: "text/csv" });
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.download = "guest-list-sample.csv";
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              window.URL.revokeObjectURL(url);
+                            }}
+                          />
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="media" className="space-y-4 focus-visible:outline-none">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-main-image" className="text-sm font-semibold text-gray-700">Main Image (optional replacement)</Label>
+                          <Input
+                            id="edit-main-image"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              setEditImageFile(file);
+                            }}
+                          />
+                          {editImageFile && (
+                            <p className="text-xs text-gray-500">Selected: {editImageFile.name}</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-background-image" className="text-sm font-semibold text-gray-700">Background Image (optional replacement)</Label>
+                          <Input
+                            id="edit-background-image"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              setEditBackgroundImageFile(file);
+                            }}
+                          />
+                          {editBackgroundImageFile && (
+                            <p className="text-xs text-gray-500">Selected: {editBackgroundImageFile.name}</p>
+                          )}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
 
                     <div className="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-white pb-2 overflow-hidden shadow-[0_-10px_10px_-10px_rgba(0,0,0,0.1)]">
                       <Button
@@ -878,6 +976,7 @@ export default function EventDetails() {
                         onClick={() => {
                           setIsEditDialogOpen(false);
                           setEditImageFile(null);
+                          setEditBackgroundImageFile(null);
                         }}
                         disabled={isUpdatingEvent}
                       >
@@ -891,11 +990,12 @@ export default function EventDetails() {
                 </DialogContent>
               </Dialog>
             )}
+            
             <Button
               variant="outline"
               onClick={handleShareLink}
               disabled={isSharing || !event.is_active}
-              className="flex-1 sm:flex-none"
+              className="flex-1 md:flex-none border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors shadow-sm"
             >
               {isSharing ? (
                 <>
@@ -912,8 +1012,9 @@ export default function EventDetails() {
           </div>
         </div>
 
+        {/* Warning Notification for Inactive Events */}
         {!event.is_active && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-md shadow-sm">
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg shadow-sm">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
@@ -930,299 +1031,430 @@ export default function EventDetails() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <Badge className={getStatusColor(event.status)}>
-                  {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                </Badge>
-              </div>
-              <CardTitle className="text-2xl font-bold mt-2">
-                {event.title}
-              </CardTitle>
-              {(event.bride_name || event.groom_name) && (
-                <p className="text-sm text-gray-600 mt-1">
-                  {event.bride_name || "Bride"} {event.bride_name && event.groom_name ? "&" : ""}{" "}
-                  {event.groom_name || "Groom"}
-                </p>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-6">
+        {/* Main Workspace Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Main Details and Attendees Column */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Event Description Card */}
+            <Card className="overflow-hidden border border-gray-100 shadow-sm">
               {event.image_url && (
-                <div className="relative flex justify-center items-center">
+                <div className="w-full aspect-[21/9] max-h-[300px] overflow-hidden border-b border-gray-100 bg-gray-50">
                   <img
                     src={event.image_url}
                     alt={event.title}
-                    className="w-1/2 max-w-[300px] aspect-square object-cover rounded-full shadow-lg border-4 border-white"
+                    className="w-full h-full object-cover"
                   />
-                  {/* <Button
-                  variant="outline"
-                  onClick={() =>
-                    document.getElementById("image-upload")?.click()
-                  }
-                  className="absolute bottom-2 right-2 flex items-center gap-2"
-                >
-                  <UploadIcon className="w-4 h-4" />
-                  Replace Image
-                </Button>
-                <Input
-                  type="file"
-                  id="image-upload"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleReuploadImage}
-                /> */}
                 </div>
               )}
+              <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl font-bold text-gray-900">Event Overview</CardTitle>
+                <p className="text-sm text-gray-500">Essential information and description of your celebration</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                
+                {/* Metadata cards grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card className="border border-purple-100 bg-gradient-to-br from-white to-purple-50/20 shadow-sm hover:shadow-md transition-all duration-300">
+                    <CardContent className="p-6 flex items-start gap-4">
+                      <div className="p-3 bg-purple-100 rounded-xl text-purple-700 shadow-sm">
+                        <CalendarIcon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                          Date & Time
+                        </h3>
+                        <p className="text-gray-600 text-base">
+                          {new Date(event.date).toLocaleString([], {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-start gap-4 p-6 bg-gray-100 rounded-lg shadow-sm">
-                  <CalendarIcon className="w-6 h-6 text-gray-600 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-gray-800 text-lg mb-2">
-                      Date & Time
+                  <Card className="border border-purple-100 bg-gradient-to-br from-white to-purple-50/20 shadow-sm hover:shadow-md transition-all duration-300">
+                    <CardContent className="p-6 flex items-start gap-4">
+                      <div className="p-3 bg-purple-100 rounded-xl text-purple-700 shadow-sm">
+                        <MapPinIcon className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-lg mb-1">
+                          Location
+                        </h3>
+                        <p className="text-gray-600 text-base truncate mb-2" title={event.location}>
+                          {event.location}
+                        </p>
+                        {event.location_url && (
+                          <a
+                            href={event.location_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-purple-600 hover:text-purple-700 transition-colors"
+                          >
+                            <MapPinnedIcon className="w-4 h-4" />
+                            View on Google Maps
+                          </a>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Event Description */}
+                {event.description && (
+                  <div className="p-6 bg-gray-50/50 rounded-xl border border-gray-100">
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">
+                      Description
                     </h3>
-                    <p className="text-gray-700 text-base">
-                      {new Date(event.date).toLocaleString()}
+                    <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
+                      {event.description}
                     </p>
                   </div>
-                </div>
-                <div className="flex items-start gap-4 p-6 bg-gray-100 rounded-lg shadow-sm">
-                  <MapPinIcon className="w-6 h-6 text-gray-600 mt-1" />
-                  <div>
-                    <h3 className="font-semibold text-gray-800 text-lg mb-2">
-                      Location
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <p className="text-gray-700 text-base">
-                        {event.location}
-                      </p>
-                      {event.location_url && (
-                        <a
-                          href={event.location_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-purple-600 hover:text-purple-700"
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Agenda Timeline Card */}
+            {event.agenda && event.agenda.length > 0 && (
+              <Card className="border border-gray-100 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <CalendarIcon className="w-5 h-5 text-purple-600" />
+                    Event Schedule
+                  </CardTitle>
+                  <p className="text-sm text-gray-500">Planned timeline for the event day</p>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="relative border-l border-purple-200 ml-3 space-y-6">
+                    {event.agenda.map((item, index) => (
+                      <div key={item.id || index} className="relative pl-6">
+                        <span className="absolute -left-2 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-purple-50 border-2 border-purple-500 shadow-sm">
+                          <span className="h-1.5 w-1.5 rounded-full bg-purple-600" />
+                        </span>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                          <span className="text-xs font-bold text-purple-700 bg-purple-50 border border-purple-100 px-2.5 py-0.5 rounded-full w-fit">
+                            {item.time}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 mt-2 text-base leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Guest Management Section */}
+            {event.attendees && event.attendees.length > 0 && (
+              <Card className="border border-gray-100 shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xl font-bold text-gray-900">Guest Directory</CardTitle>
+                  <p className="text-sm text-gray-500">Manage invitations, RSVPs and delivery status</p>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6">
+                  
+                  {/* Custom Invitation Message Edit Block */}
+                  <div className="bg-purple-50/20 border border-purple-100/80 rounded-xl p-4 mb-6 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4 text-purple-600" />
+                        <h4 className="font-semibold text-sm text-gray-900">Custom Invitation Message</h4>
+                      </div>
+                      {session?.user.id === event.user_id && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleSaveShareMessage}
+                          disabled={isSavingMessage}
+                          className="h-8 border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors"
                         >
-                          <MapPinnedIcon className="w-5 h-5" />
-                        </a>
+                          {isSavingMessage ? "Saving..." : "Save Message"}
+                        </Button>
                       )}
                     </div>
+                    <p className="text-xs text-gray-500 leading-normal">
+                      Customize the invitation text template sent on WhatsApp.
+                      The message will be sent as: <br />
+                      <code className="inline-block mt-1 bg-purple-50 text-purple-800 font-mono text-[10px] px-2 py-1 rounded border border-purple-100">
+                        Hi [Guest Name]! [Your Message]: [Invitation Link]
+                      </code>
+                    </p>
+                    <textarea
+                      value={customShareMessage}
+                      onChange={(e) => setCustomShareMessage(e.target.value)}
+                      placeholder={`We're excited to invite you to ${event.title}. Please view your invitation and RSVP here`}
+                      className="w-full min-h-[70px] text-sm rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-600 focus-visible:ring-offset-2 transition-all leading-relaxed"
+                    />
                   </div>
-                </div>
-              </div>
 
-              {event.description && (
-                <div className="p-6 bg-gray-100 rounded-lg shadow-sm">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                    Description
-                  </h3>
-                  <p className="text-gray-700 text-base whitespace-pre-wrap">
-                    {event.description}
-                  </p>
-                </div>
-              )}
-
-              {event.attendees && event.attendees.length > 0 && (
-                <>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2">Guest List</h3>
+                  {/* Guest Filters and Search row */}
+                  <div className="flex flex-col xl:flex-row gap-4 justify-between items-stretch xl:items-center mb-6">
+                    <div className="relative flex-1 max-w-md">
+                      <Input
+                        type="text"
+                        placeholder="Search guests by name or number..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9 h-10"
+                      />
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    </div>
+                    <div className="flex flex-wrap gap-1 bg-gray-100/80 p-1 rounded-lg w-fit">
+                      <button
+                        onClick={() => setGuestFilter("all")}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                          guestFilter === "all"
+                            ? "bg-white text-purple-700 shadow-sm"
+                            : "text-gray-600 hover:text-gray-900"
+                        }`}
+                      >
+                        All ({event.attendees.length})
+                      </button>
+                      <button
+                        onClick={() => setGuestFilter("accepted")}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                          guestFilter === "accepted"
+                            ? "bg-green-500 text-white shadow-sm"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-green-50"
+                        }`}
+                      >
+                        Accepted ({event.attendees.filter(a => a.response === 'accepted').length})
+                      </button>
+                      <button
+                        onClick={() => setGuestFilter("pending")}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                          guestFilter === "pending"
+                            ? "bg-yellow-500 text-gray-900 shadow-sm"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-yellow-50"
+                        }`}
+                      >
+                        Pending ({event.attendees.filter(a => a.response === 'pending').length})
+                      </button>
+                      <button
+                        onClick={() => setGuestFilter("declined")}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                          guestFilter === "declined"
+                            ? "bg-red-500 text-white shadow-sm"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-red-50"
+                        }`}
+                      >
+                        Declined ({event.attendees.filter(a => a.response === 'declined').length})
+                      </button>
+                    </div>
                   </div>
-                  <Card className="mt-6">
-                    <CardContent className="p-0 sm:p-6 overflow-hidden">
-                      {/* Desktop View Table */}
-                      <div className="hidden md:block overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Name</TableHead>
-                              <TableHead>Contact</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead>Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {event.attendees.map((attendee) => (
-                              <TableRow key={attendee.id}>
-                                <TableCell className="font-medium">
-                                  {attendee.name}
-                                </TableCell>
-                                <TableCell>
-                                  <div className="space-y-1">
 
-                                    {attendee.whatsapp_number && (
-                                      <div className="text-sm text-gray-600">
-                                        {attendee.whatsapp_number}
-                                      </div>
-                                    )}
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <Badge
-                                    variant="secondary"
-                                    className={
-                                      attendee.response === "accepted"
-                                        ? "bg-green-500 text-white"
-                                        : attendee.response === "declined"
-                                          ? "bg-red-600 text-white"
-                                          : "bg-yellow-300 text-gray-800"
-                                    }
+                  {/* Desktop View Table */}
+                  <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-100">
+                    <Table>
+                      <TableHeader className="bg-gray-50/50">
+                        <TableRow>
+                          <TableHead className="font-semibold text-gray-700">Name</TableHead>
+                          <TableHead className="font-semibold text-gray-700">Contact</TableHead>
+                          <TableHead className="font-semibold text-gray-700">Status</TableHead>
+                          <TableHead className="font-semibold text-gray-700 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredAttendees.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={4} className="h-24 text-center text-gray-500">
+                              No guests found matching the filter criteria.
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredAttendees.map((attendee) => (
+                            <TableRow key={attendee.id} className="hover:bg-gray-50/40 transition-colors">
+                              <TableCell className="font-medium text-gray-900">
+                                {attendee.name}
+                              </TableCell>
+                              <TableCell>
+                                {attendee.whatsapp_number ? (
+                                  <span className="text-gray-600 font-mono text-sm">{attendee.whatsapp_number}</span>
+                                ) : (
+                                  <span className="text-gray-400 italic text-sm">No number</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  variant="secondary"
+                                  className={
+                                    attendee.response === "accepted"
+                                      ? "bg-green-100 text-green-800 border-green-200"
+                                      : attendee.response === "declined"
+                                        ? "bg-red-100 text-red-800 border-red-200"
+                                        : "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                  }
+                                >
+                                  {attendee.response.charAt(0).toUpperCase() + attendee.response.slice(1)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 h-8"
+                                    onClick={async () => {
+                                      try {
+                                        const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                        window.open(shortUrl, "_blank");
+                                      } catch (error) {
+                                        console.error("Error opening invite:", error);
+                                        toast.error("Failed to open invitation");
+                                      }
+                                    }}
                                   >
-                                    {attendee.response.charAt(0).toUpperCase() +
-                                      attendee.response.slice(1)}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-primary hover:text-primary-700 hover:bg-primary-50"
-                                      onClick={async () => {
-                                        try {
-                                          const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
-                                          window.open(shortUrl, "_blank");
-                                        } catch (error) {
-                                          console.error("Error opening invite:", error);
-                                          toast.error("Failed to open invitation");
-                                        }
-                                      }}
-                                    >
-                                      <EyeIcon className="h-4 w-4 mr-2" />
-                                      View
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                      onClick={async () => {
-                                        try {
-                                          const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
-                                          const message = `Hi ${attendee.name}! We're excited to invite you to ${event.title}. Please view your invitation and RSVP here: ${shortUrl}`;
-                                          const encodedMessage = encodeURIComponent(message);
-                                          const whatsappUrl = attendee.whatsapp_number
-                                            ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, "")}?text=${encodedMessage}`
-                                            : `https://wa.me/?text=${encodedMessage}`;
+                                    <EyeIcon className="h-3.5 w-3.5 mr-1" />
+                                    View
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-green-600 hover:text-green-700 hover:bg-green-50 h-8"
+                                    onClick={async () => {
+                                      try {
+                                        const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                        const shareMsg = event.invitation_config?.custom_share_message || `We're excited to invite you to ${event.title}. Please view your invitation and RSVP here`;
+                                        const message = `Hi ${attendee.name}! ${shareMsg}: ${shortUrl}`;
+                                        const encodedMessage = encodeURIComponent(message);
+                                        const whatsappUrl = attendee.whatsapp_number
+                                          ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, "")}?text=${encodedMessage}`
+                                          : `https://wa.me/?text=${encodedMessage}`;
 
-                                          window.open(whatsappUrl, "_blank");
-                                        } catch (error) {
-                                          console.error("Error sharing on WhatsApp:", error);
-                                          toast.error("Failed to share on WhatsApp");
-                                        }
-                                      }}
-                                    >
-                                      <MessageCircle className="h-4 w-4 mr-2" />
-                                      Share
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                                      onClick={async () => {
-                                        try {
-                                          const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
-                                          await navigator.clipboard.writeText(shortUrl);
-                                          toast.success("Short link copied to clipboard!");
-                                        } catch (error) {
-                                          console.error("Error copying link:", error);
-                                          toast.error("Failed to create short URL");
-                                        }
-                                      }}
-                                    >
-                                      <LinkIcon className="h-4 w-4" />
-                                    </Button>
-                                    {event.final_card_url && (
-                                      <GuestInvitationDownloader
-                                        attendeeName={attendee.name}
-                                        finalCardUrl={event.final_card_url}
-                                      />
-                                    )}
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-
-                      {/* Mobile Stacked Card View */}
-                      <div className="md:hidden space-y-4 p-4 sm:p-0 bg-gray-50 sm:bg-transparent">
-                        {event.attendees.map((attendee) => (
-                          <div key={attendee.id} className="bg-white border rounded-lg p-4 space-y-4 shadow-sm">
-                            <div className="flex justify-between items-start">
-                              <div className="font-semibold text-gray-900 text-lg">{attendee.name}</div>
-                              <Badge
-                                variant="secondary"
-                                className={
-                                  attendee.response === "accepted"
-                                    ? "bg-green-500 text-white"
-                                    : attendee.response === "declined"
-                                      ? "bg-red-600 text-white"
-                                      : "bg-yellow-300 text-gray-800"
-                                }
-                              >
-                                {attendee.response?.charAt(0).toUpperCase() + attendee.response?.slice(1)}
-                              </Badge>
-                            </div>
-
-                            <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md border space-y-1.5 flex flex-col gap-1">
-                              {attendee.whatsapp_number && (
-                                <div className="flex items-center">
-                                  <span className="font-medium text-gray-500 w-24 flex-shrink-0">WhatsApp:</span>
-                                  <span className="truncate">{attendee.whatsapp_number}</span>
+                                        window.open(whatsappUrl, "_blank");
+                                      } catch (error) {
+                                        console.error("Error sharing on WhatsApp:", error);
+                                        toast.error("Failed to share on WhatsApp");
+                                      }
+                                    }}
+                                  >
+                                    <MessageCircle className="h-3.5 w-3.5 mr-1" />
+                                    Share
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 h-8 w-8"
+                                    onClick={async () => {
+                                      try {
+                                        const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                        await navigator.clipboard.writeText(shortUrl);
+                                        toast.success("Short link copied to clipboard!");
+                                      } catch (error) {
+                                        console.error("Error copying link:", error);
+                                        toast.error("Failed to create short URL");
+                                      }
+                                    }}
+                                  >
+                                    <LinkIcon className="h-3.5 w-3.5" />
+                                  </Button>
+                                  {event.final_card_url && (
+                                    <GuestInvitationDownloader
+                                      attendeeName={attendee.name}
+                                      finalCardUrl={event.final_card_url}
+                                    />
+                                  )}
                                 </div>
-                              )}
-                            </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
 
-                            <div className="pt-3 border-t flex flex-col gap-2">
-                              <div className="flex gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  className="flex-1 justify-center h-10 border border-primary/20"
-                                  onClick={async () => {
-                                    try {
-                                      const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
-                                      window.open(shortUrl, "_blank");
-                                    } catch (error) {
-                                      console.error("Error opening invite:", error);
-                                      toast.error("Failed to open invitation");
-                                    }
-                                  }}
-                                >
-                                  <EyeIcon className="h-4 w-4 mr-2" />
-                                  View
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  className="flex-1 justify-center h-10 border border-green-600/20 text-green-600 hover:bg-green-50"
-                                  onClick={async () => {
-                                    try {
-                                      const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                  {/* Mobile Stacked Card View */}
+                  <div className="md:hidden space-y-4">
+                    {filteredAttendees.length === 0 ? (
+                      <div className="py-8 text-center text-gray-500 bg-gray-50/50 border rounded-lg">
+                        No guests found matching the filter criteria.
+                      </div>
+                    ) : (
+                      filteredAttendees.map((attendee) => (
+                        <div key={attendee.id} className="bg-white border border-gray-100 rounded-xl p-4 space-y-3.5 shadow-sm">
+                          <div className="flex justify-between items-start">
+                            <div className="font-semibold text-gray-900 text-base">{attendee.name}</div>
+                            <Badge
+                              variant="secondary"
+                              className={
+                                attendee.response === "accepted"
+                                  ? "bg-green-100 text-green-800 border-green-200"
+                                  : attendee.response === "declined"
+                                    ? "bg-red-100 text-red-800 border-red-200"
+                                    : "bg-yellow-100 text-yellow-800 border-yellow-200"
+                              }
+                            >
+                              {attendee.response?.charAt(0).toUpperCase() + attendee.response?.slice(1)}
+                            </Badge>
+                          </div>
 
-                                      const message = `Hi ${attendee.name}! We're excited to invite you to ${event.title}. Please view your invitation and RSVP here: ${shortUrl}`;
-                                      const encodedMessage = encodeURIComponent(message);
-                                      const whatsappUrl = attendee.whatsapp_number
-                                        ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, "")}?text=${encodedMessage}`
-                                        : `https://wa.me/?text=${encodedMessage}`;
-
-                                      window.open(whatsappUrl, "_blank");
-                                    } catch (error) {
-                                      console.error("Error sharing on WhatsApp:", error);
-                                      toast.error("Failed to share on WhatsApp");
-                                    }
-                                  }}
-                                >
-                                  <MessageCircle className="h-4 w-4 mr-2" />
-                                  Share
-                                </Button>
+                          {attendee.whatsapp_number && (
+                            <div className="text-sm text-gray-600 bg-gray-50/50 p-2.5 rounded-lg border border-gray-100 space-y-1">
+                              <div className="flex items-center">
+                                <span className="font-semibold text-gray-500 w-20 flex-shrink-0">WhatsApp:</span>
+                                <span className="font-mono">{attendee.whatsapp_number}</span>
                               </div>
+                            </div>
+                          )}
+
+                          <div className="pt-2 border-t flex flex-col gap-2">
+                            <div className="flex gap-2">
                               <Button
                                 type="button"
                                 variant="outline"
-                                className="w-full justify-center h-10 border border-gray-200 text-gray-500"
+                                className="flex-1 justify-center h-9 border border-purple-200 text-purple-700 text-xs"
+                                onClick={async () => {
+                                  try {
+                                    const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                    window.open(shortUrl, "_blank");
+                                  } catch (error) {
+                                    console.error("Error opening invite:", error);
+                                    toast.error("Failed to open invitation");
+                                  }
+                                }}
+                              >
+                                <EyeIcon className="h-3.5 w-3.5 mr-1.5" />
+                                View
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1 justify-center h-9 border border-green-200 text-green-700 hover:bg-green-50 text-xs"
+                                onClick={async () => {
+                                  try {
+                                    const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
+                                    const shareMsg = event.invitation_config?.custom_share_message || `We're excited to invite you to ${event.title}. Please view your invitation and RSVP here`;
+                                    const message = `Hi ${attendee.name}! ${shareMsg}: ${shortUrl}`;
+                                    const encodedMessage = encodeURIComponent(message);
+                                    const whatsappUrl = attendee.whatsapp_number
+                                      ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, "")}?text=${encodedMessage}`
+                                      : `https://wa.me/?text=${encodedMessage}`;
+
+                                    window.open(whatsappUrl, "_blank");
+                                  } catch (error) {
+                                    console.error("Error sharing on WhatsApp:", error);
+                                    toast.error("Failed to share on WhatsApp");
+                                  }
+                                }}
+                              >
+                                <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
+                                Share
+                              </Button>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1 justify-center h-9 border border-gray-200 text-gray-500 text-xs"
                                 onClick={async () => {
                                   try {
                                     const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
@@ -1234,12 +1466,12 @@ export default function EventDetails() {
                                   }
                                 }}
                               >
-                                <LinkIcon className="h-4 w-4 mr-2" />
+                                <LinkIcon className="h-3.5 w-3.5 mr-1.5" />
                                 Copy Link
                               </Button>
 
                               {event.final_card_url && (
-                                <div className="w-full [&>button]:w-full [&>button]:justify-center [&>button]:h-10 [&>button]:border [&>button]:border-primary/20">
+                                <div className="flex-1 w-full [&>button]:w-full [&>button]:justify-center [&>button]:h-9 [&>button]:border [&>button]:border-gray-200 [&>button]:text-xs">
                                   <GuestInvitationDownloader
                                     attendeeName={attendee.name}
                                     finalCardUrl={event.final_card_url}
@@ -1248,17 +1480,19 @@ export default function EventDetails() {
                               )}
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </>
-              )}
-            </CardContent>
-          </Card>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-          <div className="space-y-6">
-            {/* Invitation Preview */}
+          {/* Sidebar Config and Analytics Column */}
+          <div className="space-y-8">
+            
+            {/* Invitation Preview Card */}
             <InvitationPreviewCard
               invitationConfig={event.invitation_config as InvitationConfig | null}
               eventData={{
@@ -1274,10 +1508,12 @@ export default function EventDetails() {
               onSave={handleUpdateInvitationConfig}
             />
 
+            {/* Attendance Overview Card */}
             {event.attendees && event.attendees.length > 0 && (
-              <Card>
+              <Card className="border border-gray-100 shadow-sm">
                 <CardHeader>
-                  <CardTitle>Attendance Overview</CardTitle>
+                  <CardTitle className="text-lg font-bold text-gray-900">Attendance Overview</CardTitle>
+                  <p className="text-xs text-gray-500">Live RSVP confirmation responses statistics</p>
                 </CardHeader>
                 <CardContent>
                   <AttendanceChart
@@ -1289,20 +1525,22 @@ export default function EventDetails() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Gallery Images Card */}
             {event.slider_images && event.slider_images.length > 0 ? (
-              <Card>
+              <Card className="border border-gray-100 shadow-sm">
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
+                  <CardTitle className="flex items-center justify-between text-lg font-bold text-gray-900">
                     <span>Event Gallery</span>
                     {session?.user.id === event.user_id && (
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <PlusIcon className="w-4 h-4 mr-2" />
+                          <Button variant="outline" size="sm" className="border-purple-200 text-purple-700 hover:bg-purple-50">
+                            <PlusIcon className="w-3.5 h-3.5 mr-1" />
                             Add Image
                           </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="bg-white">
                           <DialogHeader>
                             <DialogTitle>Add Gallery Image</DialogTitle>
                           </DialogHeader>
@@ -1383,18 +1621,19 @@ export default function EventDetails() {
                       </Dialog>
                     )}
                   </CardTitle>
+                  <p className="text-xs text-gray-500">Pictures displayed in wedding invite gallery</p>
                 </CardHeader>
-                <CardContent className="p-6">
-                  <div className="relative">
+                <CardContent className="p-6 pt-0">
+                  <div className="relative group">
                     {session?.user.id === event.user_id && (
-                      <div className="absolute top-2 right-2 z-10">
+                      <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon">
+                            <Button variant="destructive" size="icon" className="h-8 w-8 shadow-md">
                               <TrashIcon className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent className="bg-white">
                             <AlertDialogHeader>
                               <AlertDialogTitle>
                                 Delete Gallery Image
@@ -1424,19 +1663,19 @@ export default function EventDetails() {
                       <CarouselContent>
                         {event.slider_images.map((image, index) => (
                           <CarouselItem key={index}>
-                            <div className="relative aspect-video">
+                            <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-gray-100">
                               <img
                                 src={image}
                                 alt={`Event image ${index + 1}`}
-                                className="w-full h-full object-cover rounded-lg"
+                                className="w-full h-full object-cover"
                               />
                             </div>
                           </CarouselItem>
                         ))}
                       </CarouselContent>
-                      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-                        <CarouselPrevious />
-                        <CarouselNext />
+                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center justify-center gap-1">
+                        <CarouselPrevious className="static translate-y-0 h-8 w-8 text-gray-700 bg-white/80 hover:bg-white border border-gray-200 shadow-sm" />
+                        <CarouselNext className="static translate-y-0 h-8 w-8 text-gray-700 bg-white/80 hover:bg-white border border-gray-200 shadow-sm" />
                       </div>
                     </Carousel>
                   </div>
@@ -1444,9 +1683,10 @@ export default function EventDetails() {
               </Card>
             ) : (
               session?.user.id === event.user_id && (
-                <Card>
+                <Card className="border border-gray-100 shadow-sm">
                   <CardHeader>
-                    <CardTitle>Add Gallery Images</CardTitle>
+                    <CardTitle className="text-lg font-bold text-gray-900">Add Gallery Images</CardTitle>
+                    <p className="text-xs text-gray-500">Populate the gallery on your invitation template</p>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -1457,7 +1697,7 @@ export default function EventDetails() {
                             sliderInputType === "file" ? "default" : "outline"
                           }
                           onClick={() => setSliderInputType("file")}
-                          className="flex-1"
+                          className="flex-1 text-xs"
                         >
                           <UploadIcon className="w-4 h-4 mr-2" />
                           Upload File
@@ -1468,7 +1708,7 @@ export default function EventDetails() {
                             sliderInputType === "link" ? "default" : "outline"
                           }
                           onClick={() => setSliderInputType("link")}
-                          className="flex-1"
+                          className="flex-1 text-xs"
                         >
                           <LinkIcon className="w-4 h-4 mr-2" />
                           Image URL
@@ -1476,16 +1716,16 @@ export default function EventDetails() {
                       </div>
 
                       {sliderInputType === "file" ? (
-                        <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg">
+                        <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg border-purple-100 bg-purple-50/10">
                           <Label
                             htmlFor="first-slider"
-                            className="flex flex-col items-center gap-2 cursor-pointer"
+                            className="flex flex-col items-center gap-2 cursor-pointer w-full text-center"
                           >
-                            <ImageIcon className="w-8 h-8 text-gray-400" />
-                            <span className="text-sm text-gray-600">
+                            <ImageIcon className="w-8 h-8 text-purple-400" />
+                            <span className="text-sm font-medium text-gray-700">
                               Click to upload images
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-400">
                               (Max 2MB)
                             </span>
                             <Input
@@ -1500,7 +1740,7 @@ export default function EventDetails() {
                       ) : (
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label>Image URL</Label>
+                            <Label className="text-xs font-semibold text-gray-700">Image URL</Label>
                             <div className="flex gap-2">
                               <Input
                                 type="url"
@@ -1509,8 +1749,9 @@ export default function EventDetails() {
                                 onChange={(e) =>
                                   setNewImageLink(e.target.value)
                                 }
+                                className="h-9 text-sm"
                               />
-                              <Button onClick={handleAddImageLink}>Add</Button>
+                              <Button onClick={handleAddImageLink} size="sm" className="h-9">Add</Button>
                             </div>
                           </div>
                         </div>
@@ -1520,34 +1761,50 @@ export default function EventDetails() {
                 </Card>
               )
             )}
-            <div className="flex justify-center bg-red-500 bg-opacity-10 p-4 rounded-lg">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive">
-                    <TrashIcon className="w-4 h-4 mr-2" />
-                    Delete Event
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      the event and all its associated data including images and
-                      attendee information.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <Button variant="destructive" onClick={handleDeleteEvent}>
-                      Delete Event
-                    </Button>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+
+            {/* Danger Zone Card */}
+            {session?.user.id === event.user_id && (
+              <Card className="border border-red-100 bg-red-50/20 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-red-900 text-lg font-bold flex items-center gap-2">
+                    <TrashIcon className="w-4 h-4 text-red-600" />
+                    Danger Zone
+                  </CardTitle>
+                  <p className="text-xs text-red-600">Irreversible administrative actions</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-red-700 leading-relaxed">
+                    Once you delete this event, there is no going back. This will permanently remove the event, its agenda timeline, gallery media, and all RSVPs.
+                  </p>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="w-full shadow-sm">
+                        <TrashIcon className="w-4 h-4 mr-2" />
+                        Delete Event
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-white">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-gray-900">
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-gray-500">
+                          This action cannot be undone. This will permanently delete
+                          the event and all its associated data including images and
+                          attendee information.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <Button variant="destructive" onClick={handleDeleteEvent}>
+                          Delete Event
+                        </Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

@@ -32,6 +32,7 @@ export interface InvitationConfig {
   };
   background_image?: string;
   guest_name_position?: 'top' | 'bottom' | 'header' | 'center';
+  custom_share_message?: string;
 }
 
 
