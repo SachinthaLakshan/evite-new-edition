@@ -607,11 +607,11 @@ export default function BudgetCalculator() {
 
         {/* Ledger logs */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 border-b border-slate-100 pb-3">
             <h2 className="font-extrabold text-lg text-slate-800">Transaction Ledger</h2>
             
             {/* Tabs filter */}
-            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg self-start sm:self-auto">
               <button
                 onClick={() => setActiveTab("all")}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${

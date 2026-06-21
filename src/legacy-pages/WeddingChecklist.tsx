@@ -13,17 +13,11 @@ import {
   AlertCircle, 
   Sparkles, 
   TrendingUp, 
-  RefreshCw
+  RefreshCw,
+  ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Select, 
   SelectContent, 
@@ -228,6 +222,16 @@ export default function WeddingChecklist() {
   const { session, loading } = useAuth();
   const queryClient = useQueryClient();
 
+  // Track expanded checklist item IDs for accordion view
+  const [expandedItems, setExpandedItems] = React.useState<Record<string, boolean>>({});
+
+  const toggleItem = (taskId: string) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [taskId]: !prev[taskId],
+    }));
+  };
+
   // Fetch checklist task statuses from the 'Budget' table
   const { data: dbStatuses = {}, isLoading: isFetchingStatuses } = useQuery<Record<string, string>>({
     queryKey: ["checklist-statuses", session?.user?.id],
@@ -420,16 +424,24 @@ export default function WeddingChecklist() {
     }
   };
 
-  const getSectionRowColor = (sectionId: string) => {
+  const getSectionCardStyles = (sectionId: string, isExpanded: boolean) => {
     switch (sectionId) {
       case "6-12-months":
-        return "bg-purple-50/10 hover:bg-purple-50/20 border-purple-100/30";
+        return `bg-purple-50/20 hover:bg-purple-50/40 border-purple-100/80 ${
+          isExpanded ? "ring-2 ring-purple-500/10 bg-purple-50/40 border-purple-300" : ""
+        }`;
       case "3-6-months":
-        return "bg-indigo-50/10 hover:bg-indigo-50/20 border-indigo-100/30";
+        return `bg-indigo-50/20 hover:bg-indigo-50/40 border-indigo-100/80 ${
+          isExpanded ? "ring-2 ring-indigo-500/10 bg-indigo-50/40 border-indigo-300" : ""
+        }`;
       case "1-week":
-        return "bg-rose-50/10 hover:bg-rose-50/20 border-rose-100/30";
+        return `bg-rose-50/20 hover:bg-rose-50/40 border-rose-100/80 ${
+          isExpanded ? "ring-2 ring-rose-500/10 bg-rose-50/40 border-rose-300" : ""
+        }`;
       default:
-        return "hover:bg-slate-50";
+        return `bg-slate-50 hover:bg-slate-100/80 border-slate-200 ${
+          isExpanded ? "ring-2 ring-slate-500/10 bg-slate-100/30 border-slate-350" : ""
+        }`;
     }
   };
 
@@ -538,128 +550,144 @@ export default function WeddingChecklist() {
           </div>
         </div>
 
-        {/* Interactive Wedding Checklist Table */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-50 hover:bg-slate-50/80 border-b border-slate-200">
-                  <TableHead className="font-bold text-slate-700 w-[75%] px-6 py-4">Task</TableHead>
-                  <TableHead className="font-bold text-slate-700 w-[25%] px-6 py-4">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                
-                {CHECKLIST_DATA.map((section) => {
-                  const sectionTotalTasks = section.tasks.length;
-                  const sectionCompletedTasks = section.tasks.filter((t) => dbStatuses[t.id] === "completed").length;
-                  const isSectionFullyCompleted = sectionCompletedTasks === sectionTotalTasks;
-                  const sectionStatusText = isSectionFullyCompleted ? "Completed" : "In Progress";
-                  
-                  return (
-                    <React.Fragment key={section.id}>
-                      {/* Section Separator Row */}
-                      <TableRow className={`bg-gradient-to-r ${getSectionHeaderColor(section.id)} border-y`}>
-                        <TableCell colSpan={2} className="px-6 py-4">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
-                            <div>
-                              <span className="font-extrabold text-sm tracking-wide uppercase">
-                                {section.header}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 self-start md:self-auto">
-                              {/* Task count inside the section */}
-                              <Badge variant="outline" className="bg-white/85 border-slate-200/60 text-slate-800 text-[11px] font-semibold px-2 py-0.5 rounded-md">
-                                {sectionCompletedTasks}/{sectionTotalTasks} Done
-                              </Badge>
-                              {/* Section overall status */}
-                              {isSectionFullyCompleted ? (
-                                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-[11px] px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm border border-emerald-600">
-                                  <CheckCircle2 className="h-3 w-3" />
-                                  {sectionStatusText}
-                                </Badge>
-                              ) : (
-                                <Badge className={`${getSectionBadgeColor(section.id)} text-white font-semibold text-[11px] px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm`}>
-                                  <Clock className="h-3 w-3" />
-                                  {sectionStatusText}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+        {/* Interactive Wedding Checklist Cards */}
+        <div className="space-y-8">
+          {CHECKLIST_DATA.map((section) => {
+            const sectionTotalTasks = section.tasks.length;
+            const sectionCompletedTasks = section.tasks.filter((t) => dbStatuses[t.id] === "completed").length;
+            const isSectionFullyCompleted = sectionCompletedTasks === sectionTotalTasks;
+            const sectionStatusText = isSectionFullyCompleted ? "Completed" : "In Progress";
+            
+            return (
+              <div key={section.id} className="space-y-4">
+                {/* Section Header */}
+                <div className={`p-4 rounded-xl bg-gradient-to-r ${getSectionHeaderColor(section.id)} border shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3`}>
+                  <div>
+                    <span className="font-extrabold text-sm tracking-wide uppercase">
+                      {section.header}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    {/* Task count inside the section */}
+                    <Badge variant="outline" className="bg-white/85 border-slate-200/60 text-slate-800 text-[11px] font-semibold px-2 py-0.5 rounded-md">
+                      {sectionCompletedTasks}/{sectionTotalTasks} Done
+                    </Badge>
+                    {/* Section overall status */}
+                    {isSectionFullyCompleted ? (
+                      <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-[11px] px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm border border-emerald-600">
+                        <CheckCircle2 className="h-3 w-3" />
+                        {sectionStatusText}
+                      </Badge>
+                    ) : (
+                      <Badge className={`${getSectionBadgeColor(section.id)} text-white font-semibold text-[11px] px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm`}>
+                        <Clock className="h-3 w-3" />
+                        {sectionStatusText}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
 
-                      {/* Section Task Rows */}
-                      {section.tasks.map((task) => {
-                        const status = dbStatuses[task.id] || "pending";
-                        const isUpdating = updateStatusMutation.isPending && updateStatusMutation.variables?.taskId === task.id;
+                {/* Section Tasks */}
+                <div className="space-y-3">
+                  {section.tasks.map((task) => {
+                    const status = dbStatuses[task.id] || "pending";
+                    const isUpdating = updateStatusMutation.isPending && updateStatusMutation.variables?.taskId === task.id;
+                    const isExpanded = !!expandedItems[task.id];
 
-                        return (
-                          <TableRow 
-                            key={task.id} 
-                            className={`group transition-colors border-b border-slate-100 ${getSectionRowColor(section.id)}`}
+                    return (
+                      <div
+                        key={task.id}
+                        className={`p-4 rounded-xl border transition-all duration-200 shadow-sm ${getSectionCardStyles(
+                          section.id,
+                          isExpanded
+                        )}`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          {/* Toggle expand container */}
+                          <button
+                            type="button"
+                            onClick={() => toggleItem(task.id)}
+                            className="flex-1 flex items-start gap-3 text-left focus:outline-none group"
                           >
-                            <TableCell className="px-6 py-4.5">
-                              <div className="space-y-1">
-                                <h3 className={`font-semibold text-gray-900 ${getSectionHeadingHoverText(section.id)} transition-colors`}>
-                                  {task.title}
-                                </h3>
-                                <p className="text-gray-500 text-sm leading-relaxed max-w-3xl">
-                                  {task.description}
-                                </p>
-                              </div>
-                            </TableCell>
-                            <TableCell className="px-6 py-4.5">
-                              <div className="flex items-center gap-2">
-                                <Select
-                                  value={status}
-                                  onValueChange={(val) => handleStatusChange(task.id, val)}
-                                  disabled={isUpdating}
-                                >
-                                  <SelectTrigger 
-                                    className={`w-[140px] h-9 text-xs font-semibold rounded-lg border-2 shadow-sm transition-all focus:ring-purple-500 focus:border-purple-500 ${getStatusColor(status)}`}
-                                  >
-                                    <SelectValue>
-                                      {getStatusBadge(status)}
-                                    </SelectValue>
-                                  </SelectTrigger>
-                                  <SelectContent className="rounded-lg shadow-lg border-slate-200">
-                                    <SelectItem value="pending" className="text-xs focus:bg-slate-50 focus:text-slate-800">
-                                      <div className="flex items-center gap-2">
-                                        <span className="h-2 w-2 rounded-full bg-slate-400"></span>
-                                        Pending
-                                      </div>
-                                    </SelectItem>
-                                    <SelectItem value="in_progress" className="text-xs focus:bg-amber-50 focus:text-amber-800">
-                                      <div className="flex items-center gap-2">
-                                        <span className="h-2 w-2 rounded-full bg-amber-500"></span>
-                                        In Progress
-                                      </div>
-                                    </SelectItem>
-                                    <SelectItem value="completed" className="text-xs focus:bg-emerald-50 focus:text-emerald-800">
-                                      <div className="flex items-center gap-2">
-                                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                                        Completed
-                                      </div>
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
+                            <ChevronDown
+                              className={`h-5 w-5 mt-0.5 text-gray-400 transition-transform duration-200 shrink-0 ${
+                                isExpanded ? "transform rotate-180 text-purple-600" : "group-hover:text-gray-600"
+                              }`}
+                            />
+                            <div>
+                              <h3 className={`font-bold text-gray-900 transition-colors ${getSectionHeadingHoverText(
+                                section.id
+                              )}`}>
+                                {task.title}
+                              </h3>
+                            </div>
+                          </button>
 
-                                {isUpdating && (
-                                  <RefreshCw className="h-4 w-4 text-purple-600 animate-spin shrink-0" />
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </React.Fragment>
-                  );
-                })}
+                          {/* Status select dropdown */}
+                          <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                            <Select
+                              value={status}
+                              onValueChange={(val) => handleStatusChange(task.id, val)}
+                              disabled={isUpdating}
+                            >
+                              <SelectTrigger
+                                className={`w-[140px] h-9 text-xs font-semibold rounded-lg border-2 shadow-sm transition-all focus:ring-purple-500 focus:border-purple-500 ${getStatusColor(
+                                  status
+                                )}`}
+                              >
+                                <SelectValue>{getStatusBadge(status)}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent className="rounded-lg shadow-lg border-slate-200">
+                                <SelectItem value="pending" className="text-xs focus:bg-slate-50 focus:text-slate-800">
+                                  <div className="flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-slate-400"></span>
+                                    Pending
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="in_progress" className="text-xs focus:bg-amber-50 focus:text-amber-800">
+                                  <div className="flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-amber-500"></span>
+                                    In Progress
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="completed" className="text-xs focus:bg-emerald-50 focus:text-emerald-800">
+                                  <div className="flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                    Completed
+                                  </div>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
 
-              </TableBody>
-            </Table>
-          </div>
+                            {isUpdating && (
+                              <RefreshCw className="h-4 w-4 text-purple-600 animate-spin shrink-0" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Accordion description container */}
+                        <AnimatePresence initial={false}>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2, ease: "easeInOut" }}
+                              className="overflow-hidden"
+                            >
+                              <div className="pt-3 pl-8 text-gray-600 text-sm leading-relaxed max-w-3xl border-t border-dashed mt-3 border-slate-200">
+                                {task.description}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
       </div>
