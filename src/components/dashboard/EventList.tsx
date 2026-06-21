@@ -96,10 +96,19 @@ export function EventList({
         {events.map((event) => (
           <Card
             key={event.id}
-            className="group cursor-pointer hover:shadow-lg transition-shadow"
+            className="group cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden bg-card/65 backdrop-blur-[2px]"
             onClick={() => setSelectedEvent(event)}
           >
-            <CardHeader>
+            {event.image_url && (
+              <>
+                <div
+                  className="absolute inset-0 bg-cover bg-center pointer-events-none transition-transform duration-500 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${event.image_url})` }}
+                />
+                <div className="absolute inset-0 bg-white/80 dark:bg-slate-950/90 pointer-events-none transition-colors" />
+              </>
+            )}
+            <CardHeader className="relative z-10">
               <div className="flex justify-between items-start">
                 <Badge
                   variant="secondary"
@@ -124,7 +133,7 @@ export function EventList({
                 {event.title}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 relative z-10">
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <CalendarIcon className="h-4 w-4" />
                 <span>{formatDate(event.date)}</span>

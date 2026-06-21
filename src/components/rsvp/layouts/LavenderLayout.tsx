@@ -1444,7 +1444,15 @@ const LavenderLayout: React.FC<LavenderLayoutProps> = ({
       <img src="/lavender-theme-assets/bottom-right-coner.png" alt="" className="fixed pointer-events-none z-0 w-[20vw] max-w-[250px] min-w-[80px] bottom-0 right-0 translate-x-[15px] translate-y-[15px] md:translate-x-[35px] md:translate-y-[35px]" />
 
       {/* Hero Section Container */}
-      <div className="w-full min-h-screen relative flex justify-center items-center px-4 py-8 bg-transparent">
+      <div className="w-full min-h-screen relative flex justify-center items-center px-4 py-8 bg-transparent overflow-hidden">
+        {(event.background_image_url || event.image_url) && (
+          <div
+            className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-[0.4] mix-blend-overlay"
+            style={{
+              backgroundImage: `url(${event.background_image_url || event.image_url})`,
+            }}
+          />
+        )}
         {/* Content Wrapper */}
         <div className="relative z-10 flex flex-col items-center justify-center gap-6 w-full max-w-3xl mt-4">
           
