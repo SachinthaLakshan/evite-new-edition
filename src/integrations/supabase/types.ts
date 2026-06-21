@@ -174,6 +174,79 @@ export type Database = {
           }
         ]
       }
+      budget_ledger: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          for_what: string
+          vendor: string
+          amount: number
+          notes: string | null
+          date: string
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          for_what: string
+          vendor: string
+          amount: number
+          notes?: string | null
+          date?: string
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          for_what?: string
+          vendor?: string
+          amount?: number
+          notes?: string | null
+          date?: string
+          status?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      budget_settings: {
+        Row: {
+          user_id: string
+          total_budget: number
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          total_budget?: number
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          total_budget?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       short_urls: {
         Row: {
           clicks: number | null

@@ -13,7 +13,8 @@ import {
   ShieldAlert, 
   LogOut, 
   X,
-  ClipboardList
+  ClipboardList,
+  Wallet
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -62,6 +63,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       label: "Wedding Checklist",
       href: "/dashboard/wedding-checklist",
       icon: ClipboardList,
+      exact: false,
+    },
+    {
+      label: "Budget Calculator",
+      href: "/dashboard/budget",
+      icon: Wallet,
       exact: false,
     },
     {
