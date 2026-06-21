@@ -12,7 +12,8 @@ import {
   UserCircle, 
   ShieldAlert, 
   LogOut, 
-  X 
+  X,
+  ClipboardList
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -55,6 +56,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       label: "Create Event",
       href: "/dashboard/create-event",
       icon: PlusCircle,
+      exact: false,
+    },
+    {
+      label: "Wedding Checklist",
+      href: "/dashboard/wedding-checklist",
+      icon: ClipboardList,
       exact: false,
     },
     {

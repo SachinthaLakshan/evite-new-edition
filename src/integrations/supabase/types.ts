@@ -142,6 +142,38 @@ export type Database = {
           }
         ]
       }
+      Budget: {
+        Row: {
+          id: string
+          user_id: string
+          task_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          task_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          task_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Budget_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       short_urls: {
         Row: {
           clicks: number | null
