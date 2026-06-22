@@ -748,7 +748,7 @@ export default function EventDetails() {
                     Edit Event
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-y-auto px-4 py-6 sm:p-6 bg-white overflow-x-hidden">
+                <DialogContent className="fixed top-0 left-0 w-full h-full max-h-screen translate-x-0 translate-y-0 sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-[95vw] sm:max-w-3xl sm:h-auto sm:max-h-[90vh] overflow-y-auto px-4 py-6 sm:p-6 bg-white overflow-x-hidden rounded-none sm:rounded-lg">
                   <DialogHeader>
                     <DialogTitle className="text-xl font-bold text-gray-900">Edit Event Details</DialogTitle>
                   </DialogHeader>
