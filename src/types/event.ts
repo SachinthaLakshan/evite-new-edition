@@ -25,6 +25,7 @@ export interface Event {
   selected_template_id?: string | null;
   final_card_url?: string | null;
   invitation_config?: InvitationConfig | null;
+  audio_url?: string | null;
 
   created_at?: string;
   updated_at?: string;

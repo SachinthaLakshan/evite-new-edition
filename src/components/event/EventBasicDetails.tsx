@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, ClockIcon, MapPinIcon, ImageIcon, XIcon, PhoneIcon } from "lucide-react";
+import { CalendarIcon, ClockIcon, MapPinIcon, ImageIcon, XIcon, PhoneIcon, Music } from "lucide-react";
 import { TimePicker } from "@/components/ui/time-picker";
 
 interface EventBasicDetailsProps {
@@ -33,11 +33,14 @@ interface EventBasicDetailsProps {
   imagePreview: string;
   backgroundImageFile: File | null;
   backgroundImagePreview: string;
+  audioFile: File | null;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: () => void;
   handleBackgroundImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   removeBackgroundImage: () => void;
+  handleAudioChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  removeAudio: () => void;
   getMinDate: () => string;
   getMinTime: () => string;
 }
@@ -49,11 +52,14 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
   imagePreview,
   backgroundImageFile,
   backgroundImagePreview,
+  audioFile,
   handleInputChange,
   handleImageChange,
   removeImage,
   handleBackgroundImageChange,
   removeBackgroundImage,
+  handleAudioChange,
+  removeAudio,
   getMinDate,
   getMinTime,
 }) => {
@@ -209,6 +215,55 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
                   </span>
                   <span className="text-xs text-gray-400">
                     (Max size: 2MB)
+                  </span>
+                </Label>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-base flex items-center gap-2">
+            <Music className="w-4 h-4 text-gray-500" />
+            Background Music (Optional, MP3 only, Max 2MB)
+          </Label>
+          <div className="border-2 border-dashed rounded-lg p-4 text-center">
+            {audioFile ? (
+              <div className="relative flex items-center justify-between bg-gray-50 p-2.5 rounded-lg border">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Music className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                  <span className="text-sm font-medium text-gray-700 truncate">{audioFile.name}</span>
+                  <span className="text-xs text-gray-400">({(audioFile.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full"
+                  onClick={removeAudio}
+                >
+                  <XIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="py-4">
+                <Input
+                  type="file"
+                  accept="audio/mpeg, audio/mp3, .mp3"
+                  onChange={handleAudioChange}
+                  className="hidden"
+                  id="audio-upload"
+                />
+                <Label
+                  htmlFor="audio-upload"
+                  className="cursor-pointer flex flex-col items-center gap-2"
+                >
+                  <Music className="h-8 w-8 text-gray-400" />
+                  <span className="text-sm text-gray-600">
+                    Click to upload background music
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    (MP3 format only, max size: 2MB)
                   </span>
                 </Label>
               </div>

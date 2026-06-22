@@ -56,6 +56,8 @@ const CreateEventForm = () => {
     setNewAgendaItem,
     invitationConfig,
     setInvitationConfig,
+    audioFile,
+    setAudioFile,
     handleSubmit,
     getMinDate,
     getMinTime,
@@ -70,6 +72,30 @@ const CreateEventForm = () => {
       ...prev,
       [id]: value,
     }));
+  };
+
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Audio file exceeds 2MB limit.");
+      return;
+    }
+
+    // Validate type (.mp3)
+    const fileExt = file.name.split(".").pop()?.toLowerCase();
+    if (fileExt !== "mp3" && file.type !== "audio/mpeg" && file.type !== "audio/mp3") {
+      toast.error("Please upload an MP3 audio file only.");
+      return;
+    }
+
+    setAudioFile(file);
+  };
+
+  const removeAudio = () => {
+    setAudioFile(null);
   };
 
   const preventEnterSubmit = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -172,6 +198,7 @@ const CreateEventForm = () => {
               imagePreview={imagePreview}
               backgroundImageFile={backgroundImageFile}
               backgroundImagePreview={backgroundImagePreview}
+              audioFile={audioFile}
               handleInputChange={handleInputChange}
               handleImageChange={(e) => {
                 const file = e.target.files?.[0];
@@ -205,6 +232,8 @@ const CreateEventForm = () => {
                 setBackgroundImageFile(null);
                 setBackgroundImagePreview("");
               }}
+              handleAudioChange={handleAudioChange}
+              removeAudio={removeAudio}
               getMinDate={getMinDate}
               getMinTime={getMinTime}
             />

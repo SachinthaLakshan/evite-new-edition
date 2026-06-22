@@ -2182,11 +2182,7 @@ const LavenderLayout: React.FC<LavenderLayoutProps> = ({
 
 
       {/* Hidden audio element for music */}
-      {event.mobile_number && (
-        <audio ref={audioRef} loop>
-          <source src="/soft-background-music.mp3" type="audio/mpeg" />
-        </audio>
-      )}
+      <audio ref={audioRef} src={event?.audio_url || "/soft-background-music.mp3"} loop />
     </div>
   );
 };

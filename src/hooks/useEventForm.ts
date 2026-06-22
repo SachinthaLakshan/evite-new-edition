@@ -39,6 +39,8 @@ export const useEventForm = () => {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null);
   const [backgroundImagePreview, setBackgroundImagePreview] = useState<string>("");
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioPreview, setAudioPreview] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [sliderImages, setSliderImages] = useState<SliderImage[]>([]);
   const [newImageLink, setNewImageLink] = useState("");
@@ -224,6 +226,24 @@ export const useEventForm = () => {
         backgroundImageUrl = publicUrl;
       }
 
+      let audioUrl = "";
+      if (audioFile) {
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("event-images")
+          .upload(
+            `music/${session.user.id}-${Date.now()}-${audioFile.name.replace(/\s+/g, "_")}`,
+            audioFile,
+          );
+
+        if (uploadError) throw uploadError;
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("event-images").getPublicUrl(uploadData.path);
+
+        audioUrl = publicUrl;
+      }
+
       const processedSliderImages = await Promise.all(
         sliderImages.map(async (image) => {
           if (image.type === "file" && image.file) {
@@ -280,6 +300,7 @@ export const useEventForm = () => {
           theme_id: formData.theme_id,
           selected_template_id: formData.selected_template_id || null,
           invitation_config: invitationConfig,
+          audio_url: audioUrl || null,
         })
         .select()
         .single();
@@ -321,6 +342,10 @@ export const useEventForm = () => {
     setBackgroundImageFile,
     backgroundImagePreview,
     setBackgroundImagePreview,
+    audioFile,
+    setAudioFile,
+    audioPreview,
+    setAudioPreview,
     isUploading,
     sliderImages,
     setSliderImages,

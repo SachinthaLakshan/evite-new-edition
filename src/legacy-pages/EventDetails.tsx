@@ -24,6 +24,7 @@ import {
   EyeIcon,
   MessageCircle,
   Search,
+  Music,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Event } from "@/types/event";
@@ -99,6 +100,7 @@ type EditEventFormState = {
   status: string;
   theme_id: string;
   background_image_url: string;
+  audio_url: string;
 };
 
 export default function EventDetails() {
@@ -241,6 +243,7 @@ export default function EventDetails() {
   const [isUpdatingEvent, setIsUpdatingEvent] = useState(false);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editBackgroundImageFile, setEditBackgroundImageFile] = useState<File | null>(null);
+  const [editAudioFile, setEditAudioFile] = useState<File | null>(null);
   const [editForm, setEditForm] = useState<EditEventFormState>({
     title: "",
     bride_name: "",
@@ -253,6 +256,7 @@ export default function EventDetails() {
     status: "upcoming",
     theme_id: "classic",
     background_image_url: "",
+    audio_url: "",
   });
 
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -283,6 +287,7 @@ export default function EventDetails() {
       status: event.status || "upcoming",
       theme_id: event.theme_id || "classic",
       background_image_url: event.background_image_url || "",
+      audio_url: event.audio_url || "",
     });
     setAgenda(event.agenda || []);
     
@@ -551,6 +556,28 @@ export default function EventDetails() {
     try {
       let nextImageUrl = event.image_url || null;
       let nextBackgroundImageUrl = event.background_image_url || null;
+      let nextAudioUrl = editForm.audio_url || null;
+
+      if (editAudioFile) {
+        if (editAudioFile.size > 2 * 1024 * 1024) {
+          toast.error("Audio file exceeds 2MB limit.");
+          setIsUpdatingEvent(false);
+          return;
+        }
+        const fileExt = editAudioFile.name.split(".").pop()?.toLowerCase();
+        if (fileExt !== "mp3" && editAudioFile.type !== "audio/mpeg" && editAudioFile.type !== "audio/mp3") {
+          toast.error("Please upload an MP3 audio file only.");
+          setIsUpdatingEvent(false);
+          return;
+        }
+        const fileName = `${session?.user?.id}/${id}-audio-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("event-images")
+          .upload(fileName, editAudioFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from("event-images").getPublicUrl(fileName);
+        nextAudioUrl = publicUrl;
+      }
 
       if (editBackgroundImageFile) {
         if (!isValidFileSize(editBackgroundImageFile)) {
@@ -605,6 +632,7 @@ export default function EventDetails() {
           theme_id: editForm.theme_id,
           image_url: nextImageUrl,
           background_image_url: nextBackgroundImageUrl,
+          audio_url: nextAudioUrl,
           agenda: agenda,
         })
         .eq("id", id);
@@ -629,6 +657,8 @@ export default function EventDetails() {
       toast.success("Event updated successfully");
       setIsEditDialogOpen(false);
       setEditImageFile(null);
+      setEditBackgroundImageFile(null);
+      setEditAudioFile(null);
       setGuests([]);
     } catch (error) {
       console.error("Error updating event:", error);
@@ -969,6 +999,53 @@ export default function EventDetails() {
                           />
                           {editBackgroundImageFile && (
                             <p className="text-xs text-gray-500">Selected: {editBackgroundImageFile.name}</p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                            <Music className="w-4 h-4 text-gray-500" />
+                            Background Music (optional replacement, MP3 only, Max 2MB)
+                          </Label>
+                          {editForm.audio_url && (
+                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md border text-sm">
+                              <span className="font-mono text-xs truncate max-w-[250px]">Current: {editForm.audio_url.split('/').pop()}</span>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="h-7 px-2 text-xs ml-auto"
+                                onClick={() => setEditForm(prev => ({ ...prev, audio_url: "" }))}
+                              >
+                                Remove Music
+                              </Button>
+                            </div>
+                          )}
+                          <Input
+                            id="edit-audio"
+                            type="file"
+                            accept="audio/mpeg, audio/mp3, .mp3"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              if (file) {
+                                if (file.size > 2 * 1024 * 1024) {
+                                  toast.error("Audio file exceeds 2MB limit.");
+                                  e.target.value = "";
+                                  return;
+                                }
+                                const fileExt = file.name.split(".").pop()?.toLowerCase();
+                                if (fileExt !== "mp3" && file.type !== "audio/mpeg" && file.type !== "audio/mp3") {
+                                  toast.error("Please upload an MP3 audio file only.");
+                                  e.target.value = "";
+                                  return;
+                                }
+                                setEditAudioFile(file);
+                              } else {
+                                setEditAudioFile(null);
+                              }
+                            }}
+                          />
+                          {editAudioFile && (
+                            <p className="text-xs text-green-600">New music to upload: {editAudioFile.name}</p>
                           )}
                         </div>
                       </TabsContent>
