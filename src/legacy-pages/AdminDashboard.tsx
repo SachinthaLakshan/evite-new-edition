@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
@@ -44,7 +45,8 @@ import {
   ImageIcon,
   ChevronDown,
   Loader2,
-  PhoneIcon
+  PhoneIcon,
+  PencilIcon
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -266,9 +268,7 @@ const AdminDashboard = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Event Title</TableHead>
-                      <TableHead>User Email</TableHead>
                       <TableHead>Mobile Number</TableHead>
-                      <TableHead>Template</TableHead>
                       <TableHead>Event Date</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Activation</TableHead>
@@ -288,18 +288,6 @@ const AdminDashboard = () => {
                         <TableRow key={event.id}>
                           <TableCell className="font-semibold">{event.title}</TableCell>
                           <TableCell className="text-sm">
-                            {authorProfile?.email ? (
-                              <div className="flex items-center gap-2">
-                                <MailIcon className="w-3.5 h-3.5 text-gray-400" />
-                                <span>{authorProfile.email}</span>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-gray-400 font-mono">
-                                {event.user_id ? `${event.user_id.substring(0, 8)}...` : "System"}
-                              </span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-sm">
                             {event.mobile_number ? (
                               <a
                                 href={`tel:${event.mobile_number}`}
@@ -311,46 +299,6 @@ const AdminDashboard = () => {
                             ) : (
                               <span className="text-xs text-gray-400 italic">—</span>
                             )}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            <div className="space-y-1.5">
-                              {selectedTemplate ? (
-                                <div className="flex items-center gap-1.5 whitespace-nowrap">
-                                  <LayoutTemplate className="w-3.5 h-3.5 text-purple-500" />
-                                  <span className="font-medium text-gray-700">
-                                    {selectedTemplate.name}
-                                  </span>
-                                  {selectedTemplate.template_url && (
-                                    <a
-                                      href={selectedTemplate.template_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="ml-1 text-blue-500 hover:text-blue-700"
-                                      title="Open Design Tool"
-                                    >
-                                      <ExternalLinkIcon className="w-3 h-3" />
-                                    </a>
-                                  )}
-                                </div>
-                              ) : (
-                                <span className="text-gray-400 text-xs italic">No template selected</span>
-                              )}
-
-                              {event.final_card_url ? (
-                                <div className="flex items-center gap-1.5 text-green-600">
-                                  <CheckCircleIcon className="w-3.5 h-3.5" />
-                                  <span className="text-xs font-medium">Design Uploaded</span>
-                                  <a href={event.final_card_url} target="_blank" rel="noopener noreferrer">
-                                    <Eye className="w-3 h-3 ml-1" />
-                                  </a>
-                                </div>
-                              ) : selectedTemplate ? (
-                                <div className="flex items-center gap-1.5 text-amber-600">
-                                  <ImageIcon className="w-3.5 h-3.5 animate-pulse" />
-                                  <span className="text-xs font-medium">Process Pending</span>
-                                </div>
-                              ) : null}
-                            </div>
                           </TableCell>
                           <TableCell className="text-sm">
                             <div className="flex items-center gap-1.5 whitespace-nowrap">
@@ -399,6 +347,13 @@ const AdminDashboard = () => {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
+                                  <Link href={`/events/${event.id}`} className="cursor-pointer flex items-center">
+                                    <PencilIcon className="w-4 h-4 mr-2 text-primary" />
+                                    View & Edit Details
+                                  </Link>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem asChild>
                                   <a href={eventUrl} target="_blank" rel="noopener noreferrer" className="cursor-pointer flex items-center">
                                     <Eye className="w-4 h-4 mr-2" />
                                     View Invite
@@ -416,7 +371,7 @@ const AdminDashboard = () => {
                                      <LayoutTemplate className="w-4 h-4 mr-2" />
                                      View Template
                                    </DropdownMenuItem>
-                                )}
+                                 )}
 
                                 {selectedTemplate && (
                                   <DropdownMenuItem 
@@ -439,7 +394,7 @@ const AdminDashboard = () => {
                     })}
                     {events.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={8} className="h-24 text-center">
+                        <TableCell colSpan={6} className="h-24 text-center">
                           No events found in the database.
                         </TableCell>
                       </TableRow>

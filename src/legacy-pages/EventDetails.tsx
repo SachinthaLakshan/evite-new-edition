@@ -104,9 +104,8 @@ type EditEventFormState = {
 export default function EventDetails() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { session } = useAuth();
+  const { session, isAdmin } = useAuth();
   const queryClient = useQueryClient();
-
   const { data: event, isLoading } = useQuery<Event>({
     queryKey: ["event", id],
     queryFn: async () => {
@@ -166,6 +165,8 @@ export default function EventDetails() {
       } as Event;
     },
   });
+
+  const isOwnerOrAdmin = session?.user.id === event?.user_id || isAdmin;
 
   const handleDeleteImage = async (imageUrl: string) => {
     if (!event || !id) return;
@@ -402,7 +403,7 @@ export default function EventDetails() {
       // Invalidate queries and navigate
       queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success("Event deleted successfully");
-      router.push("/dashboard");
+      router.push(isAdmin ? "/admin" : "/dashboard");
     } catch (error) {
       console.error("Error deleting event:", error);
       toast.error("Failed to delete event");
@@ -649,8 +650,8 @@ export default function EventDetails() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h1 className="text-2xl font-bold mb-4">Event not found</h1>
-        <Button onClick={() => router.push("/dashboard")}>
-          Back to Dashboard
+        <Button onClick={() => router.push(isAdmin ? "/admin" : "/dashboard")}>
+          {isAdmin ? "Back to Admin System" : "Back to Dashboard"}
         </Button>
       </div>
     );
@@ -677,11 +678,15 @@ export default function EventDetails() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard" className="text-purple-600 hover:text-purple-700 transition-colors">Dashboard</BreadcrumbLink>
+                  <BreadcrumbLink href={isAdmin ? "/admin" : "/dashboard"} className="text-purple-600 hover:text-purple-700 transition-colors font-medium">
+                    {isAdmin ? "Admin System" : "Dashboard"}
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard" className="text-purple-600 hover:text-purple-700 transition-colors">Events</BreadcrumbLink>
+                  <BreadcrumbLink href={isAdmin ? "/admin" : "/dashboard"} className="text-purple-600 hover:text-purple-700 transition-colors font-medium">
+                    Events
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
@@ -705,7 +710,7 @@ export default function EventDetails() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            {session?.user.id === event.user_id && (
+            {isOwnerOrAdmin && (
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="flex-1 md:flex-none border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors shadow-sm">
@@ -990,25 +995,6 @@ export default function EventDetails() {
                 </DialogContent>
               </Dialog>
             )}
-            
-            <Button
-              variant="outline"
-              onClick={handleShareLink}
-              disabled={isSharing || !event.is_active}
-              className="flex-1 md:flex-none border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors shadow-sm"
-            >
-              {isSharing ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Share2Icon className="w-4 h-4 mr-2" />
-                  Share Event
-                </>
-              )}
-            </Button>
           </div>
         </div>
 
@@ -1169,7 +1155,7 @@ export default function EventDetails() {
                         <MessageCircle className="h-4 w-4 text-purple-600" />
                         <h4 className="font-semibold text-sm text-gray-900">Custom Invitation Message</h4>
                       </div>
-                      {session?.user.id === event.user_id && (
+                      {isOwnerOrAdmin && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -1504,7 +1490,7 @@ export default function EventDetails() {
                 groom_name: event.groom_name,
                 description: event.description || "",
               }}
-              isEditable={session?.user.id === event.user_id}
+              isEditable={isOwnerOrAdmin}
               onSave={handleUpdateInvitationConfig}
             />
 
@@ -1532,7 +1518,7 @@ export default function EventDetails() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between text-lg font-bold text-gray-900">
                     <span>Event Gallery</span>
-                    {session?.user.id === event.user_id && (
+                    {isOwnerOrAdmin && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="outline" size="sm" className="border-purple-200 text-purple-700 hover:bg-purple-50">
@@ -1625,7 +1611,7 @@ export default function EventDetails() {
                 </CardHeader>
                 <CardContent className="p-6 pt-0">
                   <div className="relative group">
-                    {session?.user.id === event.user_id && (
+                    {isOwnerOrAdmin && (
                       <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -1682,7 +1668,7 @@ export default function EventDetails() {
                 </CardContent>
               </Card>
             ) : (
-              session?.user.id === event.user_id && (
+              isOwnerOrAdmin && (
                 <Card className="border border-gray-100 shadow-sm">
                   <CardHeader>
                     <CardTitle className="text-lg font-bold text-gray-900">Add Gallery Images</CardTitle>
@@ -1763,7 +1749,7 @@ export default function EventDetails() {
             )}
 
             {/* Danger Zone Card */}
-            {session?.user.id === event.user_id && (
+            {isOwnerOrAdmin && (
               <Card className="border border-red-100 bg-red-50/20 shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-red-900 text-lg font-bold flex items-center gap-2">
