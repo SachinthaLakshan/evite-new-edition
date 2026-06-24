@@ -1387,11 +1387,13 @@ export default function EventDetails() {
                                       try {
                                         const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
                                         const shareMsg = event.invitation_config?.custom_share_message || `We're excited to invite you to ${event.title}. Please view your invitation and RSVP here`;
-                                        const message = `Hi ${attendee.name}! ${shareMsg}: ${shortUrl}`;
+                                        const message = shareMsg.match(/\[\s*invitation\s*link\s*\]/i)
+                                          ? `Hi ${attendee.name}! ${shareMsg.replace(/\[\s*invitation\s*link\s*\]/gi, shortUrl)}`
+                                          : `Hi ${attendee.name}! ${shareMsg}: ${shortUrl}`;
                                         const encodedMessage = encodeURIComponent(message);
                                         const whatsappUrl = attendee.whatsapp_number
-                                          ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, "")}?text=${encodedMessage}`
-                                          : `https://wa.me/?text=${encodedMessage}`;
+                                          ? `https://api.whatsapp.com/send?phone=${attendee.whatsapp_number.replace(/\D/g, "")}&text=${encodedMessage}`
+                                          : `https://api.whatsapp.com/send?text=${encodedMessage}`;
 
                                         window.open(whatsappUrl, "_blank");
                                       } catch (error) {
@@ -1496,11 +1498,13 @@ export default function EventDetails() {
                                   try {
                                     const shortUrl = await createAttendeeShortUrl(event.id, attendee.id);
                                     const shareMsg = event.invitation_config?.custom_share_message || `We're excited to invite you to ${event.title}. Please view your invitation and RSVP here`;
-                                    const message = `Hi ${attendee.name}! ${shareMsg}: ${shortUrl}`;
+                                    const message = shareMsg.match(/\[\s*invitation\s*link\s*\]/i)
+                                      ? `Hi ${attendee.name}! ${shareMsg.replace(/\[\s*invitation\s*link\s*\]/gi, shortUrl)}`
+                                      : `Hi ${attendee.name}! ${shareMsg}: ${shortUrl}`;
                                     const encodedMessage = encodeURIComponent(message);
                                     const whatsappUrl = attendee.whatsapp_number
-                                      ? `https://wa.me/${attendee.whatsapp_number.replace(/\D/g, "")}?text=${encodedMessage}`
-                                      : `https://wa.me/?text=${encodedMessage}`;
+                                      ? `https://api.whatsapp.com/send?phone=${attendee.whatsapp_number.replace(/\D/g, "")}&text=${encodedMessage}`
+                                      : `https://api.whatsapp.com/send?text=${encodedMessage}`;
 
                                     window.open(whatsappUrl, "_blank");
                                   } catch (error) {
