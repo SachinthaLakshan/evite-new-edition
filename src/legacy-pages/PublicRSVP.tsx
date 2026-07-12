@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useRSVP } from "@/hooks/useRSVP";
 import LegacyClassicLayout from "@/components/rsvp/layouts/LegacyClassicLayout";
 import LavenderLayout from "@/components/rsvp/layouts/LavenderLayout";
+import SageLayout from "@/components/rsvp/layouts/SageLayout";
 
 const PublicRSVP = () => {
   const searchParams = useSearchParams();
@@ -27,6 +28,24 @@ const PublicRSVP = () => {
   } = useRSVP(id, attendeeId);
 
   // Render the selected layout (defaulting to LegacyClassicLayout for compatibility)
+  if (event?.theme_id === "sage") {
+    return (
+      <SageLayout
+        event={event}
+        isLoadingEvent={isLoadingEvent}
+        isVerified={isVerified}
+        attendee={attendee}
+        setAttendee={setAttendee}
+        identifier={identifier}
+        setIdentifier={setIdentifier}
+        verifyAttendee={verifyAttendee}
+        isPlaying={isPlaying}
+        toggleMusic={toggleMusic}
+        audioRef={audioRef}
+      />
+    );
+  }
+
   if (event?.theme_id === "lavender") {
     return (
       <LavenderLayout

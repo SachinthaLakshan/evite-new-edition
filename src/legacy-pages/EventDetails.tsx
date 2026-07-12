@@ -888,7 +888,7 @@ export default function EventDetails() {
                             <Label htmlFor="edit-theme" className="text-sm font-semibold text-gray-700">Theme</Label>
                             <select
                               id="edit-theme"
-                              value={editForm.theme_id === "lavender" ? "lavender" : "classic"}
+                              value={editForm.theme_id || "classic"}
                               onChange={(e) =>
                                 setEditForm((prev) => ({ ...prev, theme_id: e.target.value }))
                               }
@@ -896,6 +896,7 @@ export default function EventDetails() {
                             >
                               <option value="classic">Classic Design</option>
                               <option value="lavender">Lavender Design</option>
+                              <option value="sage">Sage Design</option>
                             </select>
                           </div>
                         </div>
