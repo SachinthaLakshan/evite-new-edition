@@ -30,6 +30,12 @@ export const layoutOptions: LayoutOption[] = [
     description: "Elegant layout with fresh green tones, organic shapes, and classic floral motifs",
     bgImage: "/assets/sage-design.png",
   },
+  {
+    id: "redrose",
+    name: "Red Rose Design",
+    description: "Romantic layout with deep crimson roses, warm champagne details, and gold accents",
+    bgImage: "/assets/redrose-design.png",
+  },
 ];
 
 interface EventLayoutSelectionProps {
@@ -42,7 +48,7 @@ const EventLayoutSelection: React.FC<EventLayoutSelectionProps> = ({
   onLayoutChange,
 }) => {
   // Normalize layout selection for backward compatibility
-  const activeLayout = selectedLayout === "lavender" || selectedLayout === "sage" ? selectedLayout : "classic";
+  const activeLayout = selectedLayout === "lavender" || selectedLayout === "sage" || selectedLayout === "redrose" ? selectedLayout : "classic";
 
   return (
     <div className="space-y-4">
@@ -95,7 +101,7 @@ const EventLayoutSelection: React.FC<EventLayoutSelectionProps> = ({
 
               <div className="flex items-center justify-between mt-4 border-t border-gray-50 pt-3">
                 <span className="text-xs font-semibold text-[#7C3AED]">
-                  {layout.id === "lavender" || layout.id === "sage" ? "New Option" : "Classic / Standard"}
+                  {layout.id === "lavender" || layout.id === "sage" || layout.id === "redrose" ? "New Option" : "Classic / Standard"}
                 </span>
 
                 <RadioGroupItem

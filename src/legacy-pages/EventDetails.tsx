@@ -897,6 +897,7 @@ export default function EventDetails() {
                               <option value="classic">Classic Design</option>
                               <option value="lavender">Lavender Design</option>
                               <option value="sage">Sage Design</option>
+                              <option value="redrose">Red Rose Design</option>
                             </select>
                           </div>
                         </div>
