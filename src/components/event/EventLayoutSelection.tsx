@@ -22,19 +22,19 @@ export const layoutOptions: LayoutOption[] = [
     id: "lavender",
     name: "Lavender Design",
     description: "Modern, clean layout with beautiful soft violet tones, calendar info, and countdown",
-    bgImage: "/assets/lavender-design.png",
+    bgImage: "/assets/invite-lavendra.png",
   },
   {
     id: "sage",
     name: "Sage Design",
     description: "Elegant layout with fresh green tones, organic shapes, and classic floral motifs",
-    bgImage: "/assets/sage-design.png",
+    bgImage: "/assets/invite-sage.png",
   },
   {
     id: "redrose",
     name: "Red Rose Design",
     description: "Romantic layout with deep crimson roses, warm champagne details, and gold accents",
-    bgImage: "/assets/redrose-design.png",
+    bgImage: "/assets/invite-redrose.png",
   },
 ];
 

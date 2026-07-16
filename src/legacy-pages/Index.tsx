@@ -67,10 +67,10 @@ const Landing: React.FC = () => {
     {
       date: new Date('2026-12-31'),
       title:'Big Day',
-      groom_name:'Lahiru',
-      bride_name:'Imasha',
-      url:'http://www.evite.lk/s/flZQr',
-      imageUrl:'/assets/invite-lavendra.png',
+      groom_name:'Shan',
+      bride_name:'Anu',
+      url:'http://www.evite.lk/s/tBTDz',
+      imageUrl:'/assets/invite-redrose.png',
       id:3
     }
   ]
