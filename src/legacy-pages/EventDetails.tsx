@@ -101,6 +101,7 @@ type EditEventFormState = {
   theme_id: string;
   background_image_url: string;
   audio_url: string;
+  opener_style: string;
 };
 
 export default function EventDetails() {
@@ -257,6 +258,7 @@ export default function EventDetails() {
     theme_id: "classic",
     background_image_url: "",
     audio_url: "",
+    opener_style: "button",
   });
 
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -288,6 +290,7 @@ export default function EventDetails() {
       theme_id: event.theme_id || "classic",
       background_image_url: event.background_image_url || "",
       audio_url: event.audio_url || "",
+      opener_style: event.opener_style || "button",
     });
     setAgenda(event.agenda || []);
     
@@ -633,6 +636,7 @@ export default function EventDetails() {
           image_url: nextImageUrl,
           background_image_url: nextBackgroundImageUrl,
           audio_url: nextAudioUrl,
+          opener_style: editForm.opener_style || "button",
           agenda: agenda,
         })
         .eq("id", id);
@@ -898,6 +902,20 @@ export default function EventDetails() {
                               <option value="lavender">Lavender Design</option>
                               <option value="sage">Sage Design</option>
                               <option value="redrose">Red Rose Design</option>
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-opener-style" className="text-sm font-semibold text-gray-700">Invite Opener Style</Label>
+                            <select
+                              id="edit-opener-style"
+                              value={editForm.opener_style || "button"}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({ ...prev, opener_style: e.target.value }))
+                              }
+                              className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                              <option value="button">Classic Button</option>
+                              <option value="envelope">Envelope Animation</option>
                             </select>
                           </div>
                         </div>

@@ -4,6 +4,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Calendar, MapPin, Clock, Volume2, VolumeX, X } from "lucide-react";
 import confetti from "canvas-confetti";
+import { ClassicButtonOpener } from "../openers/ClassicButtonOpener";
+import { EnvelopeOpener } from "../openers/EnvelopeOpener";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -49,8 +51,7 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
   
   const detailsRef = useRef<HTMLDivElement>(null);
 
-  const onClickOpenButton = () => {
-    setIsOpened(true);
+  const triggerConfettiAndMusic = () => {
     if (!isPlaying) toggleMusic();
     if (audioRef?.current) {
       audioRef.current.play().catch(console.error);
@@ -84,6 +85,11 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
     } catch (err) {
       console.error("Confetti error:", err);
     }
+  };
+
+  const handleClassicOpen = () => {
+    triggerConfettiAndMusic();
+    setIsOpened(true);
   };
 
   useEffect(() => {
@@ -299,125 +305,29 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
       )}
 
       {/* ══ OPEN INVITATION ENVELOPE OVERLAY ══ */}
-      {!isOpened && (
-        <div className="fixed inset-0 z-50 bg-[#FFF5F5]/95 backdrop-blur-md flex items-center justify-center p-4">
-          <style dangerouslySetInnerHTML={{ __html: `
-            .animated-open-btn {
-              position: relative;
-              padding: 14px 38px;  
-              border: none;
-              background: none;
-              cursor: pointer;
-              font-family: 'Great Vibes', cursive;
-              font-size: 34px;  
-              color: #ffffff;
-              background-image: linear-gradient(135deg, #B91C1C 0%, #7F1D1D 51%, #B91C1C 100%);
-              border: 2px solid #ffffff;
-              box-shadow: 0 8px 24px rgba(185, 28, 28, 0.35);
-              border-radius: 99px; 
-              z-index: 1;  
-              overflow: hidden;   
-              transition: all 0.3s ease;
-            }
-            .animated-open-btn:hover {
-              transform: translateY(-3px) scale(1.03);
-              box-shadow: 0 12px 30px rgba(185, 28, 28, 0.45);
-            }
-            .animated-open-btn:active {
-              transform: translateY(-1px) scale(1.01);
-            }
-            .animated-open-btn::before {
-              content: '';
-              pointer-events: none;
-              opacity: .4;
-              background:
-                radial-gradient(circle at 20% 35%,  transparent 0,  transparent 2px, rgba(255,255,255,1) 3px, rgba(255,255,255,1) 4px, transparent 4px),
-                radial-gradient(circle at 75% 44%, transparent 0,  transparent 2px, rgba(255,255,255,1) 3px, rgba(255,255,255,1) 4px, transparent 4px),
-                radial-gradient(circle at 46% 52%, transparent 0, transparent 4px, rgba(255,255,255,1) 5px, rgba(255,255,255,1) 6px, transparent 6px);
-              width: 100%;
-              height: 300%;
-              top: 0;
-              left: 0;
-              position: absolute;
-              animation: btn-bubbles 4s linear infinite both;
-            }
-            @keyframes btn-bubbles {
-              from { transform: translate(0, 0); }
-              to { transform: translate(0, -66.666%); }
-            }
-            
-            .envelope-card {
-              background: rgba(252, 251, 247, 0.85);
-              backdrop-filter: blur(18px);
-              -webkit-backdrop-filter: blur(18px);
-              border: 1.5px solid rgba(197, 155, 39, 0.3);
-              border-radius: 36px;
-              padding: 48px 32px;
-              width: 100%;
-              max-width: 460px;
-              box-shadow: 0 12px 40px rgba(139, 0, 0, 0.15);
-              text-align: center;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 24px;
-              position: relative;
-            }
-            .env-fl-tl {
-              position: absolute;
-              top: -10px;
-              left: -10px;
-              width: 110px;
-              pointer-events: none;
-              opacity: 0.85;
-            }
-            .env-fl-tr {
-              position: absolute;
-              top: -6px;
-              right: -6px;
-              width: 55px;
-              pointer-events: none;
-              opacity: 0.85;
-            }
-            .env-fl-br {
-              position: absolute;
-              bottom: -10px;
-              right: -10px;
-              width: 110px;
-              pointer-events: none;
-              opacity: 0.85;
-              transform: scaleY(-1);
-            }
-          `}} />
-          
-          <div className="envelope-card">
-            {/* Envelope absolute decorations */}
-            <img src="/red-rose-theme-assets/deco1.png" alt="" className="env-fl-tl" />
-            <img src="/red-rose-theme-assets/deco-2.png" alt="" className="env-fl-tr" />
-            {/* <img src="/red-rose-theme-assets/deco5.png" alt="" className="env-fl-br" /> */}
-
-            <div className="space-y-1">
-              <span className="font-mono text-[10px] font-semibold tracking-[0.3em] text-[#C59B27] uppercase text-center block">Wedding Invitation</span>
-              <h2 className="wedding-names-font text-2xl md:text-3xl font-medium text-[#7F1D1D] uppercase tracking-widest mt-1 text-center">
-                {brideName} <span className="font-normal lowercase text-[#C59B27]">&amp;</span> {groomName}
-              </h2>
-            </div>
-            
-            <div className="h-px w-24 bg-gradient-to-r from-transparent via-[#C59B27]/60 to-transparent" />
-            
-            <p className="font-serif text-[#7F1D1D] italic text-base px-4 text-center">
-              We request the honor of your presence as we celebrate our love.
-            </p>
-            
-            <button
-              type="button"
-              onClick={onClickOpenButton}
-              className="animated-open-btn mt-2"
-            >
-              Open Invitation
-            </button>
-          </div>
-        </div>
+      {event?.opener_style === 'envelope' ? (
+        <EnvelopeOpener
+          isOpened={isOpened}
+          setIsOpened={setIsOpened}
+          brideName={brideName}
+          groomName={groomName}
+          theme="redrose"
+          isPlaying={isPlaying}
+          toggleMusic={toggleMusic}
+          audioRef={audioRef}
+          onTriggerOpen={triggerConfettiAndMusic}
+        />
+      ) : (
+        <ClassicButtonOpener
+          isOpened={isOpened}
+          onOpen={handleClassicOpen}
+          brideName={brideName}
+          groomName={groomName}
+          theme="redrose"
+          isPlaying={isPlaying}
+          toggleMusic={toggleMusic}
+          audioRef={audioRef}
+        />
       )}
 
       {/* Import elegant fonts for wedding theme */}

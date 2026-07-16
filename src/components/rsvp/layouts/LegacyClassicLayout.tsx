@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { ClassicButtonOpener } from "../openers/ClassicButtonOpener";
+import { EnvelopeOpener } from "../openers/EnvelopeOpener";
 import { Sparkles, Volume2, VolumeX, MapPin, ChevronDown, X, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -293,9 +295,9 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
     }
   };
 
-  const pop = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const pop = (e: React.MouseEvent<any>) => {
     let amount = 30;
-    const type = (e.currentTarget.dataset.type as string) || 'emoji';
+    const type = (e.currentTarget?.dataset?.type as string) || 'emoji';
     
     if (type === 'shadow' || type === 'line') {
       amount = 60;
@@ -315,15 +317,6 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
     }
   };
 
-  const onClickOpenButton = (e: React.MouseEvent<HTMLButtonElement>) => {
-    pop(e);
-    setIsOpened(true);
-    if (!isPlaying) toggleMusic();
-    if (audioRef?.current) {
-      audioRef.current.play().catch(console.error);
-    }
-  };
-
   return (
     <div className="relative min-h-screen bg-[#1a120b] text-amber-100 overflow-x-hidden">
       {!event?.is_active && (
@@ -336,108 +329,29 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
           </div>
         </div>
       )}
-      {!isOpened && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <style dangerouslySetInnerHTML={{ __html: `
-            .animated-open-btn {
-              position: relative;
-              padding: 10px 30px;  
-              border: none;
-              background: none;
-              cursor: pointer;
-              font-family: 'Parisienne', cursive;
-              font-weight: 900;
-              font-size: 34px;  
-              color: hsla(210, 50%, 85%, 1);
-              background-image: linear-gradient(to right, #FF512F 0%, #F09819 51%, #FF512F 100%);
-              border: 3px solid #fff;
-              box-shadow: hsla(210, 40%, 52%, .94) 2px 2px 22px;
-              border-radius: 12px; 
-              z-index: 0;  
-              overflow: hidden;   
-            }
-            .animated-open-btn:focus {
-              outline-color: transparent;
-              box-shadow: #e4752b;
-            }
-            .animated-open-btn .right::after, .animated-open-btn::after {
-              content: "";
-              display: block;
-              position: absolute;
-              white-space: nowrap;
-              padding: 60px 60px;
-              pointer-events: none;
-            }
-            .animated-open-btn::after {
-              font-weight: 200;
-              top: -30px;
-              left: -20px;
-            } 
-            .animated-open-btn .right, .animated-open-btn .left {
-              position: absolute;
-              width: 100%;
-              height: 100%;
-              top: 0;
-            }
-            .animated-open-btn .right {
-              left: 66%;
-            }
-            .animated-open-btn .left {
-              right: 66%;
-            }
-            .animated-open-btn .right::after {
-              top: -30px;
-              left: calc(-66% - 20px);
-              background-color: #141218;
-              color: transparent;
-              transition: transform .4s ease-out;
-              transform: translate(0, -90%) rotate(0deg);
-            }
-            .animated-open-btn:hover .right::after {
-              transform: translate(0, -47%) rotate(0deg);
-            }
-            .animated-open-btn .right:hover::after {
-              transform: translate(0, -50%) rotate(-7deg);
-            }
-            .animated-open-btn .left:hover ~ .right::after {
-              transform: translate(0, -50%) rotate(7deg);
-            }
-            /* bubbles */
-            .animated-open-btn::before {
-              content: '';
-              pointer-events: none;
-              opacity: .6;
-              background:
-                radial-gradient(circle at 20% 35%,  transparent 0,  transparent 2px, hsla(210, 50%, 85%, 1) 3px, hsla(210, 50%, 85%, 1) 4px, transparent 4px),
-                radial-gradient(circle at 75% 44%, transparent 0,  transparent 2px, hsla(210, 50%, 85%, 1) 3px, hsla(210, 50%, 85%, 1) 4px, transparent 4px),
-                radial-gradient(circle at 46% 52%, transparent 0, transparent 4px, hsla(210, 50%, 85%, 1) 5px, hsla(210, 50%, 85%, 1) 6px, transparent 6px);
-              width: 100%;
-              height: 300%;
-              top: 0;
-              left: 0;
-              position: absolute;
-              animation: btn-bubbles 5s linear infinite both;
-            }
-            @keyframes btn-bubbles {
-              from {
-                transform: translate(0, 0);
-              }
-              to {
-                transform: translate(0, -66.666%);
-              }
-            }
-          `}} />
-          <button
-            type="button"
-            data-type="emoji"
-            onClick={onClickOpenButton}
-            className="animated-open-btn"
-          >
-            Open Invitation
-            <div className="left"></div>
-            <div className="right"></div>
-          </button>
-        </div>
+      {event?.opener_style === 'envelope' ? (
+        <EnvelopeOpener
+          isOpened={isOpened}
+          setIsOpened={setIsOpened}
+          brideName={titleParts[0]}
+          groomName={titleParts[1]}
+          theme="classic"
+          isPlaying={isPlaying}
+          toggleMusic={toggleMusic}
+          audioRef={audioRef}
+          onTriggerOpen={pop}
+        />
+      ) : (
+        <ClassicButtonOpener
+          isOpened={isOpened}
+          onOpen={pop}
+          brideName={titleParts[0]}
+          groomName={titleParts[1]}
+          theme="classic"
+          isPlaying={isPlaying}
+          toggleMusic={toggleMusic}
+          audioRef={audioRef}
+        />
       )}
 
       <button

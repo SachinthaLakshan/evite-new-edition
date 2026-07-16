@@ -33,6 +33,7 @@ export const useEventForm = () => {
     theme_id: "classic",
     selected_template_id: "",
     invitation_config: undefined,
+    opener_style: "button",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -301,6 +302,7 @@ export const useEventForm = () => {
           selected_template_id: formData.selected_template_id || null,
           invitation_config: invitationConfig,
           audio_url: audioUrl || null,
+          opener_style: formData.opener_style || "button",
         })
         .select()
         .single();

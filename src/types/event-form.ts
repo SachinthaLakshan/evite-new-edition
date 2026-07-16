@@ -16,6 +16,7 @@ export interface FormData {
   selected_template_id?: string;
   invitation_config?: InvitationConfig;
   audio_url?: string | null;
+  opener_style?: string | null;
 
 }
 

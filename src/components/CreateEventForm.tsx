@@ -340,6 +340,38 @@ const CreateEventForm = () => {
                 }
               />
             </div>
+
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span>✉️</span> Invite Opener Style
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, opener_style: "button" }))}
+                  className={`p-4 rounded-xl border-2 text-left transition ${
+                    (formData.opener_style || "button") === "button"
+                      ? "border-primary bg-primary/5"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="font-semibold text-gray-900 mb-1">Classic Button</div>
+                  <div className="text-xs text-gray-500">A simple and clean animated button overlay to reveal your invitation.</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, opener_style: "envelope" }))}
+                  className={`p-4 rounded-xl border-2 text-left transition ${
+                    formData.opener_style === "envelope"
+                      ? "border-primary bg-primary/5"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="font-semibold text-gray-900 mb-1">Envelope Animation</div>
+                  <div className="text-xs text-gray-500">A beautiful animated wax-sealed envelope that opens to reveal the invitation.</div>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
