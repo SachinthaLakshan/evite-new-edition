@@ -344,7 +344,10 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
       ) : (
         <ClassicButtonOpener
           isOpened={isOpened}
-          onOpen={pop}
+          onOpen={(e) => {
+            pop(e);
+            setIsOpened(true);
+          }}
           brideName={titleParts[0]}
           groomName={titleParts[1]}
           theme="classic"

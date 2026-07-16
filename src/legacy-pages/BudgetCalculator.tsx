@@ -23,8 +23,10 @@ import {
   Sparkles,
   RefreshCw,
   Info,
-  TrendingUp
+  TrendingUp,
+  FileSpreadsheet
 } from "lucide-react";
+import ExcelJS from "exceljs";
 import { toast } from "sonner";
 import { 
   Table, 
@@ -389,6 +391,222 @@ export default function BudgetCalculator() {
     }
   };
 
+  const handleExportToExcel = async () => {
+    try {
+      // 1. Create a workbook and worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Wedding Budget");
+
+      // Enable gridlines
+      worksheet.views = [{ showGridLines: true }];
+
+      // Define color styling palette
+      const purpleThemeColor = "FF7C3AED"; // #7c3aed
+      const lightPurpleBg = "FFF5F3FF"; // #f5f3ff
+      const borderStyle = { style: 'thin' as const, color: { argb: 'FFE5E7EB' } }; // gray-200
+
+      // Column definitions
+      worksheet.columns = [
+        { key: "col1", width: 15 }, // Date
+        { key: "col2", width: 12 }, // Type
+        { key: "col3", width: 35 }, // Item / Description
+        { key: "col4", width: 25 }, // Vendor
+        { key: "col5", width: 18 }, // Amount (Rs.)
+        { key: "col6", width: 12 }, // Status
+        { key: "col7", width: 45 }  // Notes
+      ];
+
+      // 2. Title Block
+      worksheet.mergeCells("A1:G1");
+      const titleCell = worksheet.getCell("A1");
+      titleCell.value = "Wedding Budget & Expenses Report";
+      titleCell.font = { name: "Arial", size: 16, bold: true, color: { argb: "FFFFFFFF" } };
+      titleCell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: purpleThemeColor }
+      };
+      titleCell.alignment = { horizontal: "center", vertical: "middle" };
+      worksheet.getRow(1).height = 42;
+
+      // Subtitle / Date
+      worksheet.mergeCells("A2:G2");
+      const subtitleCell = worksheet.getCell("A2");
+      subtitleCell.value = `Generated: ${new Date().toLocaleString()}`;
+      subtitleCell.font = { name: "Arial", size: 10, italic: true, color: { argb: "FF4B5563" } }; // gray-600
+      subtitleCell.alignment = { horizontal: "center", vertical: "middle" };
+      worksheet.getRow(2).height = 22;
+
+      // Blank row 3
+      worksheet.getRow(3).height = 15;
+
+      // 3. Overview Metrics Section
+      const summaryHeaderCell = worksheet.getCell("A4");
+      summaryHeaderCell.value = "Overview Metrics";
+      summaryHeaderCell.font = { name: "Arial", size: 12, bold: true, color: { argb: "FF1F2937" } };
+      worksheet.getRow(4).height = 22;
+
+      const metrics = [
+        ["Total Wedding Budget", totalBudget, "FF7C3AED"], // theme purple
+        ["Total Spent (Expenses + Paid Payments)", totalSpent, "FF111827"], // slate-900
+        ["Remaining Budget", remainingBudget, remainingBudget >= 0 ? "FF059669" : "FFDC2626"], // emerald vs rose
+        ["Total Committed Expenses", totalExpenses, "FF4B5563"], // gray-600
+        ["Total Paid Payments", totalPayments, "FF059669"], // emerald-600
+        ["Total Pending (Unpaid) Payments", pendingPayments, "FFD97706"], // amber-600
+        ["Payments Due Soon (Next 14 Days)", dueSoonSum, "FFDC2626"] // rose-600
+      ];
+
+      metrics.forEach((metric, index) => {
+        const rowNum = 5 + index;
+        const row = worksheet.getRow(rowNum);
+        
+        // Metric label
+        const labelCell = row.getCell(1);
+        labelCell.value = metric[0];
+        labelCell.font = { name: "Arial", size: 10, bold: true, color: { argb: "FF374151" } };
+        labelCell.alignment = { horizontal: "left", vertical: "middle" };
+        labelCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: lightPurpleBg }
+        };
+        labelCell.border = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
+
+        // Metric value
+        const valCell = row.getCell(2);
+        valCell.value = Number(metric[1]);
+        valCell.font = { name: "Arial", size: 10, bold: true, color: { argb: metric[2] as string } };
+        valCell.numFmt = '"Rs. "#,##0.00';
+        valCell.alignment = { horizontal: "right", vertical: "middle" };
+        valCell.border = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
+
+        // Merge value cell across columns B & C
+        worksheet.mergeCells(`B${rowNum}:C${rowNum}`);
+        
+        // Apply borders to the rest of the merged block
+        row.getCell(3).border = { top: borderStyle, bottom: borderStyle, left: borderStyle, right: borderStyle };
+        row.height = 20;
+      });
+
+      // Blank row 12
+      worksheet.getRow(12).height = 15;
+
+      // 4. Transaction Ledger Section
+      const ledgerHeaderCell = worksheet.getCell("A13");
+      ledgerHeaderCell.value = "Transaction Details";
+      ledgerHeaderCell.font = { name: "Arial", size: 12, bold: true, color: { argb: "FF1F2937" } };
+      worksheet.getRow(13).height = 22;
+
+      // Headers columns
+      const headers = ["Date", "Type", "Item / Description", "Vendor", "Amount (Rs.)", "Status", "Notes"];
+      const headerRow = worksheet.getRow(14);
+      headers.forEach((header, index) => {
+        const cell = headerRow.getCell(index + 1);
+        cell.value = header;
+        cell.font = { name: "Arial", size: 10, bold: true, color: { argb: "FFFFFFFF" } };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF6D28D9" } // Deep purple-700
+        };
+        cell.alignment = {
+          horizontal: index === 4 ? "right" : (index === 0 || index === 1 || index === 5 ? "center" : "left"),
+          vertical: "middle"
+        };
+        cell.border = {
+          top: borderStyle,
+          bottom: { style: 'medium' as const, color: { argb: 'FF4C1D95' } },
+          left: borderStyle,
+          right: borderStyle
+        };
+      });
+      headerRow.height = 26;
+
+      // Map transactions data
+      ledgerItems.forEach((item, index) => {
+        const rowNum = 15 + index;
+        const row = worksheet.getRow(rowNum);
+
+        const isExpense = item.type === "expense";
+        const formattedDate = new Date(item.date).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          timeZone: "UTC"
+        });
+        const displayType = isExpense ? "Expense" : "Payment";
+        const displayStatus = isExpense ? "N/A" : (item.status === "paid" ? "Paid" : "Unpaid");
+
+        const rowValues = [
+          formattedDate,
+          displayType,
+          item.for_what,
+          item.vendor || "—",
+          Number(item.amount),
+          displayStatus,
+          item.notes || ""
+        ];
+
+        // Zebra striping
+        const rowBg = index % 2 === 0 ? "FFFFFFFF" : "FFF9FAFB"; // Alternating white and slate-50
+
+        rowValues.forEach((val, colIndex) => {
+          const cell = row.getCell(colIndex + 1);
+          cell.value = val;
+          cell.font = { name: "Arial", size: 10, color: { argb: "FF374151" } };
+
+          // Custom column formatting
+          if (colIndex === 4) { // Amount
+            cell.numFmt = '"Rs. "#,##0.00';
+            cell.font = { name: "Arial", size: 10, bold: true, color: { argb: isExpense ? "FF581C87" : "FF047857" } };
+          } else if (colIndex === 1) { // Type
+            cell.font = { name: "Arial", size: 10, bold: true, color: { argb: isExpense ? "FF7C3AED" : "FF059669" } };
+          } else if (colIndex === 5) { // Status
+            if (val === "Paid") {
+              cell.font = { name: "Arial", size: 10, bold: true, color: { argb: "FF059669" } };
+            } else if (val === "Unpaid") {
+              cell.font = { name: "Arial", size: 10, bold: true, color: { argb: "FFD97706" } };
+            }
+          }
+
+          cell.alignment = {
+            horizontal: colIndex === 4 ? "right" : (colIndex === 0 || colIndex === 1 || colIndex === 5 ? "center" : "left"),
+            vertical: "middle"
+          };
+
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: rowBg }
+          };
+
+          cell.border = {
+            top: borderStyle,
+            bottom: borderStyle,
+            left: borderStyle,
+            right: borderStyle
+          };
+        });
+
+        row.height = 22;
+      });
+
+      // 5. Trigger direct download using Blob
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `Wedding_Budget_${new Date().toISOString().split("T")[0]}.xlsx`;
+      anchor.click();
+      window.URL.revokeObjectURL(url);
+      toast.success("Excel report downloaded successfully!");
+    } catch (err) {
+      console.error("Export to Excel failed:", err);
+      toast.error("Failed to export budget to Excel");
+    }
+  };
+
   const formatCurrency = (val: number) => {
     const formattedNum = new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 2,
@@ -602,6 +820,16 @@ export default function BudgetCalculator() {
           >
             <PlusCircle className="h-5 w-5 text-emerald-600" />
             Add Payment
+          </Button>
+          <Button 
+            onClick={handleExportToExcel} 
+            variant="outline" 
+            className="group border-slate-200 text-slate-700 hover:bg-purple-50/50 hover:text-purple-700 hover:border-purple-200 font-semibold flex items-center gap-2 shadow-sm rounded-xl px-5 py-5 transition-all duration-200 active:scale-95 ml-auto sm:ml-0"
+            disabled={ledgerItems.length === 0}
+            title={ledgerItems.length === 0 ? "No transaction records to download" : "Download budget report as Excel"}
+          >
+            <FileSpreadsheet className="h-5 w-5 text-emerald-600 transition-transform duration-200 group-hover:scale-110" />
+            Download Excel
           </Button>
         </div>
 
