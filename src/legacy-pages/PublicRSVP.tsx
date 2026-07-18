@@ -8,6 +8,7 @@ import LavenderLayout from "@/components/rsvp/layouts/LavenderLayout";
 import SageLayout from "@/components/rsvp/layouts/SageLayout";
 import RedRoseLayout from "@/components/rsvp/layouts/RedRoseLayout";
 import RedRoseClassicLayout from "@/components/rsvp/layouts/RedRoseClassicLayout";
+import CreamClassicDesignLayout from "@/components/rsvp/layouts/CreamClassicDesignLayout";
 
 const PublicRSVP = () => {
   const searchParams = useSearchParams();
@@ -87,6 +88,24 @@ const PublicRSVP = () => {
   if (event?.theme_id === "redroseclassic") {
     return (
       <RedRoseClassicLayout
+        event={event}
+        isLoadingEvent={isLoadingEvent}
+        isVerified={isVerified}
+        attendee={attendee}
+        setAttendee={setAttendee}
+        identifier={identifier}
+        setIdentifier={setIdentifier}
+        verifyAttendee={verifyAttendee}
+        isPlaying={isPlaying}
+        toggleMusic={toggleMusic}
+        audioRef={audioRef}
+      />
+    );
+  }
+
+  if (event?.theme_id === "creamclassicdesign") {
+    return (
+      <CreamClassicDesignLayout
         event={event}
         isLoadingEvent={isLoadingEvent}
         isVerified={isVerified}

@@ -903,6 +903,7 @@ export default function EventDetails() {
                               <option value="sage">Sage Design</option>
                               <option value="redrose">Red Rose Design</option>
                               <option value="redroseclassic">Red Rose Classic</option>
+                              <option value="creamclassicdesign">Cream Classic Design</option>
                             </select>
                           </div>
                           <div className="space-y-2">

@@ -42,6 +42,12 @@ export const layoutOptions: LayoutOption[] = [
     description: "Romantic layout with red rose details, matching flower ring, and traditional classic elements",
     bgImage: "/assets/invite-redrose.png",
   },
+  {
+    id: "creamclassicdesign",
+    name: "Cream Classic Design",
+    description: "Classic design with warm ivory cream backgrounds, elegant red rose styling and typography",
+    bgImage: "/assets/classic-design.png",
+  },
 ];
 
 interface EventLayoutSelectionProps {
@@ -54,7 +60,7 @@ const EventLayoutSelection: React.FC<EventLayoutSelectionProps> = ({
   onLayoutChange,
 }) => {
   // Normalize layout selection for backward compatibility
-  const activeLayout = selectedLayout === "lavender" || selectedLayout === "sage" || selectedLayout === "redrose" || selectedLayout === "redroseclassic" ? selectedLayout : "classic";
+  const activeLayout = selectedLayout === "lavender" || selectedLayout === "sage" || selectedLayout === "redrose" || selectedLayout === "redroseclassic" || selectedLayout === "creamclassicdesign" ? selectedLayout : "classic";
 
   return (
     <div className="space-y-4">
@@ -107,7 +113,7 @@ const EventLayoutSelection: React.FC<EventLayoutSelectionProps> = ({
 
               <div className="flex items-center justify-between mt-4 border-t border-gray-50 pt-3">
                 <span className="text-xs font-semibold text-[#7C3AED]">
-                  {layout.id === "lavender" || layout.id === "sage" || layout.id === "redrose" || layout.id === "redroseclassic" ? "New Option" : "Classic / Standard"}
+                  {layout.id === "lavender" || layout.id === "sage" || layout.id === "redrose" || layout.id === "redroseclassic" || layout.id === "creamclassicdesign" ? "New Option" : "Classic / Standard"}
                 </span>
 
                 <RadioGroupItem
