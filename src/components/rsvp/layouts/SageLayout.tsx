@@ -1479,7 +1479,7 @@ const SageLayout: React.FC<SageLayoutProps> = ({
                 {/* Title Ornament */}
                 <img src="/sage-theme-assets/images/section-title2.png" alt="" className="w-16 opacity-75 mb-2 pointer-events-none" />
                 <p className="ag-title">Wedding Agenda</p>
-                <p className="ag-subtitle">Order of Events</p>
+                <p className="ag-subtitle">Order of Event</p>
 
                 {/* Divider */}
                 <div className="os-title-divider">

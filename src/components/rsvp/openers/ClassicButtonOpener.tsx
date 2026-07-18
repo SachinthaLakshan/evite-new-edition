@@ -1,6 +1,6 @@
 import React from "react";
 
-export type ThemeType = 'classic' | 'lavender' | 'sage' | 'redrose';
+export type ThemeType = 'classic' | 'lavender' | 'sage' | 'redrose' | 'redroseclassic';
 
 interface ClassicButtonOpenerProps {
   isOpened: boolean;
@@ -138,7 +138,7 @@ export const ClassicButtonOpener: React.FC<ClassicButtonOpenerProps> = ({
     );
   }
 
-  if (theme === "redrose") {
+  if (theme === "redrose" || theme === "redroseclassic") {
     return (
       <div className="fixed inset-0 z-50 bg-[#0f0a06]/75 backdrop-blur-md flex items-center justify-center p-4">
         <style dangerouslySetInnerHTML={{ __html: `

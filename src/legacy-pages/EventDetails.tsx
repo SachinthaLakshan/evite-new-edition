@@ -902,6 +902,7 @@ export default function EventDetails() {
                               <option value="lavender">Lavender Design</option>
                               <option value="sage">Sage Design</option>
                               <option value="redrose">Red Rose Design</option>
+                              <option value="redroseclassic">Red Rose Classic</option>
                             </select>
                           </div>
                           <div className="space-y-2">

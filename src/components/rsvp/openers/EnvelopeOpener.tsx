@@ -97,6 +97,24 @@ export const EnvelopeOpener: React.FC<EnvelopeOpenerProps> = ({
       cardDividerColor: "#c59b27",
       envelopePulseColor: "#f87171",
     },
+    redroseclassic: {
+      backdropBg: "bg-[#240e11]/75",
+      envelopeBg: "#3d0c11",
+      flapBorderTop: "#5c1219",
+      frontBorderLeftRight: "#4a0d14",
+      frontBorderBottom: "#520e16",
+      waxSealColor: "radial-gradient(circle, #f87171 0%, #b91c1c 100%)",
+      waxSealBorder: "#991b1b",
+      waxSealIcon: "❤",
+      cardBg: "#fcf9f9",
+      cardBorderColor: "#B91C1C",
+      cardFont: "'Great Vibes', cursive",
+      cardTitleColor: "#c59b27",
+      cardNamesColor: "#7f1d1d",
+      cardNamesSize: "text-2xl sm:text-3xl",
+      cardDividerColor: "#c59b27",
+      envelopePulseColor: "#f87171",
+    },
     lavender: {
       backdropBg: "bg-[#181124]/75",
       envelopeBg: "#31224d",
@@ -257,7 +275,7 @@ export const EnvelopeOpener: React.FC<EnvelopeOpenerProps> = ({
         }
         .wax-seal::after {
           content: "${config.waxSealIcon}";
-          color: ${theme === "redrose" ? "#5e0f14" : theme === "lavender" ? "#2e124d" : theme === "sage" ? "#064e3b" : "#5c3c00"};
+          color: ${theme === "redrose" || theme === "redroseclassic" ? "#5e0f14" : theme === "lavender" ? "#2e124d" : theme === "sage" ? "#064e3b" : "#5c3c00"};
           font-size: 20px;
           line-height: 1;
         }

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-interface RedRoseLayoutProps {
+interface RedRoseClassicLayoutProps {
   event: any;
   isLoadingEvent: boolean;
   isVerified: boolean;
@@ -24,7 +24,7 @@ interface RedRoseLayoutProps {
   audioRef: React.RefObject<HTMLAudioElement>;
 }
 
-const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
+const RedRoseClassicLayout: React.FC<RedRoseClassicLayoutProps> = ({
   event,
   isLoadingEvent,
   isVerified,
@@ -311,7 +311,7 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
           setIsOpened={setIsOpened}
           brideName={brideName}
           groomName={groomName}
-          theme="redrose"
+          theme="redroseclassic"
           isPlaying={isPlaying}
           toggleMusic={toggleMusic}
           audioRef={audioRef}
@@ -323,7 +323,7 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
           onOpen={handleClassicOpen}
           brideName={brideName}
           groomName={groomName}
-          theme="redrose"
+          theme="redroseclassic"
           isPlaying={isPlaying}
           toggleMusic={toggleMusic}
           audioRef={audioRef}
@@ -1019,24 +1019,27 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
             {brideName} <span className="text-4xl md:text-6xl font-normal lowercase mx-2 text-[#C59B27]">&amp;</span> {groomName}
           </motion.h1>
 
-          {/* Couple Image Oval & animated GIF Frame wrapper */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.8, cubicBezier: [0.16, 1, 0.3, 1] }}
-            className="frame-container-el my-4"
-          >
-            <img 
-              src={event.image_url || "/assets/placeholder-couple.jpg"} 
-              alt={`${brideName} & ${groomName}`} 
-              className="couple-img-el" 
-            />
-            <img 
-              src="/red-rose-theme-assets/output_no_bg.gif" 
-              alt="Animated Frame Overlay" 
-              className="gif-frame-el" 
-            />
-          </motion.div>
+          {/* Couple Image framed by Classic Rotating Flower Ring (with red/rose color filter) */}
+          {event.image_url ? (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.8, cubicBezier: [0.16, 1, 0.3, 1] }}
+              className="mt-8 relative w-56 h-56 sm:w-80 sm:h-80 flex items-center justify-center my-4"
+            >
+              <img
+                src="/assets/flower2.png"
+                alt="Decorative floral frame"
+                className="absolute inset-0 w-full h-full object-contain animate-[spin_80s_linear_infinite]"
+                style={{ filter: "hue-rotate(300deg) saturate(2.5) brightness(0.85) contrast(1.1)" }}
+              />
+              <img
+                src={event.image_url}
+                alt={`${brideName} & ${groomName}`}
+                className="relative z-10 w-44 h-44 sm:w-60 sm:h-60 rounded-full object-cover border-4 border-[#C59B27]/70 shadow-2xl"
+              />
+            </motion.div>
+          ) : null}
 
           {/* RSVP Interaction Section */}
           <motion.div 
@@ -1296,7 +1299,7 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
               <img src="/red-rose-theme-assets/deco3.png"  alt="" className="ag-fl-accent" />
 
               <div className="ag-header">
-                <p className="ag-title">Wedding Agenda</p>
+                <p className="ag-title">Schedule</p>
                 <p className="ag-subtitle">Order of Event</p>
 
                 {/* Divider */}
@@ -1465,7 +1468,7 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
 
               {/* Message */}
               <p className="ty-msg">
-                Your presence on our special day would mean the world to us. Thank you for being a part of our love story and celebrating these unforgettable moments with us.
+                Your presence on our special day would mean the world to us. Thank you for being part of our love story and for celebrating these unforgettable moments with us.
               </p>
 
               {/* Couple names */}
@@ -1569,4 +1572,4 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
   );
 };
 
-export default RedRoseLayout;
+export default RedRoseClassicLayout;
