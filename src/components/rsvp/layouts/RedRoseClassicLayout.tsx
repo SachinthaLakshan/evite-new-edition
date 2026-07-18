@@ -1028,10 +1028,10 @@ const RedRoseClassicLayout: React.FC<RedRoseClassicLayoutProps> = ({
               className="mt-8 relative w-56 h-56 sm:w-80 sm:h-80 flex items-center justify-center my-4"
             >
               <img
-                src="/assets/flower2.png"
+                src="/assets/flower2-red.png"
                 alt="Decorative floral frame"
                 className="absolute inset-0 w-full h-full object-contain animate-[spin_80s_linear_infinite]"
-                style={{ filter: "hue-rotate(300deg) saturate(2.5) brightness(0.85) contrast(1.1)" }}
+                //style={{ filter: "hue-rotate(300deg) saturate(2.5) brightness(0.85) contrast(1.1)" }}
               />
               <img
                 src={event.image_url}
