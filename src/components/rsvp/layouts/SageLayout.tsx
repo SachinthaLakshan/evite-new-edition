@@ -1428,54 +1428,43 @@ const SageLayout: React.FC<SageLayoutProps> = ({
           </div>{/* end std-section */}
 
           {/* ══ OUR STORY SECTION ══ */}
-          {event.story_milestones && event.story_milestones.length > 0 && (
+          {event.description && (
             <div className="os-section">
-
               {/* Background blur orbs */}
               <div className="os-bg-orb-1" />
+
+              {/* Decorative Corner Ornaments to match Sage theme */}
+              <img src="/sage-theme-assets/images/slider/flower1.png" alt="" className="os-fl-tl" style={{ position: "absolute", top: 0, left: 0, width: "clamp(60px, 12vw, 120px)", opacity: 0.25, pointerEvents: "none" }} />
+              <img src="/sage-theme-assets/images/slider/flower1.png" alt="" className="os-fl-tr" style={{ position: "absolute", top: 0, right: 0, width: "clamp(60px, 12vw, 120px)", opacity: 0.25, pointerEvents: "none", transform: "scaleX(-1)" }} />
 
               <div className="os-header">
                 {/* Title ornament */}
                 <img src="/sage-theme-assets/images/section-title2.png" alt="" className="w-16 opacity-75 mb-2 pointer-events-none" />
                 <p className="os-title">Our Story</p>
-                <p className="os-subtitle">Love Milestones</p>
+                <p className="os-subtitle">A Journey of Love</p>
 
                 {/* Heart Divider */}
                 <div className="os-title-divider">
                   <div className="os-divider-line" />
                   <div className="os-divider-heart">
                     <span className="os-divider-dot" />
-                    <span className="os-heart-symbol">♥</span>
+                    <span className="os-heart-symbol" style={{ color: "#335F48" }}>♥</span>
                     <span className="os-divider-dot" />
                   </div>
                   <div className="os-divider-line right" />
                 </div>
               </div>
 
-              {/* Vertical timeline */}
-              <div className="os-timeline">
-                {event.story_milestones.map((milestone: any, index: number) => (
-                  <div key={index} className="os-item">
-                    
-                    {/* Circle marker on line */}
-                    <div className="os-marker">♥</div>
-
-                    {/* Timeline Card */}
-                    <div className="os-card">
-                      {milestone.date && (
-                        <span className="os-date">
-                          {new Date(milestone.date).toLocaleDateString("en-US", {
-                            month: "long", year: "numeric",
-                          })}
-                        </span>
-                      )}
-                      <h3 className="os-h3">{milestone.title}</h3>
-                      <p className="os-desc">{milestone.description}</p>
-                    </div>
-
-                  </div>
-                ))}
-              </div>{/* end timeline */}
+              {/* Story content */}
+              <div className="max-w-2xl mx-auto px-4 relative z-10">
+                <div className="os-card" style={{ textAlign: "center", fontStyle: "italic", fontSize: "16px", lineHeight: "1.8", color: "#2d4436", background: "rgba(255, 255, 255, 0.6)", borderRadius: "24px", border: "1px solid rgba(148, 177, 158, 0.25)", padding: "28px" }}>
+                  <span style={{ display: "block", fontSize: "40px", color: "#779B88", fontFamily: "Playfair Display, serif", lineHeight: "1", marginBottom: "-10px" }}>&ldquo;</span>
+                  <p className="os-desc" style={{ fontSize: "clamp(15px, 2.5vw, 18px)", fontFamily: "Cormorant Garamond, serif", color: "#2d4436" }}>
+                    {event.description}
+                  </p>
+                  <span style={{ display: "block", fontSize: "40px", color: "#779B88", fontFamily: "Playfair Display, serif", lineHeight: "1", marginTop: "10px" }}>&rdquo;</span>
+                </div>
+              </div>
             </div>
           )} {/* end .os-section */}
 
