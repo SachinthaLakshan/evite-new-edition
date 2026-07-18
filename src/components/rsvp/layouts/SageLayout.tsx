@@ -1480,7 +1480,7 @@ const SageLayout: React.FC<SageLayoutProps> = ({
           )} {/* end .os-section */}
 
           {/* ══ AGENDA SECTION ══ */}
-          {event.agenda_items && event.agenda_items.length > 0 && (
+          {event.agenda && event.agenda.length > 0 && (
             <div className="ag-section">
               {/* Corner Ornaments */}
               <img src="/sage-theme-assets/images/slider/flower1.png" alt="" className="ag-fl-tl" />
@@ -1506,11 +1506,11 @@ const SageLayout: React.FC<SageLayoutProps> = ({
 
               {/* Agenda Grid cards */}
               <div className="ag-grid">
-                {event.agenda_items.map((item: any, idx: number) => (
+                {event.agenda.map((item: any, idx: number) => (
                   <div key={idx} className="ag-card">
                     {/* Circle wrapper icon based on title/desc */}
                     <div className="ag-icon-wrap">
-                      {getTimelineIcon(item.title, item.description || "")}
+                      {getTimelineIcon(item.title || "", item.description || "")}
                     </div>
 
                     {/* Time */}
@@ -1520,10 +1520,10 @@ const SageLayout: React.FC<SageLayoutProps> = ({
                     </p>
 
                     {/* Title */}
-                    <h3 className="ag-h3">{item.title}</h3>
+                    <h3 className="ag-h3">{item.title || item.description}</h3>
 
                     {/* Description */}
-                    {item.description && <p className="ag-desc">{item.description}</p>}
+                    {item.title && item.description && <p className="ag-desc">{item.description}</p>}
 
                     {/* Location link */}
                     {item.location && (

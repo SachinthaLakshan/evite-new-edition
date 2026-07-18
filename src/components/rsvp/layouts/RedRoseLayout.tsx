@@ -1293,7 +1293,7 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
           )} {/* end .os-section */}
 
           {/* ══ AGENDA SECTION ══ */}
-          {event.agenda_items && event.agenda_items.length > 0 && (
+          {event.agenda && event.agenda.length > 0 && (
             <div className="ag-section">
               {/* Corner Ornaments */}
               <img src="/red-rose-theme-assets/deco1.png"  alt="" className="ag-fl-tl" />
@@ -1322,11 +1322,11 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
 
               {/* Agenda Grid cards */}
               <div className="ag-grid">
-                {event.agenda_items.map((item: any, idx: number) => (
+                {event.agenda.map((item: any, idx: number) => (
                   <div key={idx} className="ag-card">
                     {/* Circle wrapper icon */}
                     <div className="ag-icon-wrap">
-                      {getTimelineIcon(item.title, item.description || "")}
+                      {getTimelineIcon(item.title || "", item.description || "")}
                     </div>
 
                     {/* Time */}
@@ -1336,10 +1336,10 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
                     </p>
 
                     {/* Title */}
-                    <h3 className="ag-h3">{item.title}</h3>
+                    <h3 className="ag-h3">{item.title || item.description}</h3>
 
                     {/* Description */}
-                    {item.description && <p className="ag-desc">{item.description}</p>}
+                    {item.title && item.description && <p className="ag-desc">{item.description}</p>}
 
                     {/* Location link */}
                     {item.location && (
