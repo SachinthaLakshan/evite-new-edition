@@ -690,8 +690,8 @@ const CreamClassicDesignLayout: React.FC<CreamClassicDesignLayoutProps> = ({
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="hidden sm:flex" />
-              <CarouselNext className="hidden sm:flex" />
+              <CarouselPrevious className="left-2 sm:-left-12 bg-[#FDFBF7]/95 border-[#7F1D1D]/30 text-[#7F1D1D] hover:bg-[#7F1D1D] hover:text-white hover:border-[#7F1D1D] transition-all duration-300 shadow-md h-9 w-9" />
+              <CarouselNext className="right-2 sm:-right-12 bg-[#FDFBF7]/95 border-[#7F1D1D]/30 text-[#7F1D1D] hover:bg-[#7F1D1D] hover:text-white hover:border-[#7F1D1D] transition-all duration-300 shadow-md h-9 w-9" />
             </Carousel>
           </div>
         </section>
