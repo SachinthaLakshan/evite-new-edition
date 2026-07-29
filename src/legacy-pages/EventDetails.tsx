@@ -270,6 +270,29 @@ export default function EventDetails() {
   const [guestFilter, setGuestFilter] = useState<"all" | "accepted" | "declined" | "pending">("all");
   const [customShareMessage, setCustomShareMessage] = useState("");
   const [isSavingMessage, setIsSavingMessage] = useState(false);
+  const [deletingGuestId, setDeletingGuestId] = useState<string | null>(null);
+
+  const handleDeleteGuest = async (guestId: string) => {
+    if (!id) return;
+    setDeletingGuestId(guestId);
+    try {
+      const { error } = await supabase
+        .from("attendees")
+        .delete()
+        .eq("id", guestId);
+
+      if (error) throw error;
+
+      toast.success("Guest removed successfully");
+      await queryClient.invalidateQueries({ queryKey: ["event", id] });
+      await queryClient.invalidateQueries({ queryKey: ["events"] });
+    } catch (error) {
+      console.error("Error removing guest:", error);
+      toast.error("Failed to remove guest");
+    } finally {
+      setDeletingGuestId(null);
+    }
+  };
 
   useEffect(() => {
     if (!event?.date) return;
@@ -1445,11 +1468,47 @@ export default function EventDetails() {
                                     <LinkIcon className="h-3.5 w-3.5" />
                                   </Button>
                                   {event.final_card_url && (
-                                    <GuestInvitationDownloader
-                                      attendeeName={attendee.name}
-                                      finalCardUrl={event.final_card_url}
-                                    />
-                                  )}
+                                     <GuestInvitationDownloader
+                                       attendeeName={attendee.name}
+                                       finalCardUrl={event.final_card_url}
+                                     />
+                                   )}
+                                   {isOwnerOrAdmin && (
+                                     <AlertDialog>
+                                       <AlertDialogTrigger asChild>
+                                         <Button
+                                           variant="ghost"
+                                           size="icon"
+                                           className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
+                                           title="Remove guest"
+                                           disabled={deletingGuestId === attendee.id}
+                                         >
+                                           {deletingGuestId === attendee.id ? (
+                                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                           ) : (
+                                             <TrashIcon className="h-3.5 w-3.5" />
+                                           )}
+                                         </Button>
+                                       </AlertDialogTrigger>
+                                       <AlertDialogContent>
+                                         <AlertDialogHeader>
+                                           <AlertDialogTitle>Remove Guest</AlertDialogTitle>
+                                           <AlertDialogDescription>
+                                             Are you sure you want to remove <span className="font-semibold text-gray-900">{attendee.name}</span> from the guest directory? This action cannot be undone.
+                                           </AlertDialogDescription>
+                                         </AlertDialogHeader>
+                                         <AlertDialogFooter>
+                                           <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                           <AlertDialogAction
+                                             className="bg-red-600 hover:bg-red-700 text-white"
+                                             onClick={() => handleDeleteGuest(attendee.id)}
+                                           >
+                                             Remove
+                                           </AlertDialogAction>
+                                         </AlertDialogFooter>
+                                       </AlertDialogContent>
+                                     </AlertDialog>
+                                   )}
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -1568,6 +1627,42 @@ export default function EventDetails() {
                                 </div>
                               )}
                             </div>
+                            {isOwnerOrAdmin && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full justify-center h-9 border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 text-xs"
+                                    disabled={deletingGuestId === attendee.id}
+                                  >
+                                    {deletingGuestId === attendee.id ? (
+                                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                                    ) : (
+                                      <TrashIcon className="h-3.5 w-3.5 mr-1.5" />
+                                    )}
+                                    Remove Guest
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Remove Guest</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to remove <span className="font-semibold text-gray-900">{attendee.name}</span> from the guest directory? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className="bg-red-600 hover:bg-red-700 text-white"
+                                      onClick={() => handleDeleteGuest(attendee.id)}
+                                    >
+                                      Remove
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
                           </div>
                         </div>
                       ))
