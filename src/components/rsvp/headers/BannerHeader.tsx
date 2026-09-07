@@ -65,12 +65,29 @@ const BannerHeader: React.FC<BannerHeaderProps> = ({
         
         {/* Action Buttons */}
         <div className="absolute bottom-6 right-4 z-10 flex gap-3">
-          <Button variant="outline" size="lg" className="rounded-full bg-white shadow-lg px-8">
+          <Button
+            variant="outline"
+            size="lg"
+            className="rounded-full bg-white shadow-lg px-8"
+            onClick={() =>
+              document
+                .getElementById("rsvp-section")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+          >
             RSVP Now
           </Button>
-          <Button variant="outline" size="icon" className="rounded-full bg-white shadow-lg">
-            <MapPinIcon className="w-5 h-5 text-gray-700" />
-          </Button>
+          {event.location_url && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-white shadow-lg hover:bg-gray-100"
+              onClick={() => window.open(event.location_url, "_blank")}
+              title="View Map"
+            >
+              <MapPinIcon className="w-5 h-5 text-gray-700" />
+            </Button>
+          )}
         </div>
       </div>
     </header>

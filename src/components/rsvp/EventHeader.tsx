@@ -55,18 +55,20 @@ const EventHeader: React.FC<EventHeaderProps> = ({
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.6, duration: 0.8 }}
       >
-        <Button
-          className="backdrop-blur-sm shadow-lg border"
-          style={{
-            backgroundColor: `${theme.primary}80`,
-            borderColor: `${theme.primary}20`,
-            color: "white",
-          }}
-          onClick={() => window.open(`${event.location_url}`, "_blank")}
-        >
-          <MapPinIcon className="w-5 h-5 mr-2" />
-          Location
-        </Button>
+        {event.location_url && (
+          <Button
+            className="backdrop-blur-sm shadow-lg border"
+            style={{
+              backgroundColor: `${theme.primary}80`,
+              borderColor: `${theme.primary}20`,
+              color: "white",
+            }}
+            onClick={() => window.open(event.location_url, "_blank")}
+          >
+            <MapPinIcon className="w-5 h-5 mr-2" />
+            View Map
+          </Button>
+        )}
         <Button
           className="backdrop-blur-sm shadow-lg border"
           style={{

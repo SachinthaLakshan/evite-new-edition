@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Countdown from "@/components/Countdown";
 import { ThemeColor } from "@/types/theme";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, MapPin } from "lucide-react";
 
 interface EventCountdownProps {
   event: any;
@@ -99,6 +99,32 @@ const EventCountdown: React.FC<EventCountdownProps> = ({
               hour12: true,
             })}
           </p>
+          {(event.location || event.location_url) && (
+            <div className="flex flex-col items-center gap-2.5 mt-6">
+              {event.location && (
+                <p className="text-gray-700 font-medium flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4" style={{ color: theme.primary }} />
+                  {event.location}
+                </p>
+              )}
+              {event.location_url && (
+                <a
+                  href={event.location_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-semibold transition-all shadow-sm hover:shadow"
+                  style={{
+                    backgroundColor: `${theme.primary}18`,
+                    border: `1px solid ${theme.primary}40`,
+                    color: theme.primary,
+                  }}
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  View Map
+                </a>
+              )}
+            </div>
+          )}
         </motion.div>
       </div>
     </section>

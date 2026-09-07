@@ -1373,11 +1373,26 @@ const SageLayout: React.FC<SageLayoutProps> = ({
                 <span className="std-mini-heart">♥</span>
 
                 {/* Location */}
-                {event.location && (
-                  <p className="std-location">
-                    <MapPin size={16} color="#678970" />
-                    {event.location}
-                  </p>
+                {(event.location || event.location_url) && (
+                  <div className="flex flex-col items-center w-full" style={{ marginBottom: '20px' }}>
+                    {event.location && (
+                      <p className="std-location" style={{ marginBottom: event.location_url ? '10px' : '0' }}>
+                        <MapPin size={16} color="#678970" />
+                        {event.location}
+                      </p>
+                    )}
+                    {event.location_url && (
+                      <a
+                        href={event.location_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-[#678970]/15 hover:bg-[#678970]/25 border border-[#678970]/30 transition-all text-xs font-semibold text-[#2E4A37] hover:text-[#1E3325] shadow-sm"
+                      >
+                        <MapPin size={12} />
+                        View Map
+                      </a>
+                    )}
+                  </div>
                 )}
 
                 {/* Leaf ornament SVG */}
@@ -1392,14 +1407,10 @@ const SageLayout: React.FC<SageLayoutProps> = ({
                 <button
                   className="std-cal-btn"
                   onClick={() => {
-                    if (event.location_url) {
-                      window.open(event.location_url, "_blank");
-                    } else {
-                      // Build Google Calendar link
-                      const title = encodeURIComponent(`${event.bride_name || ""} & ${event.groom_name || ""} Wedding`);
-                      const start = eventDate.toISOString().replace(/[-:]/g,"").split(".")[0] + "Z";
-                      window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${start}&details=Wedding+Invitation`, "_blank");
-                    }
+                    const title = encodeURIComponent(`${event.bride_name || ""} & ${event.groom_name || ""} Wedding`);
+                    const start = eventDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+                    const locationParam = event.location ? `&location=${encodeURIComponent(event.location)}` : "";
+                    window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${start}&details=Wedding+Invitation${locationParam}`, "_blank");
                   }}
                 >
                   <Calendar size={16} />

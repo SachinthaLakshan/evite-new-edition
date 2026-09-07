@@ -570,9 +570,11 @@ const CreamClassicDesignLayout: React.FC<CreamClassicDesignLayoutProps> = ({
               {dayText}
             </p>
 
-            {event.location && (
+            {(event.location || event.location_url) && (
               <div className="flex flex-col items-center gap-3 mb-8">
-                <p className="text-lg sm:text-xl text-[#7F1D1D] max-w-md font-semibold">{event.location}</p>
+                {event.location && (
+                  <p className="text-lg sm:text-xl text-[#7F1D1D] max-w-md font-semibold">{event.location}</p>
+                )}
                 {event.location_url && (
                   <a
                     href={event.location_url}

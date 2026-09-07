@@ -1192,12 +1192,14 @@ const RedRoseClassicLayout: React.FC<RedRoseClassicLayoutProps> = ({
                 <span className="std-mini-heart">♥</span>
 
                 {/* Location */}
-                {event.location && (
+                {(event.location || event.location_url) && (
                   <div className="flex flex-col items-center w-full" style={{ marginBottom: '24px' }}>
-                    <p className="std-location" style={{ marginBottom: event.location_url ? '12px' : '0' }}>
-                      {/* <MapPin size={16} color="#B91C1C" /> */}
-                      {event.location}
-                    </p>
+                    {event.location && (
+                      <p className="std-location" style={{ marginBottom: event.location_url ? '12px' : '0' }}>
+                        <MapPin size={16} color="#B91C1C" />
+                        {event.location}
+                      </p>
+                    )}
                     {event.location_url && (
                       <a
                         href={event.location_url}
