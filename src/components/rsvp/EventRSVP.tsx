@@ -31,6 +31,7 @@ const EventRSVP: React.FC<EventRSVPProps> = ({
   verifyAttendee,
 }) => {
   const isGreyTheme = theme.background === "#F1F1F1";
+  const showMaybeButton = event?.show_maybe_button !== false;
 
   // Render the minimal grey theme version
   if (isGreyTheme) {
@@ -39,6 +40,7 @@ const EventRSVP: React.FC<EventRSVPProps> = ({
         sectionVariants={sectionVariants}
         attendee={attendee}
         setAttendee={setAttendee}
+        showMaybeButton={showMaybeButton}
       />
     );
   }
@@ -76,6 +78,7 @@ const EventRSVP: React.FC<EventRSVPProps> = ({
             <RSVPForm 
               attendee={attendee}
               setAttendee={setAttendee}
+              showMaybeButton={showMaybeButton}
             />
           )}
         </motion.div>

@@ -71,6 +71,9 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string | null
+          audio_url?: string | null
+          opener_style?: string | null
+          show_maybe_button?: boolean | null
         }
         Insert: {
           agenda?: Json | null
@@ -92,6 +95,9 @@ export type Database = {
           title: string
           updated_at?: string
           user_id?: string | null
+          audio_url?: string | null
+          opener_style?: string | null
+          show_maybe_button?: boolean | null
         }
         Update: {
           agenda?: Json | null
@@ -113,6 +119,9 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string | null
+          audio_url?: string | null
+          opener_style?: string | null
+          show_maybe_button?: boolean | null
         }
         Relationships: []
       }

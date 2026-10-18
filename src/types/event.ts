@@ -27,6 +27,7 @@ export interface Event {
   invitation_config?: InvitationConfig | null;
   audio_url?: string | null;
   opener_style?: string | null;
+  show_maybe_button?: boolean | null;
 
   created_at?: string;
   updated_at?: string;

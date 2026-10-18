@@ -17,7 +17,7 @@ export interface FormData {
   invitation_config?: InvitationConfig;
   audio_url?: string | null;
   opener_style?: string | null;
-
+  show_maybe_button?: boolean;
 }
 
 export interface Guest {

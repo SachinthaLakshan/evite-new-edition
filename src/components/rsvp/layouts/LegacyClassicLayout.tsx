@@ -80,6 +80,7 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
   });
   const [isOpened, setIsOpened] = useState(false);
   const [isUpdatingResponse, setIsUpdatingResponse] = useState(false);
+  const showMaybeButton = event?.show_maybe_button !== false;
 
   useEffect(() => {
     if (!event?.date) return;
@@ -422,18 +423,20 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
                   style={{ fontFamily: 'Parisienne' }}
                   disabled={isUpdatingResponse || !event?.is_active}
                   onClick={() => updateResponse("no")}
-                  className={`px-6 py-2 rounded-md border border-amber-300 transition ${attendee?.response === "no" ? "bg-red-600/80" : "bg-black/35 hover:bg-red-700/50"} ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
+                  className={`px-6 py-2 ${showMaybeButton ? "rounded-md" : "rounded-r-full rounded-l-md"} border border-amber-300 transition ${attendee?.response === "no" ? "bg-red-600/80" : "bg-black/35 hover:bg-red-700/50"} ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   No
                 </button>
-                <button
-                  style={{ fontFamily: 'Parisienne' }}
-                  disabled={isUpdatingResponse || !event?.is_active}
-                  onClick={() => updateResponse("maybe")}
-                  className={`px-6 py-2 rounded-r-full rounded-l-md border border-amber-300 transition ${attendee?.response === "maybe" ? "bg-orange-500/80" : "bg-black/35 hover:bg-orange-600/50"} ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
-                >
-                  Maybe
-                </button>
+                {showMaybeButton && (
+                  <button
+                    style={{ fontFamily: 'Parisienne' }}
+                    disabled={isUpdatingResponse || !event?.is_active}
+                    onClick={() => updateResponse("maybe")}
+                    className={`px-6 py-2 rounded-r-full rounded-l-md border border-amber-300 transition ${attendee?.response === "maybe" ? "bg-orange-500/80" : "bg-black/35 hover:bg-orange-600/50"} ${!event?.is_active ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    Maybe
+                  </button>
+                )}
               </div>
             </div>
         </div>

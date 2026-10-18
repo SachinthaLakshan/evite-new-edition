@@ -9,9 +9,14 @@ import { supabase } from "@/integrations/supabase/client";
 interface RSVPFormProps {
   attendee: any;
   setAttendee: (value: any) => void;
+  showMaybeButton?: boolean;
 }
 
-const RSVPForm: React.FC<RSVPFormProps> = ({ attendee, setAttendee }) => {
+const RSVPForm: React.FC<RSVPFormProps> = ({
+  attendee,
+  setAttendee,
+  showMaybeButton = true,
+}) => {
   const [attending, setAttending] = useState<string | null>(attendee?.response || null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,13 +86,15 @@ const RSVPForm: React.FC<RSVPFormProps> = ({ attendee, setAttendee }) => {
               >
                 No
               </Button>
-              <Button
-                variant={attending === "maybe" ? "default" : "outline"}
-                type="button"
-                onClick={() => setAttending("maybe")}
-              >
-                Maybe
-              </Button>
+              {showMaybeButton && (
+                <Button
+                  variant={attending === "maybe" ? "default" : "outline"}
+                  type="button"
+                  onClick={() => setAttending("maybe")}
+                >
+                  Maybe
+                </Button>
+              )}
             </div>
           </div>
           <Button

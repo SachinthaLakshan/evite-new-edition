@@ -48,6 +48,7 @@ const LavenderLayout: React.FC<LavenderLayoutProps> = ({
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isOpened, setIsOpened] = useState(false);
+  const showMaybeButton = event?.show_maybe_button !== false;
   
   const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -1474,17 +1475,19 @@ const LavenderLayout: React.FC<LavenderLayoutProps> = ({
                         <button
                           onClick={() => handleRSVP("no")}
                           disabled={isSubmittingRSVP}
-                          className="btn-rsvp-el btn-no flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#3b226e] rounded-lg outline-none"
+                          className={`btn-rsvp-el btn-no flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#3b226e] ${showMaybeButton ? "rounded-lg" : "rounded-r-full rounded-l-none"} outline-none`}
                         >
                           No
                         </button>
-                        <button
-                          onClick={() => handleRSVP("maybe")}
-                          disabled={isSubmittingRSVP}
-                          className="btn-rsvp-el btn-maybe flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#3b226e] rounded-r-full rounded-l-none outline-none"
-                        >
-                          Maybe
-                        </button>
+                        {showMaybeButton && (
+                          <button
+                            onClick={() => handleRSVP("maybe")}
+                            disabled={isSubmittingRSVP}
+                            className="btn-rsvp-el btn-maybe flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#3b226e] rounded-r-full rounded-l-none outline-none"
+                          >
+                            Maybe
+                          </button>
+                        )}
                       </div>
                     </motion.div>
                   }

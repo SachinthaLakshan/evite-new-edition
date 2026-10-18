@@ -6,12 +6,14 @@ interface MinimalRSVPProps {
   sectionVariants: any;
   attendee: any;
   setAttendee: (value: any) => void;
+  showMaybeButton?: boolean;
 }
 
 const MinimalRSVP: React.FC<MinimalRSVPProps> = ({
   sectionVariants,
   attendee,
   setAttendee,
+  showMaybeButton = true,
 }) => {
   const handleResponse = async (response: string) => {
     if (!attendee?.id) return;
@@ -62,12 +64,14 @@ const MinimalRSVP: React.FC<MinimalRSVPProps> = ({
               >
                 <span className="text-sm font-bold">No</span>
               </div>
-              <div 
-                className={`rounded-full ${attendee?.response === "maybe" ? "bg-gray-400" : "bg-gray-300"} py-2 px-6 cursor-pointer hover:bg-gray-400 transition-colors shadow-sm`}
-                onClick={() => handleResponse("maybe")}
-              >
-                <span className="text-sm font-bold">Maybe</span>
-              </div>
+              {showMaybeButton && (
+                <div 
+                  className={`rounded-full ${attendee?.response === "maybe" ? "bg-gray-400" : "bg-gray-300"} py-2 px-6 cursor-pointer hover:bg-gray-400 transition-colors shadow-sm`}
+                  onClick={() => handleResponse("maybe")}
+                >
+                  <span className="text-sm font-bold">Maybe</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -48,6 +48,7 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isOpened, setIsOpened] = useState(false);
+  const showMaybeButton = event?.show_maybe_button !== false;
   
   const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -1096,17 +1097,19 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
                   <button
                     onClick={() => handleRSVP("no")}
                     disabled={isSubmittingRSVP}
-                    className={`btn-rsvp-el flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#7F1D1D] rounded-lg outline-none ${attendee?.response === "no" ? "bg-[#991B1B] text-white ring-2 ring-[#C59B27] font-bold shadow-inner" : ""}`}
+                    className={`btn-rsvp-el flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#7F1D1D] ${showMaybeButton ? "rounded-lg" : "rounded-r-full rounded-l-none"} outline-none ${attendee?.response === "no" ? "bg-[#991B1B] text-white ring-2 ring-[#C59B27] font-bold shadow-inner" : ""}`}
                   >
                     No
                   </button>
-                  <button
-                    onClick={() => handleRSVP("maybe")}
-                    disabled={isSubmittingRSVP}
-                    className={`btn-rsvp-el flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#7F1D1D] rounded-r-full rounded-l-none outline-none ${attendee?.response === "maybe" ? "bg-[#991B1B] text-white ring-2 ring-[#C59B27] font-bold shadow-inner" : ""}`}
-                  >
-                    Maybe
-                  </button>
+                  {showMaybeButton && (
+                    <button
+                      onClick={() => handleRSVP("maybe")}
+                      disabled={isSubmittingRSVP}
+                      className={`btn-rsvp-el flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#7F1D1D] rounded-r-full rounded-l-none outline-none ${attendee?.response === "maybe" ? "bg-[#991B1B] text-white ring-2 ring-[#C59B27] font-bold shadow-inner" : ""}`}
+                    >
+                      Maybe
+                    </button>
+                  )}
                 </div>
               </div>
             )}

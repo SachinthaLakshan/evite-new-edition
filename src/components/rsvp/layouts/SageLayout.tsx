@@ -48,6 +48,7 @@ const SageLayout: React.FC<SageLayoutProps> = ({
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [isOpened, setIsOpened] = useState(false);
+  const showMaybeButton = event?.show_maybe_button !== false;
   
   const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -1286,17 +1287,19 @@ const SageLayout: React.FC<SageLayoutProps> = ({
                   <button
                     onClick={() => handleRSVP("no")}
                     disabled={isSubmittingRSVP}
-                    className={`btn-rsvp-el flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#132F1C] rounded-lg outline-none ${attendee?.response === "no" ? "bg-white ring-2 ring-[#335F48] font-bold" : ""}`}
+                    className={`btn-rsvp-el flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#132F1C] ${showMaybeButton ? "rounded-lg" : "rounded-r-full rounded-l-none"} outline-none ${attendee?.response === "no" ? "bg-white ring-2 ring-[#335F48] font-bold" : ""}`}
                   >
                     No
                   </button>
-                  <button
-                    onClick={() => handleRSVP("maybe")}
-                    disabled={isSubmittingRSVP}
-                    className={`btn-rsvp-el flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#132F1C] rounded-r-full rounded-l-none outline-none ${attendee?.response === "maybe" ? "bg-white ring-2 ring-[#335F48] font-bold" : ""}`}
-                  >
-                    Maybe
-                  </button>
+                  {showMaybeButton && (
+                    <button
+                      onClick={() => handleRSVP("maybe")}
+                      disabled={isSubmittingRSVP}
+                      className={`btn-rsvp-el flex-1 h-14 text-2xl font-normal border-[1.5px] border-[#132F1C] rounded-r-full rounded-l-none outline-none ${attendee?.response === "maybe" ? "bg-white ring-2 ring-[#335F48] font-bold" : ""}`}
+                    >
+                      Maybe
+                    </button>
+                  )}
                 </div>
               </div>
             )}

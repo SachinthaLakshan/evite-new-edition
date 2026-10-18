@@ -14,6 +14,7 @@ import InvitationDesigner from "./invitation/InvitationDesigner";
 import { Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import EventLayoutSelection from "./event/EventLayoutSelection";
+import { Switch } from "@/components/ui/switch";
 
 const steps = [
   { id: 1, name: "Basic Details" },
@@ -236,6 +237,9 @@ const CreateEventForm = () => {
               removeAudio={removeAudio}
               getMinDate={getMinDate}
               getMinTime={getMinTime}
+              onToggleMaybeButton={(checked) =>
+                setFormData((prev) => ({ ...prev, show_maybe_button: checked }))
+              }
             />
           </div>
         )}
@@ -370,6 +374,25 @@ const CreateEventForm = () => {
                   <div className="font-semibold text-gray-900 mb-1">Envelope Animation</div>
                   <div className="text-xs text-gray-500">A beautiful animated wax-sealed envelope that opens to reveal the invitation.</div>
                 </button>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 mb-8">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <span>🤔</span> Show &quot;Maybe&quot; RSVP Option
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Allow guests to respond with &quot;Maybe&quot; on the public invitation page. If turned off, only &quot;Yes&quot; and &quot;No&quot; options will be shown.
+                  </p>
+                </div>
+                <Switch
+                  checked={formData.show_maybe_button ?? true}
+                  onCheckedChange={(checked) =>
+                    setFormData((prev) => ({ ...prev, show_maybe_button: checked }))
+                  }
+                />
               </div>
             </div>
           </div>

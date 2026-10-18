@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, ClockIcon, MapPinIcon, ImageIcon, XIcon, PhoneIcon, Music } from "lucide-react";
 import { TimePicker } from "@/components/ui/time-picker";
+import { Switch } from "@/components/ui/switch";
 
 interface EventBasicDetailsProps {
   formData: {
@@ -17,6 +18,7 @@ interface EventBasicDetailsProps {
     location: string;
     location_url?: string;
     mobile_number: string;
+    show_maybe_button?: boolean;
   };
   errors: Partial<{
     title: string;
@@ -43,6 +45,7 @@ interface EventBasicDetailsProps {
   removeAudio: () => void;
   getMinDate: () => string;
   getMinTime: () => string;
+  onToggleMaybeButton?: (checked: boolean) => void;
 }
 
 export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
@@ -62,6 +65,7 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
   removeAudio,
   getMinDate,
   getMinTime,
+  onToggleMaybeButton,
 }) => {
   return (
     <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border">
@@ -347,6 +351,32 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
           {errors.location && (
             <p className="text-sm text-red-500">{errors.location}</p>
           )}
+        </div>
+
+        <div className="pt-4 border-t">
+          <div className="flex items-center justify-between p-4 border rounded-xl bg-gray-50/50">
+            <div className="space-y-0.5 pr-4">
+              <Label htmlFor="show_maybe_button" className="text-base font-medium text-gray-900 cursor-pointer">
+                Show &quot;Maybe&quot; RSVP Option
+              </Label>
+              <p className="text-sm text-gray-500">
+                Allow guests to choose &quot;Maybe&quot; when responding to the invitation. Turn this off if you only want &quot;Yes&quot; and &quot;No&quot;.
+              </p>
+            </div>
+            <Switch
+              id="show_maybe_button"
+              checked={formData.show_maybe_button ?? true}
+              onCheckedChange={(checked) => {
+                if (onToggleMaybeButton) {
+                  onToggleMaybeButton(checked);
+                } else {
+                  handleInputChange({
+                    target: { id: "show_maybe_button", value: checked as any },
+                  } as any);
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -61,6 +61,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -102,6 +103,7 @@ type EditEventFormState = {
   background_image_url: string;
   audio_url: string;
   opener_style: string;
+  show_maybe_button: boolean;
 };
 
 export default function EventDetails() {
@@ -259,6 +261,7 @@ export default function EventDetails() {
     background_image_url: "",
     audio_url: "",
     opener_style: "button",
+    show_maybe_button: true,
   });
 
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -314,6 +317,7 @@ export default function EventDetails() {
       background_image_url: event.background_image_url || "",
       audio_url: event.audio_url || "",
       opener_style: event.opener_style || "button",
+      show_maybe_button: event.show_maybe_button !== false,
     });
     setAgenda(event.agenda || []);
     
@@ -660,6 +664,7 @@ export default function EventDetails() {
           background_image_url: nextBackgroundImageUrl,
           audio_url: nextAudioUrl,
           opener_style: editForm.opener_style || "button",
+          show_maybe_button: editForm.show_maybe_button,
           agenda: agenda,
         })
         .eq("id", id);
@@ -758,6 +763,11 @@ export default function EventDetails() {
               <Badge className={`${getStatusColor(event.status)} border-0 font-medium px-2.5 py-0.5 rounded-full`}>
                 {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
               </Badge>
+              {event.show_maybe_button === false && (
+                <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-800 font-medium px-2.5 py-0.5 rounded-full text-xs">
+                  Maybe RSVP: Disabled
+                </Badge>
+              )}
             </div>
             {(event.bride_name || event.groom_name) && (
               <p className="text-sm font-medium text-gray-500">
@@ -942,6 +952,23 @@ export default function EventDetails() {
                               <option value="button">Classic Button</option>
                               <option value="envelope">Envelope Animation</option>
                             </select>
+                          </div>
+                          <div className="flex items-center justify-between p-4 border rounded-xl bg-gray-50/50">
+                            <div className="space-y-0.5 pr-4">
+                              <Label htmlFor="edit-show-maybe-button" className="text-sm font-semibold text-gray-700 cursor-pointer">
+                                Show &quot;Maybe&quot; RSVP Option
+                              </Label>
+                              <p className="text-xs text-gray-500">
+                                Allow guests to respond with &quot;Maybe&quot; on the public invitation page. If turned off, only &quot;Yes&quot; and &quot;No&quot; options will be shown.
+                              </p>
+                            </div>
+                            <Switch
+                              id="edit-show-maybe-button"
+                              checked={editForm.show_maybe_button}
+                              onCheckedChange={(checked) =>
+                                setEditForm((prev) => ({ ...prev, show_maybe_button: checked }))
+                              }
+                            />
                           </div>
                         </div>
                       </TabsContent>
