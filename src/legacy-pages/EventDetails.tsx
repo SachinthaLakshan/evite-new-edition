@@ -937,21 +937,28 @@ export default function EventDetails() {
                               <option value="redrose">Red Rose Design</option>
                               <option value="redroseclassic">Red Rose Classic</option>
                               <option value="creamclassicdesign">Cream Classic Design</option>
+                              <option value="lotuspremium">Lotus Premium</option>
                             </select>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="edit-opener-style" className="text-sm font-semibold text-gray-700">Invite Opener Style</Label>
-                            <select
-                              id="edit-opener-style"
-                              value={editForm.opener_style || "button"}
-                              onChange={(e) =>
-                                setEditForm((prev) => ({ ...prev, opener_style: e.target.value }))
-                              }
-                              className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                            >
-                              <option value="button">Classic Button</option>
-                              <option value="envelope">Envelope Animation</option>
-                            </select>
+                            {editForm.theme_id === "lotuspremium" ? (
+                              <p className="text-sm text-gray-600 leading-relaxed">
+                                Lotus Premium uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes.
+                              </p>
+                            ) : (
+                              <select
+                                id="edit-opener-style"
+                                value={editForm.opener_style || "button"}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({ ...prev, opener_style: e.target.value }))
+                                }
+                                className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                              >
+                                <option value="button">Classic Button</option>
+                                <option value="envelope">Envelope Animation</option>
+                              </select>
+                            )}
                           </div>
                           <div className="flex items-center justify-between p-4 border rounded-xl bg-gray-50/50">
                             <div className="space-y-0.5 pr-4">
