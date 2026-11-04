@@ -54,6 +54,12 @@ export const layoutOptions: LayoutOption[] = [
     description: "Fullscreen video opener with a tap-to-open seal, cream lotus artwork, countdown, schedule, gallery, and RSVP",
     bgImage: "/lotus-premium-assets/backgroud_image.gif",
   },
+  {
+    id: "cozyroyale",
+    name: "Cozy Royale",
+    description: "Fullscreen video opener with a tap-to-open seal, sage floral artwork, countdown, schedule, gallery, and RSVP",
+    bgImage: "/cozy-royale-theme-assets/thumb.jpg",
+  },
 ];
 
 interface EventLayoutSelectionProps {

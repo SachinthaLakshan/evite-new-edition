@@ -349,9 +349,9 @@ const CreateEventForm = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <span>✉️</span> Invite Opener Style
               </h3>
-              {formData.theme_id === "lotuspremium" ? (
+              {formData.theme_id === "lotuspremium" || formData.theme_id === "cozyroyale" ? (
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Lotus Premium uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes.
+                  {formData.theme_id === "cozyroyale" ? "Cozy Royale" : "Lotus Premium"} uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes.
                 </p>
               ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

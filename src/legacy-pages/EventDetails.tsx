@@ -938,13 +938,14 @@ export default function EventDetails() {
                               <option value="redroseclassic">Red Rose Classic</option>
                               <option value="creamclassicdesign">Cream Classic Design</option>
                               <option value="lotuspremium">Lotus Premium</option>
+                              <option value="cozyroyale">Cozy Royale</option>
                             </select>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="edit-opener-style" className="text-sm font-semibold text-gray-700">Invite Opener Style</Label>
-                            {editForm.theme_id === "lotuspremium" ? (
+                            {editForm.theme_id === "lotuspremium" || editForm.theme_id === "cozyroyale" ? (
                               <p className="text-sm text-gray-600 leading-relaxed">
-                                Lotus Premium uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes.
+                                {editForm.theme_id === "cozyroyale" ? "Cozy Royale" : "Lotus Premium"} uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes.
                               </p>
                             ) : (
                               <select
