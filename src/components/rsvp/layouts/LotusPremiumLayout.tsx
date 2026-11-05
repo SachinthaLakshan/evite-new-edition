@@ -343,6 +343,7 @@ const LotusPremiumLayout: React.FC<LotusPremiumLayoutProps> = ({
               <X className="h-8 w-8 text-white" />
             </div>
             <span className="text-lg">This event is currently pending activation and cannot receive RSVP responses.</span>
+            <span className="text-lg">To activate your event for sharing, please contact us on WhatsApp (0716561975).</span>
           </div>
         </div>
       )}
@@ -1546,22 +1547,7 @@ const LotusPremiumLayout: React.FC<LotusPremiumLayoutProps> = ({
             transition={{ duration: 0.9, delay: 0.25 }}
             className="lp-rsvp"
           >
-            {!isVerified ? (
-              <>
-                <p className="lp-greet">Your invitation</p>
-                <p className="lp-ask">Verify to reply</p>
-                <input
-                  type="text"
-                  placeholder="WhatsApp number"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  className="lp-field"
-                />
-                <button type="button" onClick={() => verifyAttendee()} className="lp-verify">
-                  Verify
-                </button>
-              </>
-            ) : (
+            
               <>
                 <p className="lp-greet">
                   {rsvpSubmittedMsg ? "Thank you" : `Dear ${attendee?.name || "Guest"}`}
@@ -1597,7 +1583,6 @@ const LotusPremiumLayout: React.FC<LotusPremiumLayoutProps> = ({
                   )}
                 </div>
               </>
-            )}
           </motion.div>
 
           <LotusRule />

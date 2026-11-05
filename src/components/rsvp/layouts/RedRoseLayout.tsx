@@ -301,6 +301,7 @@ const RedRoseLayout: React.FC<RedRoseLayoutProps> = ({
               <X className="h-8 w-8 text-white" />
             </div>
             <span className="text-xl">This event is currently pending activation and cannot receive RSVP responses.</span>
+            <span className="text-lg">To activate your event for sharing, please contact us on WhatsApp (0716561975).</span>
           </div>
         </div>
       )}
