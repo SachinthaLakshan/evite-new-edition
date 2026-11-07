@@ -113,7 +113,6 @@ export const rootLayoutMetadata: Metadata = {
     },
   },
   applicationName: SITE_NAME,
-  themeColor: "#fbf6ef",
   appleWebApp: {
     capable: true,
     title: SITE_NAME,
