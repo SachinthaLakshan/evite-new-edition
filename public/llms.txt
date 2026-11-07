@@ -1,0 +1,22 @@
+# eVite.lk
+
+> eVite.lk is a Sri Lankan digital wedding invitation platform. Couples create mobile invitation experiences, share links on WhatsApp, collect RSVPs, and use built-in wedding checklist and budget tools in the dashboard. Hosting packs start at Rs. 2,999 (Silver), Rs. 7,999 (Gold), and Rs. 14,999 (Platinum).
+
+## What it is
+
+- Best for: Sri Lankan couples who want WhatsApp-friendly digital wedding invitations plus planning tools.
+- Core features: Mobile invitations, RSVP, checklist, budget tracker, guest management.
+- Pricing model: Hosting packs with digital invites; Gold and Platinum include printed card bundles.
+- Contact: info@evite.lk, 071 656 1975, Warakapola, Sri Lanka.
+
+## Key pages
+
+- [Home](https://www.evite.lk/): Product overview, samples, pricing, FAQ, contact.
+- [Sign up](https://www.evite.lk/auth?mode=signup): Create an account and choose a pack.
+- [Privacy Policy](https://www.evite.lk/privacy-policy)
+- [Terms & Conditions](https://www.evite.lk/terms)
+- Machine-readable pricing: https://www.evite.lk/pricing.md
+- Sample designs:
+  - https://www.evite.lk/samples/lavender
+  - https://www.evite.lk/samples/classic
+  - https://www.evite.lk/samples/red-rose

@@ -33,6 +33,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { HOME_FAQ } from "@/lib/seo/faq";
 
 const Landing: React.FC = () => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -54,6 +61,7 @@ const Landing: React.FC = () => {
       bride_name:'Imasha',
       url:'http://www.evite.lk/s/ip0s7',
       imageUrl:'/assets/invite-lavendra.png',
+      samplePath:'/samples/lavender',
       id:1
     },
     {
@@ -63,6 +71,7 @@ const Landing: React.FC = () => {
       bride_name:'Imasha',
       url:'http://www.evite.lk/s/hSjPx',
       imageUrl:'/assets/invite-classc.png',
+      samplePath:'/samples/classic',
       id:2
     },
     {
@@ -72,6 +81,7 @@ const Landing: React.FC = () => {
       bride_name:'Anu',
       url:'http://www.evite.lk/s/tBTDz',
       imageUrl:'/assets/invite-redrose.png',
+      samplePath:'/samples/red-rose',
       id:3
     }
   ]
@@ -227,6 +237,7 @@ const Landing: React.FC = () => {
               ["Active Invites", "#active-events"],
               ["Products", "#products"],
               ["Pricing", "#pricing"],
+              ["FAQ", "#faq"],
               ["Get In Touch", "#contact"],
             ].map(([label, href]) => (
               <a
@@ -593,11 +604,18 @@ const Landing: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  <Link href={event.url} target="blank">
-                    <Button variant="outline" className="w-full rounded-xl border-slate-200 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition-all font-bold">
-                      View Sample
-                    </Button>
-                  </Link>
+                  <div className="flex flex-col gap-2">
+                    <Link href={event.samplePath ?? event.url}>
+                      <Button variant="outline" className="w-full rounded-xl border-slate-200 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition-all font-bold">
+                        Design details
+                      </Button>
+                    </Link>
+                    <Link href={event.url} target="_blank" rel="noopener noreferrer">
+                      <Button className="w-full rounded-xl bg-slate-900 text-white hover:bg-purple-600 transition-all font-bold">
+                        View live sample
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -797,6 +815,32 @@ const Landing: React.FC = () => {
         </div>
       </section>
 
+      <section id="faq" className="py-24 bg-white border-b border-slate-100">
+        <div className="container mx-auto px-6">
+          <div className="max-w-3xl mx-auto text-center mb-12 space-y-4">
+            <h2 className="text-sm font-extrabold uppercase tracking-widest text-purple-600">FAQ</h2>
+            <h3 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Questions, answered</h3>
+            <p className="text-slate-500 text-lg">
+              Common questions about WhatsApp invitations, hosting packs, and your eVite dashboard.
+            </p>
+          </div>
+          <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200/80 bg-slate-50/60 p-4 md:p-6">
+            <Accordion type="single" collapsible className="w-full">
+              {HOME_FAQ.map((item, index) => (
+                <AccordionItem key={item.question} value={`faq-${index}`}>
+                  <AccordionTrigger className="text-left font-semibold text-slate-800 hover:text-purple-700">
+                    {item.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-slate-600 leading-relaxed">
+                    {item.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
       {/* Get in Touch Section */}
       <section id="contact" className="py-24 bg-slate-50">
         <div className="container mx-auto px-6">
@@ -897,6 +941,8 @@ const Landing: React.FC = () => {
                 <li><a href="#active-events" className="hover:text-white transition-colors">Active Invites</a></li>
                 <li><a href="#products" className="hover:text-white transition-colors">Tactile Products</a></li>
                 <li><a href="#pricing" className="hover:text-white transition-colors">Hosting Pricing</a></li>
+                <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
+                <li><Link href="/samples/lavender" className="hover:text-white transition-colors">Invitation Samples</Link></li>
               </ul>
             </div>
 
