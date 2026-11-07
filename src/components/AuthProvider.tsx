@@ -21,6 +21,24 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
+const SELECTED_PLAN_STORAGE_KEY = "evite_selected_plan";
+
+const persistSelectedPlan = async () => {
+  try {
+    const plan = window.localStorage.getItem(SELECTED_PLAN_STORAGE_KEY);
+    if (plan !== "silver" && plan !== "gold" && plan !== "platinum") return;
+
+    const { error } = await supabase.auth.updateUser({
+      data: { selected_plan: plan },
+    });
+    if (!error) {
+      window.localStorage.removeItem(SELECTED_PLAN_STORAGE_KEY);
+    }
+  } catch {
+    // The plan stays in local storage and is saved on the next signed-in load.
+  }
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,6 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user?.id) {
+        void persistSelectedPlan();
         fetchAdminStatus(session.user.id).finally(() => setLoading(false));
       } else {
         setLoading(false);
@@ -63,6 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session?.user?.id) {
+        void persistSelectedPlan();
         fetchAdminStatus(session.user.id);
       } else {
         setIsAdmin(false);

@@ -7,8 +7,13 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Evite Dashboard",
-  description: "Event management dashboard",
+  metadataBase: new URL("https://www.evite.lk"),
+  title: {
+    default: "eVite",
+    template: "%s | eVite",
+  },
+  description:
+    "Digital wedding invitations, WhatsApp RSVPs, checklist, and budget for weddings in Sri Lanka.",
 };
 
 export default function RootLayout({

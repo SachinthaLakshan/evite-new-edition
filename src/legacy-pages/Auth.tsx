@@ -18,14 +18,36 @@ import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
 import { Separator } from "@/components/ui/separator";
 
-const Auth = () => {
+const SIGNUP_PLANS: Record<string, string> = {
+  silver: "Silver Pack",
+  gold: "Gold Pack",
+  platinum: "Platinum Pack",
+};
+
+const SELECTED_PLAN_STORAGE_KEY = "evite_selected_plan";
+
+const Auth = ({
+  initialMode,
+  initialPlan,
+}: {
+  initialMode?: string;
+  initialPlan?: string;
+} = {}) => {
+  const selectedPlan =
+    initialPlan && SIGNUP_PLANS[initialPlan] ? initialPlan : undefined;
+  const selectedPlanName = selectedPlan ? SIGNUP_PLANS[selectedPlan] : undefined;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(initialMode === "signup");
   const router = useRouter();
   const { session, isAdmin, loading } = useAuth();
+
+  useEffect(() => {
+    if (!selectedPlan) return;
+    window.localStorage.setItem(SELECTED_PLAN_STORAGE_KEY, selectedPlan);
+  }, [selectedPlan]);
 
   useEffect(() => {
     if (session && !loading) {
@@ -46,6 +68,9 @@ const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: selectedPlan
+            ? { data: { selected_plan: selectedPlan } }
+            : undefined,
         });
         if (error) throw error;
         toast.success("Check your email to confirm your account!");
@@ -112,9 +137,13 @@ const Auth = () => {
               {isSignUp ? "Create an Account" : "Welcome Back"}
             </CardTitle>
             <CardDescription>
-              {isSignUp
-                ? "Sign up to start creating and managing your events"
-                : "Sign in to access your Evite dashboard"}
+              {selectedPlanName
+                ? isSignUp
+                  ? `Create your account to start the ${selectedPlanName}.`
+                  : `Sign in to continue with the ${selectedPlanName}.`
+                : isSignUp
+                  ? "Sign up to start creating and managing your events"
+                  : "Sign in to access your Evite dashboard"}
             </CardDescription>
           </CardHeader>
           <CardContent>

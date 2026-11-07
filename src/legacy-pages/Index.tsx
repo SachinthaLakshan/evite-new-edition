@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import confetti from "canvas-confetti";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Heart,
@@ -19,6 +18,8 @@ import {
   ClipboardList,
   Wallet,
   Sparkles,
+  Menu,
+  X,
   Lock,
   ChevronRight,
   Shield,
@@ -34,9 +35,9 @@ import {
 } from "@/components/ui/card";
 
 const Landing: React.FC = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,65 +76,6 @@ const Landing: React.FC = () => {
     }
   ]
 
-  useEffect(() => {
-    // Antigravity Confetti Animation on load
-    const duration = 4 * 1000;
-    const end = Date.now() + duration;
-
-    const frame = () => {
-      confetti({
-        particleCount: 3,
-        angle: Math.random() * (120 - 60) + 60,
-        spread: 55,
-        origin: { x: Math.random(), y: 1.1 },
-        gravity: -0.15,
-        scalar: Math.random() * (1.2 - 0.8) + 0.8,
-        drift: Math.random() * (1 - -1) + -1,
-        colors: ["#ff604b", "#fba538", "#a855f7", "#6366f1"],
-        ticks: 250,
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    };
-
-    frame();
-  }, []);
-
-  const slides = [
-    {
-      title: "Exquisite Digital Invitations",
-      description: "Create premium mobile-first invitations that captivate your guests.",
-      image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
-      buttonText: "Create Free Invitation",
-      buttonLink: "/auth",
-    },
-    {
-      title: "Organized Wedding Checklist",
-      description: "Tackle your milestones step-by-step with clean accordion task views.",
-      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-      buttonText: "Check Your Checklist",
-      buttonLink: "/auth",
-    },
-    {
-      title: "Real-Time Budget Tracker",
-      description: "Monitor expenses, unpaid dues, and payments in local Rupees currency.",
-      image: "https://images.unsplash.com/photo-1500673922987-e212871fec22",
-      buttonText: "Calculate Your Budget",
-      buttonLink: "/auth",
-    },
-  ];
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 6000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-
   const features = [
     {
       icon: <Heart className="w-6 h-6" />,
@@ -155,6 +97,7 @@ const Landing: React.FC = () => {
   const pricingPlans = [
     {
       name: "Silver Pack",
+      slug: "silver",
       price: "Rs. 2,999",
       description: "Essential digital suite",
       features: [
@@ -169,6 +112,7 @@ const Landing: React.FC = () => {
     },
     {
       name: "Gold Pack",
+      slug: "gold",
       price: "Rs. 7,999",
       description: "Premium digital + print bundle",
       features: [
@@ -183,6 +127,7 @@ const Landing: React.FC = () => {
     },
     {
       name: "Platinum Pack",
+      slug: "platinum",
       price: "Rs. 14,999",
       description: "The complete wedding experience",
       features: [
@@ -249,12 +194,67 @@ const Landing: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-purple-200">
       
-      <nav className={`fixed inset-x-0 z-50 transition-all duration-300 ${
+      <header className={`fixed inset-x-0 top-0 z-50 lg:hidden ${
+        isScrolled ? "bg-[#fffaf3]/95 backdrop-blur-md shadow-sm" : "bg-transparent"
+      }`}>
+        <div className="relative px-4 pt-3 pb-2">
+          <Link href="/" className="absolute left-1/2 top-3 -translate-x-1/2">
+            <Image
+              src="/assets/logo.png"
+              alt="eVite Logo"
+              width={90}
+              height={90}
+              className="h-14 w-auto"
+              priority
+            />
+          </Link>
+          <div className="ml-auto flex w-fit items-start">
+            <button
+              type="button"
+              className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-slate-700 shadow-md"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMenuOpen}
+              onClick={() => setIsMenuOpen((open) => !open)}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+        {isMenuOpen && (
+          <nav className="mx-4 mb-3 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+            {[
+              ["Planner Tools", "#features"],
+              ["Active Invites", "#active-events"],
+              ["Products", "#products"],
+              ["Pricing", "#pricing"],
+              ["Get In Touch", "#contact"],
+            ].map(([label, href]) => (
+              <a
+                key={href}
+                href={href}
+                className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {label}
+              </a>
+            ))}
+            <Link
+              href="/auth"
+              className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Log In
+            </Link>
+          </nav>
+        )}
+      </header>
+
+      <nav className={`fixed inset-x-0 z-50 hidden transition-all duration-300 lg:block ${
         isScrolled 
           ? "top-4 mx-auto max-w-7xl px-4 sm:px-6" 
           : "top-0 w-full"
       }`}>
-        <div className={`transition-all duration-300 px-6 h-20 flex items-center justify-between ${
+        <div className={`relative transition-all duration-300 px-6 h-20 flex items-center justify-between ${
           isScrolled 
             ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 shadow-md" 
             : "bg-transparent border-transparent shadow-none"
@@ -270,66 +270,40 @@ const Landing: React.FC = () => {
             />
           </Link>
 
-          <div className={`hidden lg:flex items-center gap-8 text-sm font-bold transition-colors duration-300 ${
-            isScrolled ? "text-slate-600" : "text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]"
-          }`}>
-            <a href="#features" className={`transition-colors relative group py-2 ${
-              isScrolled ? "hover:text-purple-600" : "hover:text-purple-300"
-            }`}>
+          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-sm font-semibold text-slate-800">
+            <a href="#features" className="transition-colors relative group py-2 hover:text-[#c4782a]">
               Planner Tools
-              <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
-                isScrolled ? "bg-purple-600" : "bg-purple-300"
-              }`} />
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c4782a] transition-all duration-300 group-hover:w-full" />
             </a>
-            <a href="#active-events" className={`transition-colors relative group py-2 ${
-              isScrolled ? "hover:text-purple-600" : "hover:text-purple-300"
-            }`}>
+            <a href="#active-events" className="transition-colors relative group py-2 hover:text-[#c4782a]">
               Active Invites
-              <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
-                isScrolled ? "bg-purple-600" : "bg-purple-300"
-              }`} />
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c4782a] transition-all duration-300 group-hover:w-full" />
             </a>
-            <a href="#products" className={`transition-colors relative group py-2 ${
-              isScrolled ? "hover:text-purple-600" : "hover:text-purple-300"
-            }`}>
+            <a href="#products" className="transition-colors relative group py-2 hover:text-[#c4782a]">
               Products
-              <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
-                isScrolled ? "bg-purple-600" : "bg-purple-300"
-              }`} />
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c4782a] transition-all duration-300 group-hover:w-full" />
             </a>
-            <a href="#pricing" className={`transition-colors relative group py-2 ${
-              isScrolled ? "hover:text-purple-600" : "hover:text-purple-300"
-            }`}>
+            <a href="#pricing" className="transition-colors relative group py-2 hover:text-[#c4782a]">
               Pricing
-              <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
-                isScrolled ? "bg-purple-600" : "bg-purple-300"
-              }`} />
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c4782a] transition-all duration-300 group-hover:w-full" />
             </a>
-            <a href="#contact" className={`transition-colors relative group py-2 ${
-              isScrolled ? "hover:text-purple-600" : "hover:text-purple-300"
-            }`}>
+            <a href="#contact" className="transition-colors relative group py-2 hover:text-[#c4782a]">
               Get In Touch
-              <span className={`absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${
-                isScrolled ? "bg-purple-600" : "bg-purple-300"
-              }`} />
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c4782a] transition-all duration-300 group-hover:w-full" />
             </a>
           </div>
 
           <div className="flex items-center gap-3">
             <Link href="/auth">
-              <Button 
-                variant="ghost" 
-                className={`rounded-xl font-bold transition-all duration-300 ${
-                  isScrolled 
-                    ? "text-slate-700 hover:text-purple-700 hover:bg-purple-50" 
-                    : "text-white hover:text-purple-300 hover:bg-white/10 [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]"
-                }`}
+              <Button
+                variant="outline"
+                className="rounded-full border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:text-slate-900 font-semibold px-5 shadow-sm"
               >
                 Log In
               </Button>
             </Link>
-            <Link href="/auth">
-              <Button className="bg-[#ff604b] hover:bg-[#e65533] text-white rounded-xl shadow-md hover:shadow-lg transition-all font-bold px-5">
+            <Link href="/auth?mode=signup">
+              <Button className="bg-[#ff7a3d] hover:bg-[#f0682c] text-white rounded-full shadow-md hover:shadow-lg transition-all font-semibold px-5">
                 Register
               </Button>
             </Link>
@@ -337,83 +311,70 @@ const Landing: React.FC = () => {
         </div>
       </nav>
 
-      {/* Modern High-End Hero Slider Section */}
-      <section className="relative h-screen overflow-hidden pt-20">
-        <div className="absolute inset-0 bg-slate-950/40 z-10" />
-        <AnimatePresence>
-          <motion.div
-            key={currentSlide}
-            className="absolute inset-0 bg-cover bg-center"
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            style={{
-              backgroundImage: `url(${slides[currentSlide].image})`,
-            }}
-          >
-            <div className="relative z-20 flex items-center justify-center h-full text-white text-center px-4">
-              <div className="max-w-4xl space-y-6">
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider border border-white/20"
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-yellow-400" />
-                  Premium Wedding Invite Platform
-                </motion.div>
-                <motion.h1
-                  key={`title-${currentSlide}`}
-                  initial={{ y: 25, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight"
-                >
-                  {slides[currentSlide].title}
-                </motion.h1>
-                <motion.p
-                  key={`desc-${currentSlide}`}
-                  initial={{ y: 25, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-lg sm:text-xl md:text-2xl text-white/90 max-w-2xl mx-auto font-medium"
-                >
-                  {slides[currentSlide].description}
-                </motion.p>
-                <motion.div
-                  key={`button-${currentSlide}`}
-                  initial={{ y: 25, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="pt-4"
-                >
-                  <Link href={slides[currentSlide].buttonLink}>
-                    <Button
-                      size="lg"
-                      className="bg-white hover:bg-purple-600 text-slate-950 hover:text-white rounded-2xl shadow-xl hover:shadow-purple-500/20 px-8 py-7 text-lg font-bold transition-all gap-2"
-                    >
-                      {slides[currentSlide].buttonText}
-                      <ArrowRight className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                </motion.div>
-              </div>
+      <section className="relative overflow-hidden bg-[#fbf6ef] lg:min-h-screen">
+        <img
+          src="/assets/new-back-mobile.jpeg"
+          alt=""
+          className="block h-auto w-full lg:hidden"
+        />
+        <div className="absolute inset-x-0 top-0 z-10 px-5 pt-[6.75rem] text-center lg:hidden">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#e7c56a] px-3.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#6d4a1c]">
+            <Sparkles className="h-3.5 w-3.5" />
+            Premium Wedding Invite Platform
+          </div>
+          <h1 className="mt-2 text-[1.4rem] font-extrabold leading-[1.1] tracking-tight text-[#6b4524]">
+            Digital Wedding Invitations
+            <br />
+            That Guests Open on
+            <br />
+            Social Platforms
+          </h1>
+          <p className="mx-auto mt-2 max-w-[22rem] text-[13px] font-medium leading-snug text-[#3f3a36]">
+            Beautifully design, instantly share, and manage RSVPs. Keep track of who's coming with built-in checklist and budget features. Starting from Rs. 2,999.
+          </p>
+          <div className="mt-2.5">
+            <Link href="/auth?mode=signup">
+              <Button className="h-10 gap-2 rounded-full bg-[#ff7a3d] px-6 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#f0682c] hover:shadow-lg">
+                Create your invite
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <div
+          className="absolute inset-0 hidden bg-cover bg-right lg:block"
+          style={{
+            backgroundImage: "url(/assets/new-back.jpeg)",
+          }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 hidden bg-gradient-to-r from-[#fbf7f1]/75 via-[#fbf7f1]/10 to-transparent lg:block" />
+        <div className="relative z-10 mx-auto hidden min-h-screen max-w-7xl items-center px-6 pb-16 pt-28 lg:flex lg:px-10">
+          <div className="max-w-xl space-y-6">
+            <div className="inline-flex items-center gap-1.5 bg-[#f6ead7] px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider text-[#a56b28]">
+              <Sparkles className="h-3.5 w-3.5" />
+              Premium Wedding Invite Platform
             </div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Slide Indicators */}
-        <div className="absolute bottom-10 left-0 right-0 z-20 flex justify-center gap-3">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                currentSlide === index ? "w-8 bg-purple-500" : "w-2.5 bg-white/40 hover:bg-white/70"
-              }`}
-              onClick={() => setCurrentSlide(index)}
-            />
-          ))}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08]">
+              <span className="text-[#9a6b32]">Digital Wedding Invitations</span>
+              <br />
+              <span className="text-[#1c1917]">That Guests Open on WhatsApp</span>
+            </h1>
+            <p className="text-base sm:text-lg text-slate-600 max-w-lg leading-relaxed">
+              Beautifully design, instantly share, and manage RSVPs. Keep track of who's coming with built-in checklist and budget features. Starting from Rs. 2,999.
+            </p>
+            <div className="pt-2">
+              <Link href="/auth?mode=signup">
+                <Button
+                  size="lg"
+                  className="bg-[#ff7a3d] hover:bg-[#f0682c] text-white rounded-full shadow-md hover:shadow-lg px-7 text-base font-semibold transition-all gap-2"
+                >
+                  Create your invite
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -457,7 +418,7 @@ const Landing: React.FC = () => {
                   </li>
                 </ul>
                 <div className="pt-4">
-                  <Link href="/auth">
+                  <Link href="/auth?mode=signup">
                     <Button className="bg-slate-900 hover:bg-purple-600 text-white rounded-xl font-bold gap-2 py-6 px-6">
                       Design Custom Invite
                       <ChevronRight className="h-4 w-4" />
@@ -518,7 +479,7 @@ const Landing: React.FC = () => {
                   </li>
                 </ul>
                 <div className="pt-4">
-                  <Link href="/auth">
+                  <Link href="/auth?mode=signup">
                     <Button className="bg-slate-900 hover:bg-purple-600 text-white rounded-xl font-bold gap-2 py-6 px-6">
                       Explore Checklist Dashboard
                       <ChevronRight className="h-4 w-4" />
@@ -555,7 +516,7 @@ const Landing: React.FC = () => {
                   </li>
                 </ul>
                 <div className="pt-4">
-                  <Link href="/auth">
+                  <Link href="/auth?mode=signup">
                     <Button className="bg-slate-900 hover:bg-purple-600 text-white rounded-xl font-bold gap-2 py-6 px-6">
                       Open Budget Tracker
                       <ChevronRight className="h-4 w-4" />
@@ -773,7 +734,7 @@ const Landing: React.FC = () => {
                     {plan.name === "Gold Pack" && (
                       <p className="text-slate-400 text-[10px] text-center italic">*Gold Terms Apply</p>
                     )}
-                    <Link href="/auth">
+                    <Link href={`/auth?mode=signup&plan=${plan.slug}`}>
                       <Button
                         className={`w-full rounded-xl py-6 font-bold transition-all ${
                           plan.highlighted
