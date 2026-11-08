@@ -46,7 +46,8 @@ import {
   ChevronDown,
   Loader2,
   PhoneIcon,
-  PencilIcon
+  PencilIcon,
+  BookOpen
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -56,6 +57,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Event } from "@/types/event";
 import AdminTemplates from "@/components/admin/AdminTemplates";
+import AdminBlog from "@/components/admin/AdminBlog";
 import { CardTemplate } from "@/types/invitation";
 
 const AdminDashboard = () => {
@@ -253,6 +255,9 @@ const AdminDashboard = () => {
           <TabsTrigger value="templates" className="flex items-center gap-2">
             <LayoutTemplate className="w-4 h-4" /> Template Management
           </TabsTrigger>
+          <TabsTrigger value="blog" className="flex items-center gap-2">
+            <BookOpen className="w-4 h-4" /> Blog
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="events">
@@ -408,6 +413,10 @@ const AdminDashboard = () => {
 
         <TabsContent value="templates">
           <AdminTemplates />
+        </TabsContent>
+
+        <TabsContent value="blog">
+          <AdminBlog />
         </TabsContent>
       </Tabs>
 

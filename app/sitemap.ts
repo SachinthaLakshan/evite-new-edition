@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
+import { getPublishedBlogPosts } from "@/lib/blog/queries";
 import { SAMPLE_PAGES, sampleOgImage } from "@/lib/seo/samples";
 import { SITE_URL } from "@/lib/seo/site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
 
   const core: MetadataRoute.Sitemap = [
@@ -11,6 +12,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "weekly",
       priority: 1,
+    },
+    {
+      url: `${SITE_URL}/blog`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.85,
     },
     {
       url: `${SITE_URL}/auth`,
@@ -40,5 +47,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     images: [sampleOgImage(sample.imagePath)],
   }));
 
-  return [...core, ...samples];
+  const blogPosts = await getPublishedBlogPosts();
+  const blog: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    lastModified: post.published_at ? new Date(post.published_at) : lastModified,
+    changeFrequency: "monthly",
+    priority: 0.75,
+    ...(post.cover_image_url ? { images: [post.cover_image_url] } : {}),
+  }));
+
+  return [...core, ...samples, ...blog];
 }

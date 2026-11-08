@@ -1,7 +1,9 @@
+import type { BlogPost } from "@/lib/blog/types";
 import { HOME_FAQ } from "./faq";
 import { BUSINESS, PLANS, SITE_LEGAL_NAME, SITE_NAME, SITE_URL } from "./site";
 import type { SamplePage } from "./samples";
 import { sampleOgImage } from "./samples";
+import { BLOG_OG_IMAGE } from "./blog";
 
 const organizationId = `${SITE_URL}/#organization`;
 const localBusinessId = `${SITE_URL}/#localbusiness`;
@@ -135,6 +137,35 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
       name: item.name,
       item: `${SITE_URL}${item.path}`,
     })),
+  };
+}
+
+export function articleJsonLd(post: BlogPost, headline: string, description: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline,
+    description,
+    image: post.cover_image_url || BLOG_OG_IMAGE,
+    datePublished: post.published_at || post.created_at,
+    dateModified: post.updated_at,
+    author: {
+      "@type": "Organization",
+      name: SITE_LEGAL_NAME,
+      url: SITE_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_LEGAL_NAME,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/assets/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/blog/${post.slug}`,
+    },
   };
 }
 

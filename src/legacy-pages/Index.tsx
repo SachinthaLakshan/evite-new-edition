@@ -237,18 +237,30 @@ const Landing: React.FC = () => {
               ["Active Invites", "#active-events"],
               ["Products", "#products"],
               ["Pricing", "#pricing"],
+              ["Blog", "/blog"],
               ["FAQ", "#faq"],
               ["Get In Touch", "#contact"],
-            ].map(([label, href]) => (
-              <a
-                key={href}
-                href={href}
-                className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {label}
-              </a>
-            ))}
+            ].map(([label, href]) =>
+              href.startsWith("/") ? (
+                <Link
+                  key={href}
+                  href={href}
+                  className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {label}
+                </Link>
+              ) : (
+                <a
+                  key={href}
+                  href={href}
+                  className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {label}
+                </a>
+              ),
+            )}
             <Link
               href="/auth"
               className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
@@ -298,6 +310,10 @@ const Landing: React.FC = () => {
               Pricing
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c4782a] transition-all duration-300 group-hover:w-full" />
             </a>
+            <Link href="/blog" className="transition-colors relative group py-2 hover:text-[#c4782a]">
+              Blog
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c4782a] transition-all duration-300 group-hover:w-full" />
+            </Link>
             <a href="#contact" className="transition-colors relative group py-2 hover:text-[#c4782a]">
               Get In Touch
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#c4782a] transition-all duration-300 group-hover:w-full" />
@@ -943,6 +959,7 @@ const Landing: React.FC = () => {
                 <li><a href="#pricing" className="hover:text-white transition-colors">Hosting Pricing</a></li>
                 <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
                 <li><Link href="/samples/lavender" className="hover:text-white transition-colors">Invitation Samples</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Wedding Blog</Link></li>
               </ul>
             </div>
 
