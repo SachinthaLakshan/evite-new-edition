@@ -152,17 +152,18 @@ export default function EventMetaImageEditor({
     let cancelled = false;
     const fallback = themeFallback(themeId);
 
-    supabase
-      .from("theme_meta_images")
-      .select("image_url")
-      .eq("theme_id", themeId)
-      .maybeSingle()
-      .then(({ data }) => {
+    void (async () => {
+      try {
+        const { data } = await supabase
+          .from("theme_meta_images")
+          .select("image_url")
+          .eq("theme_id", themeId)
+          .maybeSingle();
         if (!cancelled) setDefaultUrl(data?.image_url || fallback);
-      })
-      .catch(() => {
+      } catch {
         if (!cancelled) setDefaultUrl(fallback);
-      });
+      }
+    })();
 
     return () => {
       cancelled = true;
