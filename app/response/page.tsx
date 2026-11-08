@@ -1,24 +1,13 @@
-import { supabase } from "@/integrations/supabase/client";
 import PublicRSVP from "@/legacy-pages/PublicRSVP";
+import {
+  absolutePublicUrl,
+  lavenderShareMetadata,
+  resolveInviteShareByEventId,
+  responseInvitePath,
+} from "@/lib/seo/invite-share";
 
 // Force this page to be fully dynamic so it is not prerendered at build time
 export const dynamic = "force-dynamic";
-
-const getBaseUrl = () => {
-  // Check Vercel deployment URLs (System Environment Variables)
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  // Fallback to custom NEXT_PUBLIC_SITE_URL if not local
-  if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")) {
-    return process.env.NEXT_PUBLIC_SITE_URL;
-  }
-
-  return "http://localhost:3000";
-};
 
 export async function generateMetadata({
   searchParams,
@@ -30,27 +19,30 @@ export async function generateMetadata({
 
   let title = "Event Invitation";
   let description = "You are invited";
+  let isLavender = false;
 
   try {
     if (eventId) {
-      const { data: event } = await supabase
-        .from("events")
-        .select("title, description")
-        .eq("id", eventId)
-        .maybeSingle();
-
-      if (event?.title) {
-        title = `${event.title} | Invitation`;
-      }
-      if (event?.description) {
-        description = event.description;
+      const share = await resolveInviteShareByEventId(eventId);
+      if (share) {
+        title = share.title;
+        description = share.description;
+        isLavender = share.isLavender;
       }
     }
   } catch {
-    // If Supabase metadata lookup fails, fall back to defaultsll
+    // If Supabase metadata lookup fails, fall back to defaults
   }
 
-  const imageUrl = new URL("/assets/floral-bg-og.jpg", getBaseUrl()).toString();
+  if (isLavender && eventId) {
+    return lavenderShareMetadata(
+      title,
+      description,
+      responseInvitePath(eventId, attendeeId),
+    );
+  }
+
+  const imageUrl = absolutePublicUrl("/assets/floral-bg-og.jpg");
 
   return {
     title,
