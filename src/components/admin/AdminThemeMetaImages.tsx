@@ -26,7 +26,7 @@ async function replaceThemeMetaImage(
   userId: string,
 ) {
   const check = validateThemeMetaFile(file);
-  if (!check.ok) {
+  if (check.ok === false) {
     throw new Error(check.message);
   }
 
@@ -111,7 +111,7 @@ export default function AdminThemeMetaImages() {
   const onFile = (theme: ThemeMetaImage, file: File | undefined) => {
     if (!file || uploadingThemeId) return;
     const check = validateThemeMetaFile(file);
-    if (!check.ok) {
+    if (check.ok === false) {
       toast.error(check.message);
       return;
     }

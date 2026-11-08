@@ -228,7 +228,7 @@ export default function EventMetaImageEditor({
   const onUpload = async (file: File | undefined) => {
     if (!file) return;
     const check = validateEventMetaUpload(file);
-    if (!check.ok) {
+    if (check.ok === false) {
       toast.error(check.message);
       return;
     }
