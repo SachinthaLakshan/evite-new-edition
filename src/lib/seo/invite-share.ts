@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { supabase } from "@/integrations/supabase/client";
+import { formatMetaWeddingDate } from "@/lib/event-meta-image";
 import { SITE_URL } from "./site";
 
 export const LAVENDER_THEME_ID = "lavender";
@@ -36,6 +37,7 @@ export type InviteShare = {
   description: string;
   themeId: string | null;
   isLavender: boolean;
+  metaImageUrl: string | null;
 };
 
 /**
@@ -63,12 +65,15 @@ export function absolutePublicUrl(path: string) {
   return new URL(path, getPublicBaseUrl()).toString();
 }
 
-export function lavenderShareMetadata(
+export function inviteShareMetadata(
   title: string,
   description: string,
+  image: string,
   pagePath?: string,
+  width = 1200,
+  height = 630,
 ): Metadata {
-  const imageUrl = absolutePublicUrl(LAVENDER_SHARE_IMAGE_PATH);
+  const imageUrl = absolutePublicUrl(image);
 
   return {
     title,
@@ -82,8 +87,8 @@ export function lavenderShareMetadata(
         {
           url: imageUrl,
           secureUrl: imageUrl,
-          width: LAVENDER_SHARE_IMAGE_WIDTH,
-          height: LAVENDER_SHARE_IMAGE_HEIGHT,
+          width,
+          height,
           type: "image/jpeg",
           alt: title,
         },
@@ -96,6 +101,21 @@ export function lavenderShareMetadata(
       images: [imageUrl],
     },
   };
+}
+
+export function lavenderShareMetadata(
+  title: string,
+  description: string,
+  pagePath?: string,
+): Metadata {
+  return inviteShareMetadata(
+    title,
+    description,
+    LAVENDER_SHARE_IMAGE_PATH,
+    pagePath,
+    LAVENDER_SHARE_IMAGE_WIDTH,
+    LAVENDER_SHARE_IMAGE_HEIGHT,
+  );
 }
 
 export function responseInvitePath(eventId: string, attendeeId?: string) {
@@ -139,7 +159,7 @@ export async function resolveInviteShareByEventId(
 ): Promise<InviteShare | null> {
   const { data: event, error } = await supabase
     .from("events")
-    .select("title, description, theme_id")
+    .select("title, date, theme_id, meta_image_url")
     .eq("id", eventId)
     .maybeSingle();
 
@@ -147,9 +167,10 @@ export async function resolveInviteShareByEventId(
 
   return {
     title: event.title ? `${event.title} | Invitation` : DEFAULT_TITLE,
-    description: event.description?.trim() || DEFAULT_DESCRIPTION,
+    description: formatMetaWeddingDate(event.date || "") || DEFAULT_DESCRIPTION,
     themeId: event.theme_id,
     isLavender: event.theme_id === LAVENDER_THEME_ID,
+    metaImageUrl: event.meta_image_url,
   };
 }
 

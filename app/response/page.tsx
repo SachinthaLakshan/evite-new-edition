@@ -1,6 +1,7 @@
 import PublicRSVP from "@/legacy-pages/PublicRSVP";
 import {
   absolutePublicUrl,
+  inviteShareMetadata,
   lavenderShareMetadata,
   resolveInviteShareByEventId,
   responseInvitePath,
@@ -20,6 +21,7 @@ export async function generateMetadata({
   let title = "Event Invitation";
   let description = "You are invited";
   let isLavender = false;
+  let metaImageUrl: string | null = null;
 
   try {
     if (eventId) {
@@ -28,10 +30,20 @@ export async function generateMetadata({
         title = share.title;
         description = share.description;
         isLavender = share.isLavender;
+        metaImageUrl = share.metaImageUrl;
       }
     }
   } catch {
     // If Supabase metadata lookup fails, fall back to defaults
+  }
+
+  if (metaImageUrl && eventId) {
+    return inviteShareMetadata(
+      title,
+      description,
+      metaImageUrl,
+      responseInvitePath(eventId, attendeeId),
+    );
   }
 
   if (isLavender && eventId) {

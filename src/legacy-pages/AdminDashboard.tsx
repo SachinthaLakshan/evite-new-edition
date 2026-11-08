@@ -58,6 +58,7 @@ import {
 import { Event } from "@/types/event";
 import AdminTemplates from "@/components/admin/AdminTemplates";
 import AdminBlog from "@/components/admin/AdminBlog";
+import AdminThemeMetaImages from "@/components/admin/AdminThemeMetaImages";
 import { CardTemplate } from "@/types/invitation";
 
 const AdminDashboard = () => {
@@ -258,6 +259,9 @@ const AdminDashboard = () => {
           <TabsTrigger value="blog" className="flex items-center gap-2">
             <BookOpen className="w-4 h-4" /> Blog
           </TabsTrigger>
+          <TabsTrigger value="theme-images" className="flex items-center gap-2">
+            <ImageIcon className="w-4 h-4" /> Theme images
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="events">
@@ -417,6 +421,10 @@ const AdminDashboard = () => {
 
         <TabsContent value="blog">
           <AdminBlog />
+        </TabsContent>
+
+        <TabsContent value="theme-images">
+          <AdminThemeMetaImages />
         </TabsContent>
       </Tabs>
 

@@ -14,6 +14,7 @@ import {
   convertToDirectImageUrl,
 } from "@/lib/utils";
 import { availableThemes } from "@/components/event/EventThemeSelection";
+import { uploadEventMetaImage } from "@/components/event/EventMetaImageEditor";
 
 export const useEventForm = () => {
   const router = useRouter();
@@ -42,6 +43,7 @@ export const useEventForm = () => {
   const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(null);
   const [backgroundImagePreview, setBackgroundImagePreview] = useState<string>("");
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [metaImageBlob, setMetaImageBlob] = useState<Blob | null>(null);
   const [audioPreview, setAudioPreview] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [sliderImages, setSliderImages] = useState<SliderImage[]>([]);
@@ -305,6 +307,12 @@ export const useEventForm = () => {
           audio_url: audioUrl || null,
           opener_style: formData.opener_style || "button",
           show_maybe_button: formData.show_maybe_button ?? true,
+          meta_image_url: metaImageBlob
+            ? await uploadEventMetaImage({
+                blob: metaImageBlob,
+                userId: session.user.id,
+              })
+            : null,
         })
         .select()
         .single();
@@ -348,6 +356,8 @@ export const useEventForm = () => {
     setBackgroundImagePreview,
     audioFile,
     setAudioFile,
+    metaImageBlob,
+    setMetaImageBlob,
     audioPreview,
     setAudioPreview,
     isUploading,

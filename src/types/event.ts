@@ -28,6 +28,7 @@ export interface Event {
   audio_url?: string | null;
   opener_style?: string | null;
   show_maybe_button?: boolean | null;
+  meta_image_url?: string | null;
 
   created_at?: string;
   updated_at?: string;

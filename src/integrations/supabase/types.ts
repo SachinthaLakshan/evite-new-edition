@@ -101,6 +101,41 @@ export type Database = {
         }
         Relationships: []
       }
+      theme_meta_images: {
+        Row: {
+          theme_id: string
+          theme_name: string
+          image_url: string | null
+          storage_path: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          theme_id: string
+          theme_name: string
+          image_url?: string | null
+          storage_path?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          theme_id?: string
+          theme_name?: string
+          image_url?: string | null
+          storage_path?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "theme_meta_images_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           agenda: Json | null
@@ -125,6 +160,7 @@ export type Database = {
           audio_url?: string | null
           opener_style?: string | null
           show_maybe_button?: boolean | null
+          meta_image_url?: string | null
         }
         Insert: {
           agenda?: Json | null
@@ -149,6 +185,7 @@ export type Database = {
           audio_url?: string | null
           opener_style?: string | null
           show_maybe_button?: boolean | null
+          meta_image_url?: string | null
         }
         Update: {
           agenda?: Json | null
@@ -173,6 +210,7 @@ export type Database = {
           audio_url?: string | null
           opener_style?: string | null
           show_maybe_button?: boolean | null
+          meta_image_url?: string | null
         }
         Relationships: []
       }

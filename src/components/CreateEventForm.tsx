@@ -14,6 +14,7 @@ import InvitationDesigner from "./invitation/InvitationDesigner";
 import { Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import EventLayoutSelection from "./event/EventLayoutSelection";
+import EventMetaImageEditor from "./event/EventMetaImageEditor";
 import { Switch } from "@/components/ui/switch";
 
 const steps = [
@@ -59,6 +60,7 @@ const CreateEventForm = () => {
     setInvitationConfig,
     audioFile,
     setAudioFile,
+    setMetaImageBlob,
     handleSubmit,
     getMinDate,
     getMinTime,
@@ -401,6 +403,17 @@ const CreateEventForm = () => {
                 />
               </div>
             </div>
+
+            <EventMetaImageEditor
+              brideName={formData.bride_name}
+              groomName={formData.groom_name}
+              weddingDate={formData.date}
+              eventTitle={formData.title}
+              themeId={formData.theme_id || "classic"}
+              shareMessage={`We're excited to invite you to ${formData.title || "your wedding"}. Please view your invitation and RSVP here`}
+              onAccept={(blob) => setMetaImageBlob(blob)}
+              onDraftChange={() => setMetaImageBlob(null)}
+            />
           </div>
         )}
 

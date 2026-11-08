@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ShortUrlRedirect from "@/legacy-pages/ShortUrlRedirect";
 import {
+  inviteShareMetadata,
   lavenderShareMetadata,
   resolveInviteShareByShortId,
 } from "@/lib/seo/invite-share";
@@ -15,6 +16,14 @@ export async function generateMetadata({
   params,
 }: ShortLinkPageProps): Promise<Metadata> {
   const share = await resolveInviteShareByShortId(params.shortId);
+  if (share?.metaImageUrl) {
+    return inviteShareMetadata(
+      share.title,
+      share.description,
+      share.metaImageUrl,
+      `/s/${params.shortId}`,
+    );
+  }
   if (!share?.isLavender) return {};
 
   return lavenderShareMetadata(

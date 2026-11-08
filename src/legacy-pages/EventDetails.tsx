@@ -77,6 +77,8 @@ import { createShortUrl, createAttendeeShortUrl } from "@/lib/url-shortener";
 import InvitationPreviewCard from "@/components/event/InvitationPreviewCard";
 import { InvitationConfig } from "@/types/invitation";
 import { GuestInvitationDownloader } from "@/components/event/GuestInvitationDownloader";
+import EventMetaImageEditor, { uploadEventMetaImage } from "@/components/event/EventMetaImageEditor";
+import { SITE_URL } from "@/lib/seo/site";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Breadcrumb,
@@ -1705,6 +1707,39 @@ export default function EventDetails() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {isOwnerOrAdmin && (
+              <EventMetaImageEditor
+                brideName={event.bride_name || ""}
+                groomName={event.groom_name || ""}
+                weddingDate={event.date}
+                eventTitle={event.title}
+                themeId={event.theme_id || "classic"}
+                shareUrl={`${SITE_URL}/response?eventId=${event.id}`}
+                shareMessage={
+                  customShareMessage ||
+                  `We're excited to invite you to ${event.title}. Please view your invitation and RSVP here`
+                }
+                savedImageUrl={event.meta_image_url}
+                saveLabel={event.meta_image_url ? "Update meta image" : "Save meta image"}
+                onAccept={async (blob) => {
+                  if (!session?.user.id) throw new Error("You need to be signed in.");
+                  const publicUrl = await uploadEventMetaImage({
+                    blob,
+                    userId: session.user.id,
+                    eventId: event.id,
+                    previousUrl: event.meta_image_url,
+                  });
+                  const { error } = await supabase
+                    .from("events")
+                    .update({ meta_image_url: publicUrl })
+                    .eq("id", event.id);
+                  if (error) throw error;
+                  await queryClient.invalidateQueries({ queryKey: ["event", id] });
+                  toast.success("Meta image saved for this event.");
+                }}
+              />
             )}
           </div>
 
