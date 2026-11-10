@@ -58,6 +58,23 @@ export function buildSharePreviewText(input: {
   return `Hi ${input.guestName}! ${message}: ${input.url}`;
 }
 
+const THEME_META_STORAGE_PREFIX = "/storage/v1/object/public/theme-meta-images/";
+
+/** Same-origin path for an admin-uploaded theme image, so the canvas can draw it. */
+export function themeMetaImageProxyPath(imageUrl: string, supabaseUrl: string) {
+  let image: URL;
+  let project: URL;
+  try {
+    image = new URL(imageUrl);
+    project = new URL(supabaseUrl);
+  } catch {
+    return null;
+  }
+  if (image.host !== project.host) return null;
+  if (!image.pathname.startsWith(THEME_META_STORAGE_PREFIX)) return null;
+  return `/api/theme-meta-image?url=${encodeURIComponent(image.toString())}`;
+}
+
 export function eventImageStoragePath(publicUrl: string) {
   const marker = "/event-images/";
   const index = publicUrl.indexOf(marker);

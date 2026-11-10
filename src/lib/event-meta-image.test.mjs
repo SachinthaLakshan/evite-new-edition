@@ -25,6 +25,7 @@ const {
   eventMetaAspectMatches,
   formatMetaCoupleLine,
   formatMetaWeddingDate,
+  themeMetaImageProxyPath,
   validateEventMetaUpload,
 } = eventMetaImage;
 
@@ -76,6 +77,26 @@ test("builds the WhatsApp message with the guest link", () => {
       url: "http://www.evite.lk/s/ip0s7",
     }),
     "Hi Kasun! We're excited to invite you to Admin Test. Please view your invitation and RSVP here: http://www.evite.lk/s/ip0s7",
+  );
+});
+
+test("proxies only admin theme images from this project", () => {
+  const imageUrl =
+    "https://example.supabase.co/storage/v1/object/public/theme-meta-images/creamclassicdesign/1.jpg";
+  assert.equal(
+    themeMetaImageProxyPath(imageUrl, "https://example.supabase.co"),
+    `/api/theme-meta-image?url=${encodeURIComponent(imageUrl)}`,
+  );
+  assert.equal(
+    themeMetaImageProxyPath(
+      "https://example.supabase.co/storage/v1/object/public/event-images/user/meta/1.jpg",
+      "https://example.supabase.co",
+    ),
+    null,
+  );
+  assert.equal(
+    themeMetaImageProxyPath(imageUrl, "https://other.supabase.co"),
+    null,
   );
 });
 

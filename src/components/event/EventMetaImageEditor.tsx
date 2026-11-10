@@ -17,6 +17,7 @@ import {
   eventMetaAspectMatches,
   formatMetaCoupleLine,
   formatMetaWeddingDate,
+  themeMetaImageProxyPath,
   validateEventMetaUpload,
 } from "@/lib/event-meta-image";
 
@@ -40,13 +41,18 @@ function themeFallback(themeId: string) {
   return layoutOptions.find((layout) => layout.id === themeId)?.bgImage || "/assets/floral-bg-og.jpg";
 }
 
+function canvasImageSource(src: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) return src;
+  return themeMetaImageProxyPath(src, supabaseUrl) || src;
+}
+
 function loadImage(src: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
-    if (src.startsWith("http")) image.crossOrigin = "anonymous";
     image.onload = () => resolve(image);
     image.onerror = () => reject(new Error("Could not load the background image."));
-    image.src = src;
+    image.src = canvasImageSource(src);
   });
 }
 
@@ -154,12 +160,18 @@ export default function EventMetaImageEditor({
 
     void (async () => {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("theme_meta_images")
           .select("image_url")
           .eq("theme_id", themeId)
           .maybeSingle();
-        if (!cancelled) setDefaultUrl(data?.image_url || fallback);
+        if (cancelled) return;
+        if (error) {
+          console.error(error);
+          setDefaultUrl(fallback);
+          return;
+        }
+        setDefaultUrl(data?.image_url || fallback);
       } catch {
         if (!cancelled) setDefaultUrl(fallback);
       }
@@ -189,13 +201,7 @@ export default function EventMetaImageEditor({
     (async () => {
       try {
         await document.fonts.load("112px Parisienne");
-        let image: HTMLImageElement;
-        try {
-          image = await loadImage(backgroundUrl);
-        } catch (error) {
-          if (backgroundUrl === themeFallback(themeId)) throw error;
-          image = await loadImage(themeFallback(themeId));
-        }
+        const image = await loadImage(backgroundUrl);
         if (cancelled) return;
         if (drawnSignature.current && drawnSignature.current !== signature) {
           setAccepted(false);
