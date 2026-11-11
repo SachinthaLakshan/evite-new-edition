@@ -102,7 +102,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const isShortUrlRoute = path.match(/^\/s\/[\w-]+$/);
     // Check if the path matches the RSVP pattern
     const isRSVPRoute = path.match(/^\/event\/[\w-]+\/rsvp$/);
-    return publicRoutes.includes(path) || !!isRSVPRoute || !!isShortUrlRoute;
+    const isSampleRoute = path.match(/^\/samples\/[\w-]+$/);
+    return publicRoutes.includes(path) || !!isRSVPRoute || !!isShortUrlRoute || !!isSampleRoute;
   };
 
   return (

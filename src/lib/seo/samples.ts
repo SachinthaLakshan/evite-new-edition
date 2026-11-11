@@ -37,6 +37,33 @@ export const SAMPLE_PAGES: SamplePage[] = [
     imagePath: "/assets/invite-redrose.png",
     livePreviewUrl: "https://www.evite.lk/s/tBTDz",
   },
+  {
+    slug: "sage",
+    title: "Sage Wedding Invitation",
+    description:
+      "Fresh sage digital wedding invitation with organic florals, RSVP, and maps for Sri Lankan weddings. From Rs. 2,999.",
+    style: "Botanical",
+    imagePath: "/assets/invite-sage.png",
+    livePreviewUrl: "https://www.evite.lk/s/VsRKy",
+  },
+  {
+    slug: "lotuspremium",
+    title: "Lotus Premium Wedding Invitation",
+    description:
+      "Lotus Premium digital wedding invitation with a fullscreen video opener, countdown, gallery, and RSVP. From Rs. 2,999.",
+    style: "Premium video",
+    imagePath: "/assets/lotuspremium.jpeg",
+    livePreviewUrl: "https://www.evite.lk/s/rJXH4",
+  },
+  {
+    slug: "cozyroyale",
+    title: "Cozy Royale Wedding Invitation",
+    description:
+      "Cozy Royale digital wedding invitation with a fullscreen video opener, sage florals, gallery, and RSVP. From Rs. 2,999.",
+    style: "Cozy floral",
+    imagePath: "/assets/cozyroyale.jpeg",
+    livePreviewUrl: "https://www.evite.lk/s/Wmsih",
+  },
 ];
 
 export function getSamplePage(slug: string) {

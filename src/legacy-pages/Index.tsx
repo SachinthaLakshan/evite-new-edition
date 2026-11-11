@@ -59,7 +59,7 @@ const Landing: React.FC = () => {
       title:'My Wedding',
       groom_name:'Kasun',
       bride_name:'Imasha',
-      url:'http://www.evite.lk/s/ip0s7',
+      url:'https://www.evite.lk/s/ip0s7',
       imageUrl:'/assets/invite-lavendra.png',
       samplePath:'/samples/lavender',
       id:1
@@ -69,7 +69,7 @@ const Landing: React.FC = () => {
       title:'Our Wedding',
       groom_name:'Supun',
       bride_name:'Imasha',
-      url:'http://www.evite.lk/s/hSjPx',
+      url:'https://www.evite.lk/s/hSjPx',
       imageUrl:'/assets/invite-classc.png',
       samplePath:'/samples/classic',
       id:2
@@ -79,10 +79,40 @@ const Landing: React.FC = () => {
       title:'Big Day',
       groom_name:'Shan',
       bride_name:'Anu',
-      url:'http://www.evite.lk/s/tBTDz',
+      url:'https://www.evite.lk/s/tBTDz',
       imageUrl:'/assets/invite-redrose.png',
       samplePath:'/samples/red-rose',
       id:3
+    },
+    {
+      date: new Date('2026-12-31'),
+      title:'Big Day',
+      groom_name:'Shan',
+      bride_name:'Anu',
+      url:'https://www.evite.lk/s/rJXH4',
+      imageUrl:'/assets/lotuspremium.jpeg',
+      samplePath:'/samples/lotuspremium',
+      id:4
+    },
+    {
+      date: new Date('2026-12-31'),
+      title:'Big Day',
+      groom_name:'Shan',
+      bride_name:'Anu',
+      url:'https://www.evite.lk/s/Wmsih',
+      imageUrl:'/assets/cozyroyale.jpeg',
+      samplePath:'/samples/cozyroyale',
+      id:5
+    },
+    {
+      date: new Date('2026-12-31'),
+      title:'Big Day',
+      groom_name:'Shan',
+      bride_name:'Anu',
+      url:'https://www.evite.lk/s/VsRKy',
+      imageUrl:'/assets/invite-sage.png',
+      samplePath:'/samples/sage',
+      id:6
     }
   ]
 

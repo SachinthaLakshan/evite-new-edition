@@ -87,7 +87,7 @@ export default function SampleDesignPage({ params }: SamplePageProps) {
                 Share this style on WhatsApp with RSVP, maps, and your checklist and budget in one dashboard.
               </p>
               <Link href="/auth?mode=signup">
-                <Button size="lg" className="gap-2 rounded-full bg-[#ff7a3d] hover:bg-[#f0682c]">
+                <Button size="lg" className="gap-2 rounded-full bg-[#ff7a3d] hover:bg-[#f0682c] mt-8">
                   Start with this design
                   <ArrowRight className="h-5 w-5" />
                 </Button>

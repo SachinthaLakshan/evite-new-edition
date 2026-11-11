@@ -52,13 +52,13 @@ export const layoutOptions: LayoutOption[] = [
     id: "lotuspremium",
     name: "Lotus Premium",
     description: "Fullscreen video opener with a tap-to-open seal, cream lotus artwork, countdown, schedule, gallery, and RSVP",
-    bgImage: "/lotus-premium-assets/backgroud_image.gif",
+    bgImage: "/assets/lotuspremium.jpeg",
   },
   {
     id: "cozyroyale",
     name: "Cozy Royale",
     description: "Fullscreen video opener with a tap-to-open seal, sage floral artwork, countdown, schedule, gallery, and RSVP",
-    bgImage: "/cozy-royale-theme-assets/thumb.jpg",
+    bgImage: "/assets/cozyroyale.jpeg",
   },
 ];
 
