@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { AlertTriangle, PlusIcon, TrashIcon } from "lucide-react";
 import {
   BankAccountDraft,
   emptyBankAccountDraft,
@@ -60,6 +60,16 @@ export function EventGiftSettings({
             }
           }}
         />
+      </div>
+
+      <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+        <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
+        <p className="text-sm leading-relaxed">
+          <span className="font-semibold">Please note:</span> we do not take
+          responsibility for cash gifts or bank transfers. We only show your
+          account details to your guests. Transfers happen between the guest and
+          you, outside this app.
+        </p>
       </div>
 
       {enabled && (
