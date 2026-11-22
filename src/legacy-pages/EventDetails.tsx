@@ -33,6 +33,7 @@ import { AttendanceChart } from "@/components/event/AttendanceChart";
 import { EventGuestList } from "@/components/event/EventGuestList";
 import { EventAgenda } from "@/components/event/EventAgenda";
 import { Guest } from "@/types/event-form";
+import { parseGuestCsv } from "@/lib/parseGuestCsv";
 import {
   Carousel,
   CarouselContent,
@@ -1015,22 +1016,7 @@ export default function EventDetails() {
                               const reader = new FileReader();
                               reader.onload = (event) => {
                                 const text = event.target?.result as string;
-                                const rows = text.split("\n");
-                                const newGuests = rows
-                                  .map((row) => {
-                                    const [name, whatsapp_number] = row
-                                      .split(",")
-                                      .map((cell) => cell.trim());
-                                    if (name && whatsapp_number) {
-                                      return {
-                                        name,
-                                        whatsapp_number,
-                                      } as Guest;
-                                    }
-                                    return null;
-                                  })
-                                  .filter((guest): guest is Guest => guest !== null);
-
+                                const newGuests = parseGuestCsv(text);
                                 setGuests((prev) => [...prev, ...newGuests]);
                               };
                               reader.readAsText(file);

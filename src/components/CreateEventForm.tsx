@@ -8,7 +8,7 @@ import { EventAgenda } from "./event/EventAgenda";
 import { EventSliderImages } from "./event/EventSliderImages";
 import { EventGuestList } from "./event/EventGuestList";
 import { useEventForm } from "@/hooks/useEventForm";
-import { Guest } from "@/types/event-form";
+import { parseGuestCsv } from "@/lib/parseGuestCsv";
 import { convertToDirectImageUrl, isValidFileSize } from "@/lib/utils";
 import InvitationDesigner from "./invitation/InvitationDesigner";
 import { Check, ChevronRight } from "lucide-react";
@@ -433,22 +433,7 @@ const CreateEventForm = () => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                   const text = event.target?.result as string;
-                  const rows = text.split("\n");
-                  const newGuests = rows
-                    .map((row) => {
-                      const [name, whatsapp_number] = row
-                        .split(",")
-                        .map((cell) => cell.trim());
-                      if (name && whatsapp_number) {
-                        return {
-                          name,
-                          whatsapp_number,
-                        } as Guest;
-                      }
-                      return null;
-                    })
-                    .filter((guest): guest is Guest => guest !== null);
-
+                  const newGuests = parseGuestCsv(text);
                   setGuests((prev) => [...prev, ...newGuests]);
                 };
                 reader.readAsText(file);

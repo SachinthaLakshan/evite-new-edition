@@ -1261,30 +1261,6 @@ const SageLayout: React.FC<SageLayoutProps> = ({
             transition={{ duration: 1.5, cubicBezier: [0.16, 1, 0.3, 1], delay: 0.6 }}
             className="w-full max-w-[460px] flex flex-col items-center gap-4 text-center mt-2 px-4"
           >
-            {/* If NOT verified: Verification flow styled in Sage theme */}
-            {!isVerified ? (
-              <div className="w-full space-y-4">
-                <p className="font-mono text-sm font-semibold tracking-wider text-[#132F1C] uppercase">
-                  Verify your invitation to RSVP
-                </p>
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center">
-                  <input
-                    type="text"
-                    placeholder="Enter WhatsApp Number"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    className="w-full sm:w-64 h-12 px-5 rounded-full border-[1.5px] border-[#132F1C] bg-[#E9EFEA] text-[#132F1C] placeholder-[#779B88]/70 text-center font-semibold outline-none focus:bg-white transition-all shadow-sm"
-                  />
-                  <button
-                    onClick={() => verifyAttendee()}
-                    className="h-12 w-full sm:w-auto px-6 rounded-full border-[1.5px] border-[#132F1C] bg-[#132F1C] text-white hover:bg-white hover:text-[#132F1C] font-semibold transition-all shadow-md active:translate-y-0.5"
-                  >
-                    Verify
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* If verified: Show custom YES/NO/MAYBE buttons or Thank you message */
               <div className="w-full space-y-4">
                 {rsvpSubmittedMsg ? (
                   <motion.div 
@@ -1327,7 +1303,7 @@ const SageLayout: React.FC<SageLayoutProps> = ({
                   )}
                 </div>
               </div>
-            )}
+            
 
             {/* Sage Chevron Arrow for scrolling down */}
             <div className="scroll-arrow-el mt-6 cursor-pointer" onClick={scrollToContent}>
