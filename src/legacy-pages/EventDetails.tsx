@@ -66,6 +66,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -277,6 +278,12 @@ export default function EventDetails() {
   const [customShareMessage, setCustomShareMessage] = useState("");
   const [isSavingMessage, setIsSavingMessage] = useState(false);
   const [deletingGuestId, setDeletingGuestId] = useState<string | null>(null);
+  const [editingGuest, setEditingGuest] = useState<{
+    id: string;
+    name: string;
+    whatsapp_number: string;
+  } | null>(null);
+  const [isSavingGuest, setIsSavingGuest] = useState(false);
 
   const handleDeleteGuest = async (guestId: string) => {
     if (!id) return;
@@ -297,6 +304,41 @@ export default function EventDetails() {
       toast.error("Failed to remove guest");
     } finally {
       setDeletingGuestId(null);
+    }
+  };
+
+  const handleSaveGuest = async () => {
+    if (!editingGuest || !id) return;
+
+    const name = editingGuest.name.trim();
+    const whatsappNumber = editingGuest.whatsapp_number.trim();
+    if (!name || !whatsappNumber) {
+      toast.error("Please provide a name and contact number");
+      return;
+    }
+
+    setIsSavingGuest(true);
+    try {
+      const { error } = await supabase
+        .from("attendees")
+        .update({
+          name,
+          whatsapp_number: whatsappNumber,
+        })
+        .eq("id", editingGuest.id)
+        .eq("event_id", id);
+
+      if (error) throw error;
+
+      toast.success("Guest details updated");
+      setEditingGuest(null);
+      await queryClient.invalidateQueries({ queryKey: ["event", id] });
+      await queryClient.invalidateQueries({ queryKey: ["events"] });
+    } catch (error) {
+      console.error("Error updating guest:", error);
+      toast.error("Failed to update guest");
+    } finally {
+      setIsSavingGuest(false);
     }
   };
 
@@ -1497,6 +1539,24 @@ export default function EventDetails() {
                                      />
                                    )}
                                    {isOwnerOrAdmin && (
+                                     <>
+                                     <Button
+                                       type="button"
+                                       variant="ghost"
+                                       size="sm"
+                                       className="text-gray-700 hover:text-gray-900 hover:bg-gray-100 h-8"
+                                       title="Edit guest"
+                                       onClick={() =>
+                                         setEditingGuest({
+                                           id: attendee.id,
+                                           name: attendee.name,
+                                           whatsapp_number: attendee.whatsapp_number || "",
+                                         })
+                                       }
+                                     >
+                                       <PencilIcon className="h-3.5 w-3.5 mr-1" />
+                                       Edit
+                                     </Button>
                                      <AlertDialog>
                                        <AlertDialogTrigger asChild>
                                          <Button
@@ -1531,6 +1591,7 @@ export default function EventDetails() {
                                          </AlertDialogFooter>
                                        </AlertDialogContent>
                                      </AlertDialog>
+                                     </>
                                    )}
                                 </div>
                               </TableCell>
@@ -1651,6 +1712,22 @@ export default function EventDetails() {
                               )}
                             </div>
                             {isOwnerOrAdmin && (
+                              <>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full justify-center h-9 border border-gray-200 text-gray-700 hover:bg-gray-50 text-xs"
+                                onClick={() =>
+                                  setEditingGuest({
+                                    id: attendee.id,
+                                    name: attendee.name,
+                                    whatsapp_number: attendee.whatsapp_number || "",
+                                  })
+                                }
+                              >
+                                <PencilIcon className="h-3.5 w-3.5 mr-1.5" />
+                                Edit Guest
+                              </Button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button
@@ -1674,23 +1751,82 @@ export default function EventDetails() {
                                       Are you sure you want to remove <span className="font-semibold text-gray-900">{attendee.name}</span> from the guest directory? This action cannot be undone.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      className="bg-red-600 hover:bg-red-700 text-white"
-                                      onClick={() => handleDeleteGuest(attendee.id)}
-                                    >
-                                      Remove
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        className="bg-red-600 hover:bg-red-700 text-white"
+                                        onClick={() => handleDeleteGuest(attendee.id)}
+                                      >
+                                        Remove
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </>
                             )}
                           </div>
                         </div>
                       ))
                     )}
                   </div>
+
+                  <Dialog
+                    open={!!editingGuest}
+                    onOpenChange={(open) => {
+                      if (!open && !isSavingGuest) setEditingGuest(null);
+                    }}
+                  >
+                    <DialogContent className="bg-white sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Edit Guest Details</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-guest-name">Name</Label>
+                          <Input
+                            id="edit-guest-name"
+                            value={editingGuest?.name ?? ""}
+                            onChange={(e) =>
+                              setEditingGuest((prev) =>
+                                prev ? { ...prev, name: e.target.value } : prev
+                              )
+                            }
+                            placeholder="Guest name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-guest-contact">Contact</Label>
+                          <Input
+                            id="edit-guest-contact"
+                            value={editingGuest?.whatsapp_number ?? ""}
+                            onChange={(e) =>
+                              setEditingGuest((prev) =>
+                                prev ? { ...prev, whatsapp_number: e.target.value } : prev
+                              )
+                            }
+                            placeholder="Eg:+94711234568"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setEditingGuest(null)}
+                          disabled={isSavingGuest}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleSaveGuest}
+                          disabled={isSavingGuest}
+                        >
+                          {isSavingGuest ? "Saving..." : "Save"}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
             )}
