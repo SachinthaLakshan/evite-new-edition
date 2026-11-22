@@ -5,6 +5,7 @@ import { ThemeColor } from "@/types/theme";
 import VerificationForm from "./forms/VerificationForm";
 import RSVPForm from "./forms/RSVPForm";
 import MinimalRSVP from "./MinimalRSVP";
+import { InviteGiftSection } from "./InviteGiftSection";
 
 interface EventRSVPProps {
   event: any;
@@ -34,14 +35,26 @@ const EventRSVP: React.FC<EventRSVPProps> = ({
   const showMaybeButton = event?.show_maybe_button !== false;
 
   // Render the minimal grey theme version
+  const giftSection = (
+    <InviteGiftSection
+      eventId={event?.id}
+      giftsEnabled={event?.gifts_enabled}
+      isVerified={isVerified}
+      attendeeId={attendee?.id}
+    />
+  );
+
   if (isGreyTheme) {
     return (
-      <MinimalRSVP 
-        sectionVariants={sectionVariants}
-        attendee={attendee}
-        setAttendee={setAttendee}
-        showMaybeButton={showMaybeButton}
-      />
+      <>
+        <MinimalRSVP 
+          sectionVariants={sectionVariants}
+          attendee={attendee}
+          setAttendee={setAttendee}
+          showMaybeButton={showMaybeButton}
+        />
+        {giftSection}
+      </>
     );
   }
 
@@ -83,6 +96,7 @@ const EventRSVP: React.FC<EventRSVPProps> = ({
           )}
         </motion.div>
       </div>
+      {giftSection}
     </section>
   );
 };

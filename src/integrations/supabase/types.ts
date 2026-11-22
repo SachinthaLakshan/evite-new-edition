@@ -161,6 +161,7 @@ export type Database = {
           opener_style?: string | null
           show_maybe_button?: boolean | null
           meta_image_url?: string | null
+          gifts_enabled?: boolean | null
         }
         Insert: {
           agenda?: Json | null
@@ -186,6 +187,7 @@ export type Database = {
           opener_style?: string | null
           show_maybe_button?: boolean | null
           meta_image_url?: string | null
+          gifts_enabled?: boolean | null
         }
         Update: {
           agenda?: Json | null
@@ -211,8 +213,108 @@ export type Database = {
           opener_style?: string | null
           show_maybe_button?: boolean | null
           meta_image_url?: string | null
+          gifts_enabled?: boolean | null
         }
         Relationships: []
+      }
+      event_bank_accounts: {
+        Row: {
+          id: string
+          event_id: string
+          bank_name: string
+          account_name: string
+          account_number: string
+          branch: string | null
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          bank_name: string
+          account_name: string
+          account_number: string
+          branch?: string | null
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          bank_name?: string
+          account_name?: string
+          account_number?: string
+          branch?: string | null
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_bank_accounts_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      event_gifts: {
+        Row: {
+          id: string
+          event_id: string
+          attendee_id: string
+          bank_account_id: string | null
+          amount: number
+          currency: string
+          message: string | null
+          slip_path: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          event_id: string
+          attendee_id: string
+          bank_account_id?: string | null
+          amount: number
+          currency?: string
+          message?: string | null
+          slip_path: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string
+          attendee_id?: string
+          bank_account_id?: string | null
+          amount?: number
+          currency?: string
+          message?: string | null
+          slip_path?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_gifts_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_gifts_attendee_id_fkey"
+            columns: ["attendee_id"]
+            isOneToOne: false
+            referencedRelation: "attendees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_gifts_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "event_bank_accounts"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       profiles: {
         Row: {

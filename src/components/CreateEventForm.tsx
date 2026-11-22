@@ -58,6 +58,8 @@ const CreateEventForm = () => {
     setNewAgendaItem,
     invitationConfig,
     setInvitationConfig,
+    bankAccounts,
+    setBankAccounts,
     audioFile,
     setAudioFile,
     setMetaImageBlob,
@@ -241,6 +243,11 @@ const CreateEventForm = () => {
               getMinTime={getMinTime}
               onToggleMaybeButton={(checked) =>
                 setFormData((prev) => ({ ...prev, show_maybe_button: checked }))
+              }
+              bankAccounts={bankAccounts}
+              onBankAccountsChange={setBankAccounts}
+              onToggleGiftsEnabled={(checked) =>
+                setFormData((prev) => ({ ...prev, gifts_enabled: checked }))
               }
             />
           </div>

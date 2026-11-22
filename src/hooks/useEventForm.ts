@@ -13,6 +13,12 @@ import {
   isValidImageUrl,
   convertToDirectImageUrl,
 } from "@/lib/utils";
+import {
+  BankAccountDraft,
+  emptyBankAccountDraft,
+  isBankAccountComplete,
+  toBankAccountInsert,
+} from "@/lib/gifts";
 import { availableThemes } from "@/components/event/EventThemeSelection";
 import { uploadEventMetaImage } from "@/components/event/EventMetaImageEditor";
 
@@ -36,6 +42,7 @@ export const useEventForm = () => {
     invitation_config: undefined,
     opener_style: "button",
     show_maybe_button: true,
+    gifts_enabled: false,
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -70,6 +77,9 @@ export const useEventForm = () => {
   const [invitationConfig, setInvitationConfig] = useState<
     InvitationConfig | undefined
   >(undefined);
+  const [bankAccounts, setBankAccounts] = useState<BankAccountDraft[]>([
+    emptyBankAccountDraft(),
+  ]);
 
   useEffect(() => {
     if (!session) {
@@ -135,6 +145,11 @@ export const useEventForm = () => {
       if (!imageFile) {
         isValid = false;
         toast.error("Main Event Image is required. Please upload an image.");
+      }
+
+      if (formData.gifts_enabled && !bankAccounts.some(isBankAccountComplete)) {
+        isValid = false;
+        toast.error("Add at least one complete bank account to enable cash gifts.");
       }
 
       setErrors(newErrors);
@@ -307,6 +322,7 @@ export const useEventForm = () => {
           audio_url: audioUrl || null,
           opener_style: formData.opener_style || "button",
           show_maybe_button: formData.show_maybe_button ?? true,
+          gifts_enabled: formData.gifts_enabled ?? false,
           meta_image_url: metaImageBlob
             ? await uploadEventMetaImage({
                 blob: metaImageBlob,
@@ -318,6 +334,16 @@ export const useEventForm = () => {
         .single();
 
       if (eventError) throw eventError;
+
+      if (formData.gifts_enabled) {
+        const bankRows = toBankAccountInsert(eventData.id, bankAccounts);
+        if (bankRows.length > 0) {
+          const { error: bankError } = await supabase
+            .from("event_bank_accounts")
+            .insert(bankRows);
+          if (bankError) throw bankError;
+        }
+      }
 
       if (guests.length > 0) {
         const { error: guestsError } = await supabase.from("attendees").insert(
@@ -381,6 +407,8 @@ export const useEventForm = () => {
     setNewAgendaItem,
     invitationConfig,
     setInvitationConfig,
+    bankAccounts,
+    setBankAccounts,
     handleSubmit,
     getMinDate,
     getMinTime,

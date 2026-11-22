@@ -6,6 +6,7 @@ import { Sparkles, Calendar, MapPin, Clock, Volume2, VolumeX, X } from "lucide-r
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { InviteGiftSection } from "../InviteGiftSection";
 
 interface LotusPremiumLayoutProps {
   event: any;
@@ -1925,6 +1926,13 @@ const LotusPremiumLayout: React.FC<LotusPremiumLayoutProps> = ({
           </div>
         </div>
       </div>
+
+      <InviteGiftSection
+        eventId={event?.id}
+        giftsEnabled={event?.gifts_enabled}
+        isVerified={isVerified}
+        attendeeId={attendee?.id}
+      />
 
       {/* Brand Footer */}
       <footer className="w-full bg-[#4A1C2A]/95 backdrop-blur-md text-[#FFF8F4] py-8 px-4 text-center mt-auto border-t border-[#4A1C2A]/20 z-10 relative">

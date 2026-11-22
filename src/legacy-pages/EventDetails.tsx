@@ -31,6 +31,7 @@ import { Event } from "@/types/event";
 import { useAuth } from "@/components/AuthProvider";
 import { AttendanceChart } from "@/components/event/AttendanceChart";
 import { EventGuestList } from "@/components/event/EventGuestList";
+import { EventGiftSection } from "@/components/event/EventGiftSection";
 import { EventAgenda } from "@/components/event/EventAgenda";
 import { Guest } from "@/types/event-form";
 import { parseGuestCsv } from "@/lib/parseGuestCsv";
@@ -1324,6 +1325,13 @@ export default function EventDetails() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {isOwnerOrAdmin && (
+              <EventGiftSection
+                eventId={event.id}
+                giftsEnabled={event.gifts_enabled === true}
+              />
             )}
 
             {/* Guest Management Section */}

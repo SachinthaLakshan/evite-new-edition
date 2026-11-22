@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon, ClockIcon, MapPinIcon, ImageIcon, XIcon, PhoneIcon, Music } from "lucide-react";
 import { TimePicker } from "@/components/ui/time-picker";
 import { Switch } from "@/components/ui/switch";
+import { EventGiftSettings } from "@/components/event/EventGiftSettings";
+import { BankAccountDraft } from "@/lib/gifts";
 
 interface EventBasicDetailsProps {
   formData: {
@@ -19,6 +21,7 @@ interface EventBasicDetailsProps {
     location_url?: string;
     mobile_number: string;
     show_maybe_button?: boolean;
+    gifts_enabled?: boolean;
   };
   errors: Partial<{
     title: string;
@@ -46,6 +49,9 @@ interface EventBasicDetailsProps {
   getMinDate: () => string;
   getMinTime: () => string;
   onToggleMaybeButton?: (checked: boolean) => void;
+  bankAccounts?: BankAccountDraft[];
+  onBankAccountsChange?: (accounts: BankAccountDraft[]) => void;
+  onToggleGiftsEnabled?: (checked: boolean) => void;
 }
 
 export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
@@ -66,6 +72,9 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
   getMinDate,
   getMinTime,
   onToggleMaybeButton,
+  bankAccounts,
+  onBankAccountsChange,
+  onToggleGiftsEnabled,
 }) => {
   return (
     <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm border">
@@ -378,6 +387,17 @@ export const EventBasicDetails: React.FC<EventBasicDetailsProps> = ({
             />
           </div>
         </div>
+
+        {bankAccounts && onBankAccountsChange && onToggleGiftsEnabled && (
+          <div className="pt-4 border-t">
+            <EventGiftSettings
+              enabled={formData.gifts_enabled ?? false}
+              accounts={bankAccounts}
+              onEnabledChange={onToggleGiftsEnabled}
+              onAccountsChange={onBankAccountsChange}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

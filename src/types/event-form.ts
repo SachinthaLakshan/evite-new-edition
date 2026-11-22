@@ -18,6 +18,7 @@ export interface FormData {
   audio_url?: string | null;
   opener_style?: string | null;
   show_maybe_button?: boolean;
+  gifts_enabled?: boolean;
 }
 
 export interface Guest {

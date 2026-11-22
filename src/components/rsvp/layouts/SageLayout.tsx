@@ -9,6 +9,7 @@ import { EnvelopeOpener } from "../openers/EnvelopeOpener";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { InviteGiftSection } from "../InviteGiftSection";
 
 interface SageLayoutProps {
   event: any;
@@ -1673,6 +1674,13 @@ const SageLayout: React.FC<SageLayoutProps> = ({
           </div>
         </div>
       </div>
+
+      <InviteGiftSection
+        eventId={event?.id}
+        giftsEnabled={event?.gifts_enabled}
+        isVerified={isVerified}
+        attendeeId={attendee?.id}
+      />
 
       {/* Brand Footer */}
       <footer className="w-full bg-[#132F1C]/95 backdrop-blur-md text-[#F6F8F5] py-8 px-4 text-center mt-auto border-t border-[#132F1C]/20 z-10 relative">

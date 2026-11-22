@@ -9,6 +9,7 @@ import { EnvelopeOpener } from "../openers/EnvelopeOpener";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { InviteGiftSection } from "../InviteGiftSection";
 
 interface RedRoseClassicLayoutProps {
   event: any;
@@ -1493,6 +1494,13 @@ const RedRoseClassicLayout: React.FC<RedRoseClassicLayoutProps> = ({
           </div>
         </div>
       </div>
+
+      <InviteGiftSection
+        eventId={event?.id}
+        giftsEnabled={event?.gifts_enabled}
+        isVerified={isVerified}
+        attendeeId={attendee?.id}
+      />
 
       {/* Brand Footer */}
       <footer className="w-full bg-[#7F1D1D]/95 backdrop-blur-md text-red-100 py-8 px-4 text-center mt-auto border-t border-red-950/20 z-10 relative">

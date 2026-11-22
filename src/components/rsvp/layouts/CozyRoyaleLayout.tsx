@@ -6,6 +6,7 @@ import { Sparkles, Calendar, MapPin, Clock, Volume2, VolumeX, X } from "lucide-r
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { InviteGiftSection } from "../InviteGiftSection";
 
 interface CozyRoyaleLayoutProps {
   event: any;
@@ -1926,6 +1927,13 @@ const CozyRoyaleLayout: React.FC<CozyRoyaleLayoutProps> = ({
           </div>
         </div>
       </div>
+
+      <InviteGiftSection
+        eventId={event?.id}
+        giftsEnabled={event?.gifts_enabled}
+        isVerified={isVerified}
+        attendeeId={attendee?.id}
+      />
 
       {/* Brand Footer */}
       <footer className="w-full bg-[#2F3D32]/95 backdrop-blur-md text-[#F7F6F1] py-8 px-4 text-center mt-auto border-t border-[#2F3D32]/20 z-10 relative">

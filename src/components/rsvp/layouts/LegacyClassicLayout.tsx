@@ -7,6 +7,7 @@ import { EnvelopeOpener } from "../openers/EnvelopeOpener";
 import { Sparkles, Volume2, VolumeX, MapPin, ChevronDown, X, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { InviteGiftSection } from "../InviteGiftSection";
 import {
   Carousel,
   CarouselContent,
@@ -686,6 +687,13 @@ const LegacyClassicLayout: React.FC<LegacyClassicLayoutProps> = ({
           />
         </motion.div>
       </section>
+
+      <InviteGiftSection
+        eventId={event?.id}
+        giftsEnabled={event?.gifts_enabled}
+        isVerified={isVerified}
+        attendeeId={attendee?.id}
+      />
 
       <audio ref={audioRef} src={event?.audio_url || "/soft-background-music.mp3"} loop />
     </div>
