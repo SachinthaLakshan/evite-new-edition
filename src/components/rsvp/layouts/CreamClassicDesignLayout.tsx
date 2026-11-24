@@ -8,6 +8,7 @@ import { Sparkles, Volume2, VolumeX, MapPin, ChevronDown, X, Calendar } from "lu
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { InviteGiftSection } from "../InviteGiftSection";
+import { OpenRsvpSection } from "../OpenRsvp";
 import {
   Carousel,
   CarouselContent,
@@ -484,6 +485,7 @@ const CreamClassicDesignLayout: React.FC<CreamClassicDesignLayoutProps> = ({
         
 
         <div id="rsvp-section" className="mt-10 w-full max-w-xl">
+          <OpenRsvpSection event={event} tone="dark">
             <div className="space-y-3">
               <p className="text-xl text-amber-100" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Hi {attendee?.name || "Guest"}! Let us know you&apos;re coming</p>
               <div className="flex flex-wrap justify-center gap-2">
@@ -515,6 +517,7 @@ const CreamClassicDesignLayout: React.FC<CreamClassicDesignLayoutProps> = ({
                 )}
               </div>
             </div>
+          </OpenRsvpSection>
         </div>
 
         <ChevronDown className="h-8 w-8 mt-10 animate-bounce text-amber-200/90" />

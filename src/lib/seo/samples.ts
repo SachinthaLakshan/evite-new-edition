@@ -64,6 +64,15 @@ export const SAMPLE_PAGES: SamplePage[] = [
     imagePath: "/assets/cozyroyale.jpeg",
     livePreviewUrl: "https://www.evite.lk/s/Wmsih",
   },
+  {
+    slug: "blushgardenromance",
+    title: "Blush Garden Romance Wedding Invitation",
+    description:
+      "Blush Garden Romance digital wedding invitation with a floral opener, petal fall, fullscreen open video, gallery, and RSVP. From Rs. 2,999.",
+    style: "Blush floral",
+    imagePath: "/blush-garden-romance-assets/opener-back.jpeg",
+    livePreviewUrl: "/preview/blush-garden-romance",
+  },
 ];
 
 export function getSamplePage(slug: string) {

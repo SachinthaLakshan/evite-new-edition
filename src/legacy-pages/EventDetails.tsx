@@ -31,6 +31,7 @@ import { Event } from "@/types/event";
 import { useAuth } from "@/components/AuthProvider";
 import { AttendanceChart } from "@/components/event/AttendanceChart";
 import { EventGuestList } from "@/components/event/EventGuestList";
+import { SharedInviteLink } from "@/components/event/SharedInviteLink";
 import { EventGiftSection } from "@/components/event/EventGiftSection";
 import { EventAgenda } from "@/components/event/EventAgenda";
 import { Guest } from "@/types/event-form";
@@ -109,6 +110,7 @@ type EditEventFormState = {
   audio_url: string;
   opener_style: string;
   show_maybe_button: boolean;
+  open_rsvp: boolean;
 };
 
 export default function EventDetails() {
@@ -147,7 +149,9 @@ export default function EventDetails() {
             id,
             name,
             whatsapp_number,
-            response
+            response,
+            party_size,
+            rsvp_source
           )
         `,
         )
@@ -267,6 +271,7 @@ export default function EventDetails() {
     audio_url: "",
     opener_style: "button",
     show_maybe_button: true,
+    open_rsvp: false,
   });
 
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -364,6 +369,7 @@ export default function EventDetails() {
       audio_url: event.audio_url || "",
       opener_style: event.opener_style || "button",
       show_maybe_button: event.show_maybe_button !== false,
+      open_rsvp: event.open_rsvp === true,
     });
     setAgenda(event.agenda || []);
     
@@ -711,13 +717,14 @@ export default function EventDetails() {
           audio_url: nextAudioUrl,
           opener_style: editForm.opener_style || "button",
           show_maybe_button: editForm.show_maybe_button,
+          open_rsvp: editForm.open_rsvp === true,
           agenda: agenda,
         })
         .eq("id", id);
 
       if (error) throw error;
 
-      if (guests.length > 0) {
+      if (!editForm.open_rsvp && guests.length > 0) {
         const { error: guestsError } = await supabase.from("attendees").insert(
           guests.map((guest) => ({
             event_id: id,
@@ -985,13 +992,18 @@ export default function EventDetails() {
                               <option value="creamclassicdesign">Cream Classic Design</option>
                               <option value="lotuspremium">Lotus Premium</option>
                               <option value="cozyroyale">Cozy Royale</option>
+                              <option value="blushgardenromance">Blush Garden Romance</option>
                             </select>
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="edit-opener-style" className="text-sm font-semibold text-gray-700">Invite Opener Style</Label>
-                            {editForm.theme_id === "lotuspremium" || editForm.theme_id === "cozyroyale" ? (
+                            {editForm.theme_id === "lotuspremium" || editForm.theme_id === "cozyroyale" || editForm.theme_id === "blushgardenromance" ? (
                               <p className="text-sm text-gray-600 leading-relaxed">
-                                {editForm.theme_id === "cozyroyale" ? "Cozy Royale" : "Lotus Premium"} uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes.
+                                {editForm.theme_id === "blushgardenromance"
+                                  ? "Blush Garden Romance uses its own fullscreen video opener. Guests tap Open Invitation, the video plays, and the invitation opens when the video finishes."
+                                  : editForm.theme_id === "cozyroyale"
+                                    ? "Cozy Royale uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes."
+                                    : "Lotus Premium uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes."}
                               </p>
                             ) : (
                               <select
@@ -1039,13 +1051,23 @@ export default function EventDetails() {
                         />
                       </TabsContent>
 
-                      <TabsContent value="guests" className="focus-visible:outline-none">
-                        <div className="border rounded-lg p-4 bg-gray-50/50">
-                          <h3 className="font-semibold text-lg text-gray-900 mb-1">Add New Guests</h3>
-                          <p className="text-sm text-gray-500 mb-4">
-                            Add more people to the guest list. These will be added as new pending attendees.
+                      <TabsContent value="guests" className="min-w-0 focus-visible:outline-none">
+                        <div className="min-w-0 rounded-lg border bg-gray-50/50 p-3 sm:p-4">
+                          <h3 className="mb-1 text-lg font-semibold text-gray-900">
+                            {editForm.open_rsvp ? "Shared invitation" : "Add New Guests"}
+                          </h3>
+                          <p className="mb-4 text-sm text-gray-500">
+                            {editForm.open_rsvp
+                              ? "Save the event so guests can reply from this one short link."
+                              : "Add more people to the guest list. These will be added as new pending attendees."}
                           </p>
                           <EventGuestList
+                            embedded
+                            openRsvp={editForm.open_rsvp}
+                            onOpenRsvpChange={(checked) =>
+                              setEditForm((prev) => ({ ...prev, open_rsvp: checked }))
+                            }
+                            eventId={id}
                             guests={guests}
                             newGuest={newGuest}
                             guestInputMethod={guestInputMethod}
@@ -1335,13 +1357,22 @@ export default function EventDetails() {
             )}
 
             {/* Guest Management Section */}
-            {event.attendees && event.attendees.length > 0 && (
+            {(event.open_rsvp || (event.attendees && event.attendees.length > 0)) && (
               <Card className="border border-gray-100 shadow-sm">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl font-bold text-gray-900">Guest Directory</CardTitle>
                   <p className="text-sm text-gray-500">Manage invitations, RSVPs and delivery status</p>
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6">
+                  {event.open_rsvp ? (
+                    <div className="mb-6 min-w-0 rounded-xl border border-[#1E4A42]/15 bg-[#F7F3EA] p-4">
+                      <h4 className="text-sm font-semibold text-[#1E4A42]">Common invitation link</h4>
+                      <p className="mt-1 text-sm text-[#1E4A42]/80">
+                        Send this short link to every guest. They open the same invitation and send their own RSVP.
+                      </p>
+                      <SharedInviteLink eventId={event.id} />
+                    </div>
+                  ) : null}
                   
                   {/* Custom Invitation Message Edit Block */}
                   <div className="bg-purple-50/20 border border-purple-100/80 rounded-xl p-4 mb-6 space-y-3">
@@ -1409,6 +1440,7 @@ export default function EventDetails() {
                         }`}
                       >
                         Accepted ({event.attendees.filter(a => a.response === 'accepted').length})
+                        {event.open_rsvp ? ` · ${event.attendees.reduce((sum, attendee) => sum + (attendee.response === "accepted" ? (attendee.party_size && attendee.party_size > 0 ? attendee.party_size : 1) : 0), 0)} coming` : ""}
                       </button>
                       <button
                         onClick={() => setGuestFilter("pending")}
@@ -1456,6 +1488,11 @@ export default function EventDetails() {
                             <TableRow key={attendee.id} className="hover:bg-gray-50/40 transition-colors">
                               <TableCell className="font-medium text-gray-900">
                                 {attendee.name}
+                                {event.open_rsvp && attendee.response === "accepted" ? (
+                                  <p className="text-xs font-normal text-gray-500">
+                                    {(attendee.party_size && attendee.party_size > 0 ? attendee.party_size : 1)} attending
+                                  </p>
+                                ) : null}
                               </TableCell>
                               <TableCell>
                                 {attendee.whatsapp_number ? (
@@ -1901,6 +1938,7 @@ export default function EventDetails() {
                 </CardHeader>
                 <CardContent>
                   <AttendanceChart
+                    countPartySize={event.open_rsvp === true}
                     attendees={event.attendees.map((attendee) => ({
                       ...attendee,
                       response: attendee.response || "pending",

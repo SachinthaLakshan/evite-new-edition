@@ -43,6 +43,7 @@ export const useEventForm = () => {
     opener_style: "button",
     show_maybe_button: true,
     gifts_enabled: false,
+    open_rsvp: false,
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -323,6 +324,7 @@ export const useEventForm = () => {
           opener_style: formData.opener_style || "button",
           show_maybe_button: formData.show_maybe_button ?? true,
           gifts_enabled: formData.gifts_enabled ?? false,
+          open_rsvp: formData.open_rsvp === true,
           meta_image_url: metaImageBlob
             ? await uploadEventMetaImage({
                 blob: metaImageBlob,
@@ -345,7 +347,7 @@ export const useEventForm = () => {
         }
       }
 
-      if (guests.length > 0) {
+      if (!formData.open_rsvp && guests.length > 0) {
         const { error: guestsError } = await supabase.from("attendees").insert(
           guests.map((guest) => ({
             event_id: eventData.id,

@@ -7,6 +7,7 @@ import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { InviteGiftSection } from "../InviteGiftSection";
+import { OpenRsvpSection } from "../OpenRsvp";
 
 interface CozyRoyaleLayoutProps {
   event: any;
@@ -1548,7 +1549,7 @@ const CozyRoyaleLayout: React.FC<CozyRoyaleLayoutProps> = ({
             transition={{ duration: 0.9, delay: 0.25 }}
             className="cr-rsvp"
           >
-            
+            <OpenRsvpSection event={event}>
               <>
                 <p className="cr-greet">
                   {rsvpSubmittedMsg ? "Thank you" : `Dear ${attendee?.name || "Guest"}`}
@@ -1584,7 +1585,7 @@ const CozyRoyaleLayout: React.FC<CozyRoyaleLayoutProps> = ({
                   )}
                 </div>
               </>
-            
+            </OpenRsvpSection>
           </motion.div>
 
           <FloralRule />

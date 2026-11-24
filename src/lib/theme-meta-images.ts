@@ -72,6 +72,7 @@ const THEME_META_ORDER = [
   "creamclassicdesign",
   "lotuspremium",
   "cozyroyale",
+  "blushgardenromance",
 ];
 
 export function sortThemeMetaImages<T extends { theme_id: string }>(rows: T[]): T[] {

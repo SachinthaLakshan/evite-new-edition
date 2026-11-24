@@ -6,13 +6,17 @@ import { Card, CardContent } from "@/components/ui/card";
 interface AttendanceChartProps {
   attendees: Attendee[];
   size?: "small" | "large";
+  countPartySize?: boolean;
 }
 
-export function AttendanceChart({ attendees, size = "large" }: AttendanceChartProps) {
+export function AttendanceChart({ attendees, size = "large", countPartySize = false }: AttendanceChartProps) {
   const responseCount = attendees.reduce(
     (acc, attendee) => {
       const response = attendee.response || "pending";
-      acc[response] = (acc[response] || 0) + 1;
+      const people = countPartySize && response === "accepted"
+        ? (attendee.party_size && attendee.party_size > 0 ? attendee.party_size : 1)
+        : 1;
+      acc[response] = (acc[response] || 0) + people;
       return acc;
     },
     {} as Record<string, number>
@@ -35,13 +39,13 @@ export function AttendanceChart({ attendees, size = "large" }: AttendanceChartPr
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-sm text-gray-500">Total</p>
+            <p className="text-sm text-gray-500">{countPartySize ? "Replies" : "Total"}</p>
             <p className="text-2xl font-bold">{attendees.length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-sm text-gray-500">Accepted</p>
+            <p className="text-sm text-gray-500">{countPartySize ? "Coming" : "Accepted"}</p>
             <p className="text-2xl font-bold text-green-600">{responseCount.accepted || 0}</p>
           </CardContent>
         </Card>

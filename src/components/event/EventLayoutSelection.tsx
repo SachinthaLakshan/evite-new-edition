@@ -60,6 +60,12 @@ export const layoutOptions: LayoutOption[] = [
     description: "Fullscreen video opener with a tap-to-open seal, sage floral artwork, countdown, schedule, gallery, and RSVP",
     bgImage: "/assets/cozyroyale.jpeg",
   },
+  {
+    id: "blushgardenromance",
+    name: "Blush Garden Romance",
+    description: "Blush floral opener with a spinning medallion, petal fall, fullscreen open video, countdown, schedule, gallery, and RSVP",
+    bgImage: "/blush-garden-romance-assets/opener-back.jpeg",
+  },
 ];
 
 interface EventLayoutSelectionProps {

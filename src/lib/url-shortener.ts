@@ -87,6 +87,26 @@ export async function createAttendeeShortUrl(
  * @param expirationDays Number of days until the short URL expires (default: 30)
  * @returns The shortened URL
  */
+export async function getOrCreateEventShortUrl(eventId: string): Promise<string> {
+  const baseUrl = getBaseUrl();
+  const longUrl = `${baseUrl}/response?eventId=${eventId}`;
+  if (!baseUrl) return longUrl;
+
+  const { data } = await supabase
+    .from("short_urls")
+    .select("short_id, expires_at")
+    .eq("original_url", longUrl)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const existing = data?.[0];
+  if (existing?.short_id && existing.expires_at && new Date(existing.expires_at) > new Date()) {
+    return `${baseUrl}/s/${existing.short_id}`;
+  }
+
+  return createShortUrl(longUrl, 180);
+}
+
 export async function createShortUrl(
   longUrl: string,
   expirationDays = 30,

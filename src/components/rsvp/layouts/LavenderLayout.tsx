@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { InviteGiftSection } from "../InviteGiftSection";
+import { OpenRsvpSection } from "../OpenRsvp";
 
 interface LavenderLayoutProps {
   event: any;
@@ -1429,6 +1430,7 @@ const LavenderLayout: React.FC<LavenderLayoutProps> = ({
             transition={{ duration: 1.5, cubicBezier: [0.16, 1, 0.3, 1], delay: 0.6 }}
             className="w-full max-w-[460px] flex flex-col items-center gap-4 text-center mt-2 px-4"
           >
+            <OpenRsvpSection event={event}>
             {/* If NOT verified: Verification flow styled in lavender theme */}
             {!isVerified ? (
               <div className="w-full space-y-4">
@@ -1496,6 +1498,7 @@ const LavenderLayout: React.FC<LavenderLayoutProps> = ({
                 </AnimatePresence>
               </div>
             )}
+            </OpenRsvpSection>
 
             {/* Dark Purple Chevron Arrow for scrolling down */}
             <div className="scroll-arrow-el mt-6 cursor-pointer" onClick={scrollToContent}>

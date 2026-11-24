@@ -7,6 +7,7 @@ import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { InviteGiftSection } from "../InviteGiftSection";
+import { OpenRsvpSection } from "../OpenRsvp";
 
 interface LotusPremiumLayoutProps {
   event: any;
@@ -1548,7 +1549,7 @@ const LotusPremiumLayout: React.FC<LotusPremiumLayoutProps> = ({
             transition={{ duration: 0.9, delay: 0.25 }}
             className="lp-rsvp"
           >
-            
+            <OpenRsvpSection event={event}>
               <>
                 <p className="lp-greet">
                   {rsvpSubmittedMsg ? "Thank you" : `Dear ${attendee?.name || "Guest"}`}
@@ -1584,6 +1585,7 @@ const LotusPremiumLayout: React.FC<LotusPremiumLayoutProps> = ({
                   )}
                 </div>
               </>
+            </OpenRsvpSection>
           </motion.div>
 
           <LotusRule />

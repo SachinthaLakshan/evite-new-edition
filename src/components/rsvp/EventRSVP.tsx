@@ -6,6 +6,7 @@ import VerificationForm from "./forms/VerificationForm";
 import RSVPForm from "./forms/RSVPForm";
 import MinimalRSVP from "./MinimalRSVP";
 import { InviteGiftSection } from "./InviteGiftSection";
+import { OpenRsvpSection } from "./OpenRsvp";
 
 interface EventRSVPProps {
   event: any;
@@ -43,6 +44,19 @@ const EventRSVP: React.FC<EventRSVPProps> = ({
       attendeeId={attendee?.id}
     />
   );
+
+  if (event?.open_rsvp === true) {
+    return (
+      <section className="py-16" id="rsvp-section">
+        <div className="container mx-auto px-4 max-w-2xl flex justify-center">
+          <OpenRsvpSection event={event}>
+            <span />
+          </OpenRsvpSection>
+        </div>
+        {giftSection}
+      </section>
+    );
+  }
 
   if (isGreyTheme) {
     return (

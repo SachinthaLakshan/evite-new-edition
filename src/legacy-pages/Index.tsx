@@ -113,6 +113,16 @@ const Landing: React.FC = () => {
       imageUrl:'/assets/invite-sage.png',
       samplePath:'/samples/sage',
       id:6
+    },
+    {
+      date: new Date('2026-11-11'),
+      title:'The Wedding',
+      groom_name:'Shan',
+      bride_name:'Anu',
+      url:'/preview/blush-garden-romance',
+      imageUrl:'/blush-garden-romance-assets/opener-back.jpeg',
+      samplePath:'/samples/blushgardenromance',
+      id:7
     }
   ]
 

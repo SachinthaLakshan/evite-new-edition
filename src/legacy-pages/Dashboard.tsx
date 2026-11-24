@@ -64,7 +64,8 @@ const Dashboard = () => {
             email,
             whatsapp_number,
             response,
-            link_shared
+            link_shared,
+            party_size
           )
         `,
         )

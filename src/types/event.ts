@@ -30,6 +30,7 @@ export interface Event {
   show_maybe_button?: boolean | null;
   meta_image_url?: string | null;
   gifts_enabled?: boolean | null;
+  open_rsvp?: boolean | null;
 
   created_at?: string;
   updated_at?: string;
@@ -42,6 +43,8 @@ export interface Attendee {
   response: AttendeeResponse;
   link_shared?: boolean;
   event_id?: string;
+  party_size?: number | null;
+  rsvp_source?: string | null;
 }
 
 export interface AgendaItem {

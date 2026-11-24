@@ -358,9 +358,13 @@ const CreateEventForm = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <span>✉️</span> Invite Opener Style
               </h3>
-              {formData.theme_id === "lotuspremium" || formData.theme_id === "cozyroyale" ? (
+              {formData.theme_id === "lotuspremium" || formData.theme_id === "cozyroyale" || formData.theme_id === "blushgardenromance" ? (
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  {formData.theme_id === "cozyroyale" ? "Cozy Royale" : "Lotus Premium"} uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes.
+                  {formData.theme_id === "blushgardenromance"
+                    ? "Blush Garden Romance uses its own fullscreen video opener. Guests tap Open Invitation, the video plays, and the invitation opens when the video finishes."
+                    : formData.theme_id === "cozyroyale"
+                      ? "Cozy Royale uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes."
+                      : "Lotus Premium uses its own fullscreen video opener. Guests tap the seal in the center to play the video, and the invitation opens when the video finishes."}
                 </p>
               ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -425,8 +429,12 @@ const CreateEventForm = () => {
         )}
 
         {currentStep === 4 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="min-w-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <EventGuestList
+              openRsvp={formData.open_rsvp === true}
+              onOpenRsvpChange={(checked) =>
+                setFormData((prev) => ({ ...prev, open_rsvp: checked }))
+              }
               guests={guests}
               newGuest={newGuest}
               guestInputMethod={guestInputMethod}

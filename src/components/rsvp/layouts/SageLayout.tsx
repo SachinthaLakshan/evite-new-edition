@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { InviteGiftSection } from "../InviteGiftSection";
+import { OpenRsvpSection } from "../OpenRsvp";
 
 interface SageLayoutProps {
   event: any;
@@ -1262,6 +1263,7 @@ const SageLayout: React.FC<SageLayoutProps> = ({
             transition={{ duration: 1.5, cubicBezier: [0.16, 1, 0.3, 1], delay: 0.6 }}
             className="w-full max-w-[460px] flex flex-col items-center gap-4 text-center mt-2 px-4"
           >
+            <OpenRsvpSection event={event}>
               <div className="w-full space-y-4">
                 {rsvpSubmittedMsg ? (
                   <motion.div 
@@ -1304,7 +1306,7 @@ const SageLayout: React.FC<SageLayoutProps> = ({
                   )}
                 </div>
               </div>
-            
+            </OpenRsvpSection>
 
             {/* Sage Chevron Arrow for scrolling down */}
             <div className="scroll-arrow-el mt-6 cursor-pointer" onClick={scrollToContent}>

@@ -19,6 +19,7 @@ export interface FormData {
   opener_style?: string | null;
   show_maybe_button?: boolean;
   gifts_enabled?: boolean;
+  open_rsvp?: boolean;
 }
 
 export interface Guest {

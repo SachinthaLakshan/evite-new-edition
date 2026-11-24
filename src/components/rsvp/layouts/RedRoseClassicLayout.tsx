@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { InviteGiftSection } from "../InviteGiftSection";
+import { OpenRsvpSection } from "../OpenRsvp";
 
 interface RedRoseClassicLayoutProps {
   event: any;
@@ -1051,6 +1052,7 @@ const RedRoseClassicLayout: React.FC<RedRoseClassicLayoutProps> = ({
             transition={{ duration: 1.5, cubicBezier: [0.16, 1, 0.3, 1], delay: 0.6 }}
             className="w-full max-w-[460px] flex flex-col items-center gap-4 text-center mt-2 px-4"
           >
+            <OpenRsvpSection event={event}>
             {/* If NOT verified: Verification flow styled in red rose theme */}
             {!isVerified ? (
               <div className="w-full space-y-4">
@@ -1118,6 +1120,7 @@ const RedRoseClassicLayout: React.FC<RedRoseClassicLayoutProps> = ({
                 </div>
               </div>
             )}
+            </OpenRsvpSection>
 
             {/* Chevron Arrow for scrolling down */}
             <div className="scroll-arrow-el mt-6 cursor-pointer" onClick={scrollToContent}>

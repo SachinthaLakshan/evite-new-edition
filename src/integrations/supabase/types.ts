@@ -19,6 +19,8 @@ export type Database = {
           name: string
           response: string | null
           whatsapp_number: string | null
+          party_size?: number | null
+          rsvp_source?: string | null
         }
         Insert: {
           created_at?: string
@@ -29,6 +31,8 @@ export type Database = {
           name: string
           response?: string | null
           whatsapp_number?: string | null
+          party_size?: number | null
+          rsvp_source?: string | null
         }
         Update: {
           created_at?: string
@@ -39,6 +43,8 @@ export type Database = {
           name?: string
           response?: string | null
           whatsapp_number?: string | null
+          party_size?: number | null
+          rsvp_source?: string | null
         }
         Relationships: [
           {
@@ -162,6 +168,7 @@ export type Database = {
           show_maybe_button?: boolean | null
           meta_image_url?: string | null
           gifts_enabled?: boolean | null
+          open_rsvp?: boolean | null
         }
         Insert: {
           agenda?: Json | null
@@ -188,6 +195,7 @@ export type Database = {
           show_maybe_button?: boolean | null
           meta_image_url?: string | null
           gifts_enabled?: boolean | null
+          open_rsvp?: boolean | null
         }
         Update: {
           agenda?: Json | null
@@ -214,6 +222,7 @@ export type Database = {
           show_maybe_button?: boolean | null
           meta_image_url?: string | null
           gifts_enabled?: boolean | null
+          open_rsvp?: boolean | null
         }
         Relationships: []
       }
@@ -486,6 +495,16 @@ export type Database = {
       cleanup_expired_short_urls: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      submit_open_rsvp: {
+        Args: {
+          p_event_id: string
+          p_name: string
+          p_whatsapp: string
+          p_attending: boolean
+          p_party_size: number
+        }
+        Returns: Json
       }
     }
     Enums: {
