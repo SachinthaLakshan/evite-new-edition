@@ -29,7 +29,6 @@ type SavedReply = {
   dial: string;
   localNumber: string;
   attending: boolean;
-  partySize: number;
 };
 
 function storageKey(eventId: string) {
@@ -116,35 +115,29 @@ function OpenRsvpLaunch({
   );
 }
 
-export function OpenRsvpDialog({
+export function OpenRsvpForm({
   eventId,
-  open,
-  onOpenChange,
   onSaved,
 }: {
   eventId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   onSaved?: () => void;
 }) {
   const [name, setName] = useState("");
   const [dial, setDial] = useState("94");
   const [localNumber, setLocalNumber] = useState("");
   const [attending, setAttending] = useState<boolean | null>(null);
-  const [partySize, setPartySize] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!open || !eventId) return;
+    if (!eventId) return;
     const saved = readSavedReply(eventId);
     if (!saved) return;
     setName(saved.name);
     setDial(saved.dial);
     setLocalNumber(saved.localNumber);
     setAttending(saved.attending);
-    setPartySize(saved.partySize);
-  }, [open, eventId]);
+  }, [eventId]);
 
   const submit = async () => {
     setError("");
@@ -169,7 +162,7 @@ export function OpenRsvpDialog({
       p_name: trimmedName,
       p_whatsapp: `+${dial}${digits}`,
       p_attending: attending,
-      p_party_size: partySize,
+      p_party_size: 1,
     });
     setSubmitting(false);
 
@@ -183,21 +176,13 @@ export function OpenRsvpDialog({
       dial,
       localNumber: digits,
       attending,
-      partySize,
     };
     window.localStorage.setItem(storageKey(eventId), JSON.stringify(reply));
     onSaved?.();
     toast.success(attending ? "Your RSVP is saved. We can't wait to see you." : "Your RSVP is saved.");
-    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="z-[80] max-h-[92dvh] overflow-y-auto border-[#1E4A42]/15 bg-[#F7F3EA] p-5 sm:max-w-[420px] sm:rounded-[28px]">
-        <DialogTitle className="sr-only">Send RSVP</DialogTitle>
-        <DialogDescription className="sr-only">
-          Share your name, WhatsApp number, and whether you will attend.
-        </DialogDescription>
         <form
           className="space-y-5 text-[#1E4A42]"
           onSubmit={(event) => {
@@ -271,39 +256,9 @@ export function OpenRsvpDialog({
             </div>
           </fieldset>
 
-          <div className="space-y-2">
-            <span className="text-sm font-medium">Number of Guests</span>
-            <div className="flex items-center justify-center gap-6 py-1">
-              <button
-                type="button"
-                aria-label="Fewer guests"
-                disabled={partySize <= 1}
-                onClick={() => setPartySize((value) => Math.max(1, value - 1))}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#1E4A42]/30 text-xl text-[#1E4A42] disabled:opacity-40"
-              >
-                −
-              </button>
-              <span className="min-w-8 text-center text-3xl font-semibold">{partySize}</span>
-              <button
-                type="button"
-                aria-label="More guests"
-                disabled={partySize >= 20}
-                onClick={() => setPartySize((value) => Math.min(20, value + 1))}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#1E4A42]/30 text-xl text-[#1E4A42] disabled:opacity-40"
-              >
-                +
-              </button>
-            </div>
-            {attending === false ? (
-              <p className="text-center text-xs text-[#1E4A42]/70">
-                A decline is saved, and these guests are not counted as attending.
-              </p>
-            ) : (
-              <p className="text-center text-xs text-[#1E4A42]/70">
-                Include yourself. Use the same WhatsApp number if you need to update this reply.
-              </p>
-            )}
-          </div>
+          <p className="text-center text-xs text-[#1E4A42]/70">
+            Each reply counts as one guest. Use the same WhatsApp number if you need to update it.
+          </p>
 
           {error ? <p className="text-sm text-red-700">{error}</p> : null}
 
@@ -316,7 +271,55 @@ export function OpenRsvpDialog({
             {submitting ? "SENDING" : "SEND RSVP"}
           </button>
         </form>
+  );
+}
+
+export function OpenRsvpDialog({
+  eventId,
+  open,
+  onOpenChange,
+  onSaved,
+}: {
+  eventId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSaved?: () => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="z-[80] max-h-[92dvh] overflow-y-auto border-[#1E4A42]/15 bg-[#F7F3EA] p-5 sm:max-w-[420px] sm:rounded-[28px]">
+        <DialogTitle className="sr-only">Send RSVP</DialogTitle>
+        <DialogDescription className="sr-only">
+          Share your name, WhatsApp number, and whether you will attend.
+        </DialogDescription>
+        {open ? (
+          <OpenRsvpForm
+            eventId={eventId}
+            onSaved={() => {
+              onSaved?.();
+              onOpenChange(false);
+            }}
+          />
+        ) : null}
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function OpenRsvpPanel({
+  event,
+}: {
+  event: { id?: string; is_active?: boolean | null; open_rsvp?: boolean | null } | null;
+}) {
+  if (event?.open_rsvp !== true || !event.id) return null;
+  return (
+    <section className="bgr-rsvp-panel" id="rsvp">
+      <p className="bgr-rsvp-kicker">Kindly Reply</p>
+      <h2 className="bgr-rsvp-title">Send RSVP</h2>
+      <OpenRsvpForm eventId={event.id} />
+      {event.is_active === false ? (
+        <p className="mt-3 text-center text-xs text-[#6E564C]">This invitation is not accepting replies yet.</p>
+      ) : null}
+    </section>
   );
 }

@@ -65,7 +65,7 @@ export const EventGuestList: React.FC<EventGuestListProps> = ({
 
       {openRsvp ? (
         <p className="text-sm text-gray-600">
-          Guest-by-guest invites are hidden while this is on. Replies from the shared link appear in attendance, including how many people are coming.
+          Guest-by-guest invites are hidden while this is on. Each reply from the shared link counts as one guest.
           {guests.length > 0 ? " Names already typed here will not be added while the shared link is on." : ""}
         </p>
       ) : (

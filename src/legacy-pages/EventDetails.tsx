@@ -25,6 +25,7 @@ import {
   MessageCircle,
   Search,
   Music,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Event } from "@/types/event";
@@ -784,6 +785,36 @@ export default function EventDetails() {
     return matchesSearch && matchesFilter;
   });
 
+  const downloadGuestCsv = () => {
+    if (filteredAttendees.length === 0) {
+      toast.error("No guests to download for this filter.");
+      return;
+    }
+    const escapeCell = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const statusLabel = (response: string) =>
+      response ? response.charAt(0).toUpperCase() + response.slice(1) : "";
+    const lines = [
+      ["Name", "WhatsApp Number", "Status"].map(escapeCell).join(","),
+      ...filteredAttendees.map((attendee) =>
+        [
+          escapeCell(attendee.name || ""),
+          escapeCell(attendee.whatsapp_number || ""),
+          escapeCell(statusLabel(attendee.response)),
+        ].join(",")
+      ),
+    ];
+    const blob = new Blob([`\uFEFF${lines.join("\n")}`], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const safeTitle = (event.title || "guests").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "guests";
+    link.href = url;
+    link.download = `${safeTitle}-${guestFilter}-guests.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
@@ -1440,7 +1471,6 @@ export default function EventDetails() {
                         }`}
                       >
                         Accepted ({event.attendees.filter(a => a.response === 'accepted').length})
-                        {event.open_rsvp ? ` · ${event.attendees.reduce((sum, attendee) => sum + (attendee.response === "accepted" ? (attendee.party_size && attendee.party_size > 0 ? attendee.party_size : 1) : 0), 0)} coming` : ""}
                       </button>
                       <button
                         onClick={() => setGuestFilter("pending")}
@@ -1463,6 +1493,16 @@ export default function EventDetails() {
                         Declined ({event.attendees.filter(a => a.response === 'declined').length})
                       </button>
                     </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-9 shrink-0"
+                      onClick={downloadGuestCsv}
+                    >
+                      <Download className="h-3.5 w-3.5 mr-1.5" />
+                      Download CSV
+                    </Button>
                   </div>
 
                   {/* Desktop View Table */}
@@ -1488,11 +1528,6 @@ export default function EventDetails() {
                             <TableRow key={attendee.id} className="hover:bg-gray-50/40 transition-colors">
                               <TableCell className="font-medium text-gray-900">
                                 {attendee.name}
-                                {event.open_rsvp && attendee.response === "accepted" ? (
-                                  <p className="text-xs font-normal text-gray-500">
-                                    {(attendee.party_size && attendee.party_size > 0 ? attendee.party_size : 1)} attending
-                                  </p>
-                                ) : null}
                               </TableCell>
                               <TableCell>
                                 {attendee.whatsapp_number ? (
@@ -1517,6 +1552,8 @@ export default function EventDetails() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <div className="flex items-center justify-end gap-1.5">
+                                  {!event.open_rsvp && (
+                                  <>
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1577,6 +1614,8 @@ export default function EventDetails() {
                                   >
                                     <LinkIcon className="h-3.5 w-3.5" />
                                   </Button>
+                                  </>
+                                  )}
                                   {event.final_card_url && (
                                      <GuestInvitationDownloader
                                        attendeeName={attendee.name}
@@ -1585,6 +1624,7 @@ export default function EventDetails() {
                                    )}
                                    {isOwnerOrAdmin && (
                                      <>
+                                     {!event.open_rsvp && (
                                      <Button
                                        type="button"
                                        variant="ghost"
@@ -1602,6 +1642,7 @@ export default function EventDetails() {
                                        <PencilIcon className="h-3.5 w-3.5 mr-1" />
                                        Edit
                                      </Button>
+                                     )}
                                      <AlertDialog>
                                        <AlertDialogTrigger asChild>
                                          <Button
@@ -1682,6 +1723,7 @@ export default function EventDetails() {
                           )}
 
                           <div className="pt-2 border-t flex flex-col gap-2">
+                            {!event.open_rsvp && (
                             <div className="flex gap-2">
                               <Button
                                 type="button"
@@ -1727,7 +1769,10 @@ export default function EventDetails() {
                                 Share
                               </Button>
                             </div>
+                            )}
+                            {(!event.open_rsvp || event.final_card_url) && (
                             <div className="flex gap-2">
+                              {!event.open_rsvp && (
                               <Button
                                 type="button"
                                 variant="outline"
@@ -1746,6 +1791,7 @@ export default function EventDetails() {
                                 <LinkIcon className="h-3.5 w-3.5 mr-1.5" />
                                 Copy Link
                               </Button>
+                              )}
 
                               {event.final_card_url && (
                                 <div className="flex-1 w-full [&>button]:w-full [&>button]:justify-center [&>button]:h-9 [&>button]:border [&>button]:border-gray-200 [&>button]:text-xs">
@@ -1756,8 +1802,10 @@ export default function EventDetails() {
                                 </div>
                               )}
                             </div>
+                            )}
                             {isOwnerOrAdmin && (
                               <>
+                              {!event.open_rsvp && (
                               <Button
                                 type="button"
                                 variant="outline"
@@ -1773,6 +1821,7 @@ export default function EventDetails() {
                                 <PencilIcon className="h-3.5 w-3.5 mr-1.5" />
                                 Edit Guest
                               </Button>
+                              )}
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button
@@ -1938,7 +1987,6 @@ export default function EventDetails() {
                 </CardHeader>
                 <CardContent>
                   <AttendanceChart
-                    countPartySize={event.open_rsvp === true}
                     attendees={event.attendees.map((attendee) => ({
                       ...attendee,
                       response: attendee.response || "pending",

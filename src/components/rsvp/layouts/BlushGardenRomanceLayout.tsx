@@ -8,7 +8,7 @@ import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { InviteGiftSection } from "../InviteGiftSection";
-import { OpenRsvpSection } from "../OpenRsvp";
+import { OpenRsvpPanel, OpenRsvpSection } from "../OpenRsvp";
 
 interface BlushGardenRomanceLayoutProps {
   event: any;
@@ -22,6 +22,24 @@ interface BlushGardenRomanceLayoutProps {
   isPlaying: boolean;
   toggleMusic: () => void;
   audioRef: React.RefObject<HTMLAudioElement>;
+}
+
+function mapQueryForVenue(location?: string | null, locationUrl?: string | null): string | null {
+  if (locationUrl) {
+    try {
+      const url = new URL(locationUrl);
+      const query = url.searchParams.get("q") || url.searchParams.get("query");
+      if (query) return query;
+      const coords = url.href.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if (coords) return `${coords[1]},${coords[2]}`;
+      const place = url.pathname.match(/\/(?:place|search)\/([^/@]+)/);
+      if (place) return decodeURIComponent(place[1].replace(/\+/g, " "));
+    } catch {
+      // A short maps link still falls back to the written venue name.
+    }
+  }
+  const name = location?.trim();
+  return name || null;
 }
 
 const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
@@ -243,6 +261,7 @@ const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
       mod100 >= 11 && mod100 <= 13 ? "th" : ["th", "st", "nd", "rd"][day % 10] || "th";
     return `${weekday}, ${day}${suffix} ${month} ${year}`;
   };
+  const mapQuery = mapQueryForVenue(event.location, event.location_url);
   const dateMonth = eventDate.toLocaleDateString("en-US", { month: "long" }).toUpperCase();
   const dateDay = String(eventDate.getDate());
   const dateYear = String(eventDate.getFullYear());
@@ -665,10 +684,22 @@ const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
                 {(event.location || event.location_url) && (
                   <div className="flex flex-col items-center w-full" style={{ marginBottom: '20px' }}>
                     {event.location && (
-                      <p className="std-location" style={{ marginBottom: event.location_url ? '10px' : '0' }}>
+                      <p className="std-location" style={{ marginBottom: mapQuery || event.location_url ? '10px' : '0' }}>
                         <MapPin size={16} color="#C4A574" />
                         {event.location}
                       </p>
+                    )}
+                    {mapQuery && (
+                      <div className="bgr-map-frame">
+                        <iframe
+                          className="bgr-map"
+                          title={event.location ? `Map of ${event.location}` : "Venue map"}
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`}
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          allowFullScreen
+                        />
+                      </div>
                     )}
                     {event.location_url && (
                       <a
@@ -678,7 +709,7 @@ const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
                         className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-[#C4A574]/15 hover:bg-[#C4A574]/25 border border-[#C4A574]/30 transition-all text-xs font-semibold text-[#2E4A37] hover:text-[#1E3325] shadow-sm"
                       >
                         <MapPin size={12} />
-                        View Map
+                        View on Map
                       </a>
                     )}
                   </div>
@@ -894,6 +925,8 @@ const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
           </div>
         </div>
       </div>
+
+      <OpenRsvpPanel event={event} />
 
       <InviteGiftSection
         eventId={event?.id}

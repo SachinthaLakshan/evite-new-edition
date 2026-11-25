@@ -147,7 +147,7 @@ export function EventList({
                   <UsersIcon className="h-4 w-4" />
                   <span>
                     {event.open_rsvp
-                      ? `${event.attendees.reduce((sum, attendee) => sum + (attendee.response === "accepted" ? (attendee.party_size && attendee.party_size > 0 ? attendee.party_size : 1) : 0), 0)} coming`
+                      ? `${event.attendees.filter((attendee) => attendee.response === "accepted").length} coming`
                       : `${event.attendees.length} attendees`}
                   </span>
                 </div>
@@ -268,11 +268,9 @@ export function EventList({
                         </div>
                         <div className="bg-green-50/50 p-3 sm:p-4 rounded-xl text-center border border-green-100/50">
                           <p className="text-xl sm:text-2xl font-bold text-green-700">
-                            {selectedEvent.open_rsvp
-                              ? selectedEvent.attendees.reduce((sum, attendee) => sum + (attendee.response === "accepted" ? (attendee.party_size && attendee.party_size > 0 ? attendee.party_size : 1) : 0), 0)
-                              : selectedEvent.attendees.filter((a) => a.response === "accepted").length}
+                            {selectedEvent.attendees.filter((a) => a.response === "accepted").length}
                           </p>
-                          <p className="text-xs sm:text-sm text-green-700/70">{selectedEvent.open_rsvp ? "Coming" : "Accepted"}</p>
+                          <p className="text-xs sm:text-sm text-green-700/70">Accepted</p>
                         </div>
                         <div className="bg-red-50/50 p-3 sm:p-4 rounded-xl text-center border border-red-100/50">
                           <p className="text-xl sm:text-2xl font-bold text-red-700">
