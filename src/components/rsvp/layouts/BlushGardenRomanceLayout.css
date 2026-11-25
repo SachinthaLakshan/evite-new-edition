@@ -119,6 +119,57 @@
   outline: 3px solid rgba(35, 72, 64, 0.35);
   outline-offset: 3px;
 }
+.bgr-opener-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+.bgr-loader-mark {
+  position: relative;
+  width: 54px;
+  height: 54px;
+}
+.bgr-loader-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(198, 161, 116, 0.35);
+  border-top-color: #A68448;
+  animation: bgr-loader-spin 1.05s linear infinite;
+}
+.bgr-loader-ring-inner {
+  inset: 8px;
+  border-color: rgba(30, 74, 66, 0.16);
+  border-bottom-color: #1E4A42;
+  animation-duration: 0.8s;
+  animation-direction: reverse;
+}
+.bgr-loader-leaf {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  color: #1E4A42;
+  transform: translate(-50%, -50%);
+}
+.bgr-loader-label {
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: #A68448;
+}
+@keyframes bgr-loader-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bgr-loader-ring { animation: none; }
+}
 
 .blush-garden-root {
   background: #FBF6F1;

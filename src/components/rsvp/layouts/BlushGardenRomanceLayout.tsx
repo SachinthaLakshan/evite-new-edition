@@ -72,6 +72,7 @@ const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
   const petalCanvasRef = useRef<HTMLCanvasElement>(null);
   const invitePetalCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isOpenerVideoPlaying, setIsOpenerVideoPlaying] = useState(false);
+  const [isOpeningInvite, setIsOpeningInvite] = useState(false);
 
   const startPetalFall = (canvas: HTMLCanvasElement) => {
     const fire = confetti.create(canvas, { resize: true, useWorker: false });
@@ -162,9 +163,12 @@ const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
 
   const startOpenerVideo = () => {
     const video = openerVideoRef.current;
-    if (!video) return;
+    if (!video || isOpeningInvite || isOpenerVideoPlaying) return;
+    setIsOpeningInvite(true);
     video.play().catch(() => {
+      setIsOpeningInvite(false);
       setIsOpenerVideoPlaying(false);
+      toast.error("The invitation could not open. Please try again.");
     });
   };
 
@@ -446,7 +450,14 @@ const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
             }`}
             playsInline
             preload="auto"
-            onPlaying={() => setIsOpenerVideoPlaying(true)}
+            onPlaying={() => {
+              setIsOpenerVideoPlaying(true);
+              setIsOpeningInvite(false);
+            }}
+            onError={() => {
+              setIsOpeningInvite(false);
+              setIsOpenerVideoPlaying(false);
+            }}
             onEnded={finishOpener}
           />
           {!isOpenerVideoPlaying && (
@@ -471,10 +482,21 @@ const BlushGardenRomanceLayout: React.FC<BlushGardenRomanceLayoutProps> = ({
                   {brideName} <span>&amp;</span> {groomName}
                 </h1>
                 {event.date ? <p className="bgr-date">{formatInvitationDate(eventDate)}</p> : null}
-                <button type="button" className="bgr-open-btn" onClick={startOpenerVideo}>
-                  <Leaf className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                  Open Invitation
-                </button>
+                {isOpeningInvite ? (
+                  <div className="bgr-opener-loader" role="status" aria-live="polite">
+                    <div className="bgr-loader-mark" aria-hidden="true">
+                      <span className="bgr-loader-ring" />
+                      <span className="bgr-loader-ring bgr-loader-ring-inner" />
+                      <Leaf className="bgr-loader-leaf" strokeWidth={1.75} />
+                    </div>
+                    <p className="bgr-loader-label">Opening</p>
+                  </div>
+                ) : (
+                  <button type="button" className="bgr-open-btn" onClick={startOpenerVideo}>
+                    <Leaf className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                    Open Invitation
+                  </button>
+                )}
               </div>
             </div>
           )}
